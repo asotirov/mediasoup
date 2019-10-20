@@ -1,5 +1,7 @@
 #define MS_CLASS "UdpSocket"
 // #define MS_LOG_DEV_LEVEL 3
+// TODO: TMP
+// #define DISABLE_UV_TRY
 
 #include "handles/UdpSocket.hpp"
 #include "Logger.hpp"
@@ -145,6 +147,7 @@ void UdpSocket::Send(
 	// then build a uv_req_t and use uv_udp_send().
 
 	uv_buf_t buffer = uv_buf_init(reinterpret_cast<char*>(const_cast<uint8_t*>(data)), len);
+#ifndef DISABLE_UV_TRY
 	int sent        = uv_udp_try_send(this->uvHandle, &buffer, 1, addr);
 
 	// Entire datagram was sent. Done.
@@ -192,6 +195,7 @@ void UdpSocket::Send(
 
 		return;
 	}
+#endif
 
 	// Otherwise UV_EAGAIN was returned so cannot send data at first time. Use uv_udp_send().
 	// MS_DEBUG_DEV("could not send the datagram at first time, using uv_udp_send() now");

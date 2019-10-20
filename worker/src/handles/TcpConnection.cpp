@@ -1,5 +1,7 @@
 #define MS_CLASS "TcpConnection"
 // #define MS_LOG_DEV_LEVEL 3
+// TODO: TMP
+// #define DISABLE_UV_TRY
 
 #include "handles/TcpConnection.hpp"
 #include "DepLibUV.hpp"
@@ -205,11 +207,14 @@ void TcpConnection::Write(const uint8_t* data, size_t len, TcpConnection::onSend
 		return;
 	}
 
+	int written{ 0 };
+
 	// First try uv_try_write(). In case it can not directly write all the given
 	// data then build a uv_req_t and use uv_write().
 
 	uv_buf_t buffer = uv_buf_init(reinterpret_cast<char*>(const_cast<uint8_t*>(data)), len);
-	int written     = uv_try_write(reinterpret_cast<uv_stream_t*>(this->uvHandle), &buffer, 1);
+#ifndef DISABLE_UV_TRY
+	written         = uv_try_write(reinterpret_cast<uv_stream_t*>(this->uvHandle), &buffer, 1);
 
 	// All the data was written. Done.
 	if (written == static_cast<int>(len))
@@ -248,6 +253,7 @@ void TcpConnection::Write(const uint8_t* data, size_t len, TcpConnection::onSend
 
 		return;
 	}
+#endif
 
 	// MS_DEBUG_DEV(
 	// 	"could just write %zu bytes (%zu given) at first time, using uv_write() now",
@@ -325,6 +331,7 @@ void TcpConnection::Write(
 
 	buffers[0] = uv_buf_init(reinterpret_cast<char*>(const_cast<uint8_t*>(data1)), len1);
 	buffers[1] = uv_buf_init(reinterpret_cast<char*>(const_cast<uint8_t*>(data2)), len2);
+#ifndef DISABLE_UV_TRY
 	written    = uv_try_write(reinterpret_cast<uv_stream_t*>(this->uvHandle), buffers, 2);
 
 	// All the data was written. Done.
@@ -364,6 +371,7 @@ void TcpConnection::Write(
 
 		return;
 	}
+#endif
 
 	size_t pendingLen = totalLen - written;
 
