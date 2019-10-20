@@ -36,15 +36,15 @@ inline static void onSend(uv_udp_send_t* req, int status)
 	auto* sendData = static_cast<UdpSocket::UvSendData*>(req->data);
 	auto* handle   = req->handle;
 	auto* socket   = static_cast<UdpSocket*>(handle->data);
-	auto* onDone   = sendData->onDone;
+	auto* cb       = sendData->cb;
 
 	// Delete the UvSendData struct (which includes the uv_req_t and the store char[]).
 	std::free(sendData);
 
 	if (socket)
-		socket->OnUvSend(status, onDone);
+		socket->OnUvSend(status, cb);
 
-	delete onDone;
+	delete cb;
 }
 
 inline static void onClose(uv_handle_t* handle)
@@ -121,22 +121,22 @@ void UdpSocket::Dump() const
 }
 
 void UdpSocket::Send(
-  const uint8_t* data, size_t len, const struct sockaddr* addr, UdpSocket::onSendHandler* onDone)
+  const uint8_t* data, size_t len, const struct sockaddr* addr, UdpSocket::onSendCallback* cb)
 {
 	MS_TRACE();
 
 	if (this->closed)
 	{
-		if (onDone)
-			(*onDone)(false);
+		if (cb)
+			(*cb)(false);
 
 		return;
 	}
 
 	if (len == 0)
 	{
-		if (onDone)
-			(*onDone)(false);
+		if (cb)
+			(*cb)(false);
 
 		return;
 	}
@@ -153,11 +153,11 @@ void UdpSocket::Send(
 		// Update sent bytes.
 		this->sentBytes += sent;
 
-		if (onDone)
+		if (cb)
 		{
-			(*onDone)(true);
+			(*cb)(true);
 
-			delete onDone;
+			delete cb;
 		}
 
 		return;
@@ -169,11 +169,11 @@ void UdpSocket::Send(
 		// Update sent bytes.
 		this->sentBytes += sent;
 
-		if (onDone)
+		if (cb)
 		{
-			(*onDone)(false);
+			(*cb)(false);
 
-			delete onDone;
+			delete cb;
 		}
 
 		return;
@@ -183,11 +183,11 @@ void UdpSocket::Send(
 	{
 		MS_WARN_DEV("uv_udp_try_send() failed: %s", uv_strerror(sent));
 
-		if (onDone)
+		if (cb)
 		{
-			(*onDone)(false);
+			(*cb)(false);
 
-			delete onDone;
+			delete cb;
 		}
 
 		return;
@@ -201,7 +201,7 @@ void UdpSocket::Send(
 
 	std::memcpy(sendData->store, data, len);
 	sendData->req.data = static_cast<void*>(sendData);
-	sendData->onDone   = onDone;
+	sendData->cb       = cb;
 
 	buffer = uv_buf_init(reinterpret_cast<char*>(sendData->store), len);
 
@@ -217,11 +217,11 @@ void UdpSocket::Send(
 		// Delete the UvSendData struct (which includes the uv_req_t and the store char[]).
 		std::free(sendData);
 
-		if (onDone)
+		if (cb)
 		{
-			(*onDone)(false);
+			(*cb)(false);
 
-			delete onDone;
+			delete cb;
 		}
 	}
 	else
@@ -300,14 +300,14 @@ inline void UdpSocket::OnUvRecv(
 	}
 }
 
-inline void UdpSocket::OnUvSend(int status, UdpSocket::onSendHandler* onDone)
+inline void UdpSocket::OnUvSend(int status, UdpSocket::onSendCallback* cb)
 {
 	MS_TRACE();
 
 	if (status == 0)
 	{
-		if (onDone)
-			(*onDone)(true);
+		if (cb)
+			(*cb)(true);
 	}
 	else
 	{
@@ -315,7 +315,7 @@ inline void UdpSocket::OnUvSend(int status, UdpSocket::onSendHandler* onDone)
 		MS_DEBUG_DEV("send error: %s", uv_strerror(status));
 #endif
 
-		if (onDone)
-			(*onDone)(false);
+		if (cb)
+			(*cb)(false);
 	}
 }

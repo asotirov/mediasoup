@@ -702,17 +702,17 @@ namespace RTC
 		}
 	}
 
-	void WebRtcTransport::SendRtpPacket(RTC::RtpPacket* packet, onSendHandler* onDone)
+	void WebRtcTransport::SendRtpPacket(RTC::RtpPacket* packet, RTC::Transport::onSendCallback* cb)
 	{
 		MS_TRACE();
 
 		if (!IsConnected())
 		{
-			if (onDone)
+			if (cb)
 			{
-				(*onDone)(false);
+				(*cb)(false);
 
-				delete onDone;
+				delete cb;
 			}
 
 			return;
@@ -723,11 +723,11 @@ namespace RTC
 		{
 			MS_WARN_DEV("ignoring RTP packet due to non sending SRTP session");
 
-			if (onDone)
+			if (cb)
 			{
-				(*onDone)(false);
+				(*cb)(false);
 
-				delete onDone;
+				delete cb;
 			}
 
 			return;
@@ -738,17 +738,17 @@ namespace RTC
 
 		if (!this->srtpSendSession->EncryptRtp(&data, &len))
 		{
-			if (onDone)
+			if (cb)
 			{
-				(*onDone)(false);
+				(*cb)(false);
 
-				delete onDone;
+				delete cb;
 			}
 
 			return;
 		}
 
-		this->iceServer->GetSelectedTuple()->Send(data, len, onDone);
+		this->iceServer->GetSelectedTuple()->Send(data, len, cb);
 
 		// Increase send transmission.
 		RTC::Transport::DataSent(len);

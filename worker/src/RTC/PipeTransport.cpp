@@ -246,17 +246,17 @@ namespace RTC
 		return this->tuple != nullptr;
 	}
 
-	void PipeTransport::SendRtpPacket(RTC::RtpPacket* packet, RTC::Transport::onSendHandler* onDone)
+	void PipeTransport::SendRtpPacket(RTC::RtpPacket* packet, RTC::Transport::onSendCallback* cb)
 	{
 		MS_TRACE();
 
 		if (!IsConnected())
 		{
-			if (onDone)
+			if (cb)
 			{
-				(*onDone)(false);
+				(*cb)(false);
 
-				delete onDone;
+				delete cb;
 			}
 
 			return;
@@ -265,7 +265,7 @@ namespace RTC
 		const uint8_t* data = packet->GetData();
 		size_t len          = packet->GetSize();
 
-		this->tuple->Send(data, len, onDone);
+		this->tuple->Send(data, len, cb);
 
 		// Increase send transmission.
 		RTC::Transport::DataSent(len);

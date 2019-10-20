@@ -154,7 +154,7 @@ namespace RTC
 		}
 	}
 
-	void TcpConnection::Send(const uint8_t* data, size_t len, ::TcpConnection::onSendHandler* onDone)
+	void TcpConnection::Send(const uint8_t* data, size_t len, ::TcpConnection::onSendCallback* cb)
 	{
 		MS_TRACE();
 
@@ -166,6 +166,6 @@ namespace RTC
 		uint8_t frameLen[2];
 
 		Utils::Byte::Set2Bytes(frameLen, 0, len);
-		::TcpConnection::Write(frameLen, 2, data, len, onDone);
+		::TcpConnection::Write(frameLen, 2, data, len, cb);
 	}
 } // namespace RTC

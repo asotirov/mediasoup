@@ -40,7 +40,7 @@ namespace RTC
 	                  public Timer::Listener
 	{
 	protected:
-		using onSendHandler = const std::function<void(bool sent)>;
+		using onSendCallback = const std::function<void(bool sent)>;
 
 	public:
 		class Listener
@@ -129,8 +129,8 @@ namespace RTC
 		RTC::DataProducer* GetDataProducerFromRequest(Channel::Request* request) const;
 		void SetNewDataConsumerIdFromRequest(Channel::Request* request, std::string& dataConsumerId) const;
 		RTC::DataConsumer* GetDataConsumerFromRequest(Channel::Request* request) const;
-		virtual bool IsConnected() const                                                    = 0;
-		virtual void SendRtpPacket(RTC::RtpPacket* packet, onSendHandler* onDone = nullptr) = 0;
+		virtual bool IsConnected() const                                                 = 0;
+		virtual void SendRtpPacket(RTC::RtpPacket* packet, onSendCallback* cb = nullptr) = 0;
 		void HandleRtcpPacket(RTC::RTCP::Packet* packet);
 		void SendRtcp(uint64_t nowMs);
 		virtual void SendRtcpPacket(RTC::RTCP::Packet* packet)                 = 0;
