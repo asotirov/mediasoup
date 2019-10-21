@@ -7,6 +7,7 @@
 PYTHON ?= $(shell command -v python2 2> /dev/null || echo python)
 LCOV = ./deps/lcov/bin/lcov
 GULP = ../node_modules/.bin/gulp
+CORES ?= $(shell ./scripts/cpu_cores.sh)
 BEAR ?= bear
 JQ ?= jq
 SED ?= sed
@@ -20,13 +21,13 @@ MEDIASOUP_BUILDTYPE ?= Release
 default:
 ifeq ($(MEDIASOUP_WORKER_BIN),)
 	$(PYTHON) ./scripts/configure.py -R mediasoup-worker
-	$(MAKE) BUILDTYPE=$(MEDIASOUP_BUILDTYPE) -C out
+	$(MAKE) -j$(CORES) BUILDTYPE=$(MEDIASOUP_BUILDTYPE) -C out
 endif
 
 test:
 ifeq ($(MEDIASOUP_WORKER_BIN),)
 	$(PYTHON) ./scripts/configure.py -R mediasoup-worker-test
-	$(MAKE) BUILDTYPE=$(MEDIASOUP_BUILDTYPE) -C out
+	$(MAKE) -j$(CORES) BUILDTYPE=$(MEDIASOUP_BUILDTYPE) -C out
 	$(LCOV) --directory ./ --zerocounters
 	./out/$(MEDIASOUP_BUILDTYPE)/mediasoup-worker-test --invisibles --use-colour=yes $(MEDIASOUP_TEST_TAGS)
 endif
@@ -34,7 +35,7 @@ endif
 fuzzer:
 ifeq ($(MEDIASOUP_WORKER_BIN),)
 	$(PYTHON) ./scripts/configure.py -R mediasoup-worker-fuzzer
-	$(MAKE) BUILDTYPE=$(MEDIASOUP_BUILDTYPE) -C out
+	$(MAKE) -j$(CORES) BUILDTYPE=$(MEDIASOUP_BUILDTYPE) -C out
 endif
 
 xcode:
