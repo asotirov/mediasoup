@@ -40,13 +40,11 @@ inline static void onSend(uv_udp_send_t* req, int status)
 	auto* socket   = static_cast<UdpSocket*>(handle->data);
 	auto* cb       = sendData->cb;
 
-	// Delete the UvSendData struct (which includes the uv_req_t and the store char[]).
-	std::free(sendData);
-
 	if (socket)
 		socket->OnUvSend(status, cb);
 
-	delete cb;
+	// Delete the UvSendData struct (it will delete the store and cb too).
+	delete sendData;
 }
 
 inline static void onClose(uv_handle_t* handle)
@@ -148,7 +146,7 @@ void UdpSocket::Send(
 
 	uv_buf_t buffer = uv_buf_init(reinterpret_cast<char*>(const_cast<uint8_t*>(data)), len);
 #ifndef DISABLE_UV_TRY
-	int sent        = uv_udp_try_send(this->uvHandle, &buffer, 1, addr);
+	int sent = uv_udp_try_send(this->uvHandle, &buffer, 1, addr);
 
 	// Entire datagram was sent. Done.
 	if (sent == static_cast<int>(len))
@@ -201,11 +199,11 @@ void UdpSocket::Send(
 	// MS_DEBUG_DEV("could not send the datagram at first time, using uv_udp_send() now");
 
 	// Allocate a special UvSendData struct pointer.
-	auto* sendData = static_cast<UvSendData*>(std::malloc(sizeof(UvSendData) + len));
+	auto* sendData = new UvSendData(len);
 
-	std::memcpy(sendData->store, data, len);
 	sendData->req.data = static_cast<void*>(sendData);
-	sendData->cb       = cb;
+	std::memcpy(sendData->store, data, len);
+	sendData->cb = cb;
 
 	buffer = uv_buf_init(reinterpret_cast<char*>(sendData->store), len);
 
@@ -218,15 +216,11 @@ void UdpSocket::Send(
 		// (IPv6 destination on a IPv4 binded socket), so be ready.
 		MS_WARN_DEV("uv_udp_send() failed: %s", uv_strerror(err));
 
-		// Delete the UvSendData struct (which includes the uv_req_t and the store char[]).
-		std::free(sendData);
-
 		if (cb)
-		{
 			(*cb)(false);
 
-			delete cb;
-		}
+		// Delete the UvSendData struct (it will delete the store and cb too).
+		delete sendData;
 	}
 	else
 	{

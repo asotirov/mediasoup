@@ -36,13 +36,11 @@ inline static void onWrite(uv_write_t* req, int status)
 	auto* connection = static_cast<TcpConnection*>(handle->data);
 	auto* cb         = writeData->cb;
 
-	// Delete the UvWriteData struct (which includes the uv_req_t and the store char[]).
-	std::free(writeData);
-
 	if (connection)
 		connection->OnUvWrite(status, cb);
 
-	delete cb;
+	// Delete the UvWriteData struct and the cb.
+	delete writeData;
 }
 
 inline static void onClose(uv_handle_t* handle)
@@ -214,11 +212,14 @@ void TcpConnection::Write(const uint8_t* data, size_t len, TcpConnection::onSend
 
 	uv_buf_t buffer = uv_buf_init(reinterpret_cast<char*>(const_cast<uint8_t*>(data)), len);
 #ifndef DISABLE_UV_TRY
-	written         = uv_try_write(reinterpret_cast<uv_stream_t*>(this->uvHandle), &buffer, 1);
+	written = uv_try_write(reinterpret_cast<uv_stream_t*>(this->uvHandle), &buffer, 1);
 
 	// All the data was written. Done.
 	if (written == static_cast<int>(len))
 	{
+		// Update sent bytes.
+		this->sentBytes += written;
+
 		if (cb)
 		{
 			(*cb)(true);
@@ -261,11 +262,11 @@ void TcpConnection::Write(const uint8_t* data, size_t len, TcpConnection::onSend
 
 	size_t pendingLen = len - written;
 	// Allocate a special UvWriteData struct pointer.
-	auto* writeData = static_cast<UvWriteData*>(std::malloc(sizeof(UvWriteData) + pendingLen));
+	auto* writeData = new UvWriteData(pendingLen);
 
-	std::memcpy(writeData->store, data + written, pendingLen);
 	writeData->req.data = static_cast<void*>(writeData);
-	writeData->cb       = cb;
+	std::memcpy(writeData->store, data + written, pendingLen);
+	writeData->cb = cb;
 
 	buffer = uv_buf_init(reinterpret_cast<char*>(writeData->store), pendingLen);
 
@@ -280,15 +281,16 @@ void TcpConnection::Write(const uint8_t* data, size_t len, TcpConnection::onSend
 	{
 		MS_WARN_DEV("uv_write() failed: %s", uv_strerror(err));
 
-		// Delete the UvSendData struct (which includes the uv_req_t and the store char[]).
-		std::free(writeData);
-
 		if (cb)
-		{
 			(*cb)(false);
 
-			delete cb;
-		}
+		// Delete the UvWriteData struct (it will delete the store and cb too).
+		delete writeData;
+	}
+	else
+	{
+		// Update sent bytes.
+		this->sentBytes += pendingLen;
 	}
 }
 
@@ -332,11 +334,14 @@ void TcpConnection::Write(
 	buffers[0] = uv_buf_init(reinterpret_cast<char*>(const_cast<uint8_t*>(data1)), len1);
 	buffers[1] = uv_buf_init(reinterpret_cast<char*>(const_cast<uint8_t*>(data2)), len2);
 #ifndef DISABLE_UV_TRY
-	written    = uv_try_write(reinterpret_cast<uv_stream_t*>(this->uvHandle), buffers, 2);
+	written = uv_try_write(reinterpret_cast<uv_stream_t*>(this->uvHandle), buffers, 2);
 
 	// All the data was written. Done.
 	if (written == static_cast<int>(totalLen))
 	{
+		// Update sent bytes.
+		this->sentBytes += written;
+
 		if (cb)
 		{
 			(*cb)(true);
@@ -374,9 +379,10 @@ void TcpConnection::Write(
 #endif
 
 	size_t pendingLen = totalLen - written;
-
 	// Allocate a special UvWriteData struct pointer.
-	auto* writeData = static_cast<UvWriteData*>(std::malloc(sizeof(UvWriteData) + pendingLen));
+	auto* writeData = new UvWriteData(pendingLen);
+
+	writeData->req.data = static_cast<void*>(writeData);
 
 	// If the first buffer was not entirely written then splice it.
 	if (static_cast<size_t>(written) < len1)
@@ -394,8 +400,7 @@ void TcpConnection::Write(
 		  len2 - (static_cast<size_t>(written) - len1));
 	}
 
-	writeData->req.data = static_cast<void*>(writeData);
-	writeData->cb       = cb;
+	writeData->cb = cb;
 
 	uv_buf_t buffer = uv_buf_init(reinterpret_cast<char*>(writeData->store), pendingLen);
 
@@ -410,15 +415,16 @@ void TcpConnection::Write(
 	{
 		MS_WARN_DEV("uv_write() failed: %s", uv_strerror(err));
 
-		// Delete the UvSendData struct (which includes the uv_req_t and the store char[]).
-		std::free(writeData);
-
 		if (cb)
-		{
 			(*cb)(false);
 
-			delete cb;
-		}
+		// Delete the UvWriteData struct (it will delete the store and cb too).
+		delete writeData;
+	}
+	else
+	{
+		// Update sent bytes.
+		this->sentBytes += pendingLen;
 	}
 }
 
@@ -489,6 +495,9 @@ inline void TcpConnection::OnUvRead(ssize_t nread, const uv_buf_t* /*buf*/)
 	// Data received.
 	if (nread > 0)
 	{
+		// Update received bytes.
+		this->recvBytes += nread;
+
 		// Update the buffer data length.
 		this->bufferDataLen += static_cast<size_t>(nread);
 

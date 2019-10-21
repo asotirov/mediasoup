@@ -76,8 +76,6 @@ namespace RTC
 				// Update received bytes and notify the listener.
 				if (packetLen != 0)
 				{
-					this->recvBytes += packetLen;
-
 					// Copy the received packet into the static buffer so it can be expanded
 					// later.
 					std::memcpy(ReadBuffer, packet, packetLen);
@@ -157,9 +155,6 @@ namespace RTC
 	void TcpConnection::Send(const uint8_t* data, size_t len, ::TcpConnection::onSendCallback* cb)
 	{
 		MS_TRACE();
-
-		// Update sent bytes.
-		this->sentBytes += len;
 
 		// Write according to Framing RFC 4571.
 
