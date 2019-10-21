@@ -61,6 +61,8 @@ public:
 	const struct sockaddr* GetPeerAddress() const;
 	const std::string& GetPeerIp() const;
 	uint16_t GetPeerPort() const;
+	size_t GetRecvBytes() const;
+	size_t GetSentBytes() const;
 
 private:
 	bool SetPeerAddress();
@@ -96,6 +98,8 @@ private:
 	// Others.
 	struct sockaddr_storage* localAddr{ nullptr };
 	bool closed{ false };
+	size_t recvBytes{ 0 };
+	size_t sentBytes{ 0 };
 	bool isClosedByPeer{ false };
 	bool hasError{ false };
 };
@@ -145,6 +149,16 @@ inline const std::string& TcpConnection::GetPeerIp() const
 inline uint16_t TcpConnection::GetPeerPort() const
 {
 	return this->peerPort;
+}
+
+inline size_t TcpConnection::GetRecvBytes() const
+{
+	return this->recvBytes;
+}
+
+inline size_t TcpConnection::GetSentBytes() const
+{
+	return this->sentBytes;
 }
 
 #endif
