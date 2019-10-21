@@ -22,7 +22,7 @@ DOCKER ?= docker
 default:
 ifeq ($(MEDIASOUP_WORKER_BIN),)
 	$(PYTHON) ./scripts/configure.py -R mediasoup-worker
-	$(MAKE) -j${CORES} BUILDTYPE=$(MEDIASOUP_BUILDTYPE) -C out
+	$(MAKE) -j$(CORES) BUILDTYPE=$(MEDIASOUP_BUILDTYPE) -C out
 endif
 
 test:
