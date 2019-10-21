@@ -144,6 +144,21 @@
 * v3 is here!
 
 
+### 2.6.17
+
+* Improve build system by using all available CPU cores in parallel.
+
+
+### 2.6.16
+
+* Don't mandate server port range to be >= 99.
+
+
+### 2.6.15
+
+* Fix NACK retransmissions.
+
+
 ### 2.6.14
 
 * Fix TCP leak (#325).
@@ -382,6 +397,7 @@
 ### 2.0.14
 
 * [Fix #193](https://github.com/versatica/mediasoup/issues/193): `preferTcp` not honored (thanks @artushin).
+
 
 ### 2.0.13
 
