@@ -5,14 +5,15 @@
 # Best effort to prefer Python 2 executable since there are yet pending issues
 # with gyp and Python3.
 PYTHON ?= $(shell command -v python2 2> /dev/null || echo python)
-LCOV = ./deps/lcov/bin/lcov
+ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+CORES ?= $(shell ${ROOT_DIR}/scripts/cpu_cores.sh)
+MEDIASOUP_BUILDTYPE ?= Release
 GULP = ../node_modules/.bin/gulp
-CORES ?= $(shell ./scripts/cpu_cores.sh)
+LCOV = ./deps/lcov/bin/lcov
 BEAR ?= bear
 JQ ?= jq
 SED ?= sed
 DOCKER ?= docker
-MEDIASOUP_BUILDTYPE ?= Release
 
 .PHONY:	\
 	default test fuzzer xcode lint format bear tidy clean clean-all \
@@ -21,7 +22,7 @@ MEDIASOUP_BUILDTYPE ?= Release
 default:
 ifeq ($(MEDIASOUP_WORKER_BIN),)
 	$(PYTHON) ./scripts/configure.py -R mediasoup-worker
-	$(MAKE) -j$(CORES) BUILDTYPE=$(MEDIASOUP_BUILDTYPE) -C out
+	$(MAKE) -j${CORES} BUILDTYPE=$(MEDIASOUP_BUILDTYPE) -C out
 endif
 
 test:
