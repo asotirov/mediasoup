@@ -1823,7 +1823,7 @@ namespace RTC
 
 								if (!producer)
 								{
-									MS_WARN_TAG(
+									MS_DEBUG_TAG(
 									  rtcp,
 									  "no Producer found for received Sender Extended Report [ssrc:%" PRIu32 "]",
 									  ssrcInfo->GetSsrc());
