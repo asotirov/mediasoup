@@ -283,7 +283,6 @@ void TcpConnection::Write(const uint8_t* data, size_t len, TcpConnection::onSend
 		if (cb)
 			(*cb)(false);
 
-		// Delete the UvWriteData struct (it will delete the store and cb too).
 		delete writeData;
 	}
 	else
@@ -503,7 +502,7 @@ inline void TcpConnection::OnUvRead(ssize_t nread, const uv_buf_t* /*buf*/)
 		// Notify the subclass.
 		UserOnTcpConnectionRead();
 	}
-	// Client disconneted.
+	// Client disconnected.
 	else if (nread == UV_EOF || nread == UV_ECONNRESET)
 	{
 		MS_DEBUG_DEV("connection closed by peer, closing server side");
