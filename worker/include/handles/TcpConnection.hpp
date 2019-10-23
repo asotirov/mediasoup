@@ -26,7 +26,7 @@ public:
 	{
 		UvWriteData(size_t storeSize)
 		{
-			this->store = static_cast<uint8_t*>(std::malloc(storeSize));
+			this->store = new uint8_t[storeSize];
 		}
 
 		~UvWriteData()
