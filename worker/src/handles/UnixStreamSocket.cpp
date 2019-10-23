@@ -10,7 +10,6 @@
 #include "DepLibUV.hpp"
 #include "Logger.hpp"
 #include "MediaSoupErrors.hpp"
-#include <cstdlib> // std::malloc(), std::free()
 #include <cstring> // std::memcpy()
 
 /* Static methods for UV callbacks. */
@@ -37,12 +36,12 @@ inline static void onWrite(uv_write_t* req, int status)
 	auto* handle    = req->handle;
 	auto* socket    = static_cast<UnixStreamSocket*>(handle->data);
 
-	// Delete the UvWriteData struct (which includes the uv_req_t and the store char[]).
-	std::free(writeData);
-
 	// Just notify the UnixStreamSocket when error.
 	if (socket && status != 0)
 		socket->OnUvWriteError(status);
+
+	// Delete the UvWriteData struct.
+	delete writeData;
 }
 
 inline static void onClose(uv_handle_t* handle)
@@ -201,12 +200,11 @@ void UnixStreamSocket::Write(const uint8_t* data, size_t len)
 	}
 
 	size_t pendingLen = len - written;
-
 	// Allocate a special UvWriteData struct pointer.
-	auto* writeData = static_cast<UvWriteData*>(std::malloc(sizeof(UvWriteData) + pendingLen));
+	auto* writeData = new UvWriteData(pendingLen);
 
-	std::memcpy(writeData->store, data + written, pendingLen);
 	writeData->req.data = static_cast<void*>(writeData);
+	std::memcpy(writeData->store, data + written, pendingLen);
 
 	buffer = uv_buf_init(reinterpret_cast<char*>(writeData->store), pendingLen);
 
@@ -221,8 +219,8 @@ void UnixStreamSocket::Write(const uint8_t* data, size_t len)
 	{
 		MS_ERROR_STD("uv_write() failed: %s", uv_strerror(err));
 
-		// Delete the UvSendData struct (which includes the uv_req_t and the store char[]).
-		std::free(writeData);
+		// Delete the UvSendData struct.
+		delete writeData;
 	}
 }
 
