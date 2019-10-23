@@ -57,7 +57,7 @@ namespace RTC
 		private:
 			// Passed by argument.
 			Header* header{ nullptr };
-			std::unique_ptr<uint8_t> raw;
+			std::unique_ptr<uint8_t[]> raw;
 
 		private:
 			static std::map<SdesItem::Type, std::string> type2String;
