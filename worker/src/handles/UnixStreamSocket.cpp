@@ -266,7 +266,7 @@ inline void UnixStreamSocket::OnUvRead(ssize_t nread, const uv_buf_t* /*buf*/)
 		// Notify the subclass.
 		UserOnUnixStreamRead();
 	}
-	// Peer disconneted.
+	// Peer disconnected.
 	else if (nread == UV_EOF || nread == UV_ECONNRESET)
 	{
 		this->isClosedByPeer = true;
