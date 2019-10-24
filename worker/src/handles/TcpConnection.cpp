@@ -262,6 +262,7 @@ void TcpConnection::Write(const uint8_t* data, size_t len, TcpConnection::onSend
 	// 	static_cast<size_t>(written), len);
 
 	size_t pendingLen = len - written;
+
 	// Allocate a special UvWriteData struct pointer.
 	auto* writeData = static_cast<UvWriteData*>(std::malloc(sizeof(UvWriteData) + pendingLen));
 
