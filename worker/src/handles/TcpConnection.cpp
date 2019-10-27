@@ -8,7 +8,6 @@
 #include "Logger.hpp"
 #include "MediaSoupErrors.hpp"
 #include "Utils.hpp"
-#include <cstdlib> // std::malloc(), std::free()
 #include <cstring> // std::memcpy()
 
 /* Static methods for UV callbacks. */
@@ -39,9 +38,8 @@ inline static void onWrite(uv_write_t* req, int status)
 	if (connection)
 		connection->OnUvWrite(status, cb);
 
-	// Delete the UvWriteData struct and the cb..
-	std::free(writeData);
-	delete cb;
+	// Delete the UvWriteData struct and the cb.
+	delete writeData;
 }
 
 inline static void onClose(uv_handle_t* handle)
@@ -264,11 +262,11 @@ void TcpConnection::Write(const uint8_t* data, size_t len, TcpConnection::onSend
 	size_t pendingLen = len - written;
 
 	// Allocate a special UvWriteData struct pointer.
-	auto* writeData = static_cast<UvWriteData*>(std::malloc(sizeof(UvWriteData) + pendingLen));
+	auto* writeData = new UvWriteData(pendingLen);
 
-	std::memcpy(writeData->store, data + written, pendingLen);
 	writeData->req.data = static_cast<void*>(writeData);
-	writeData->cb       = cb;
+	std::memcpy(writeData->store, data + written, pendingLen);
+	writeData->cb = cb;
 
 	buffer = uv_buf_init(reinterpret_cast<char*>(writeData->store), pendingLen);
 
@@ -286,9 +284,7 @@ void TcpConnection::Write(const uint8_t* data, size_t len, TcpConnection::onSend
 		if (cb)
 			(*cb)(false);
 
-		// Delete the UvWriteData struct and the cb..
-		std::free(writeData);
-		delete cb;
+		delete writeData;
 	}
 	else
 	{
@@ -382,9 +378,10 @@ void TcpConnection::Write(
 #endif
 
 	size_t pendingLen = totalLen - written;
-
 	// Allocate a special UvWriteData struct pointer.
-	auto* writeData = static_cast<UvWriteData*>(std::malloc(sizeof(UvWriteData) + pendingLen));
+	auto* writeData = new UvWriteData(pendingLen);
+
+	writeData->req.data = static_cast<void*>(writeData);
 
 	// If the first buffer was not entirely written then splice it.
 	if (static_cast<size_t>(written) < len1)
@@ -402,8 +399,7 @@ void TcpConnection::Write(
 		  len2 - (static_cast<size_t>(written) - len1));
 	}
 
-	writeData->req.data = static_cast<void*>(writeData);
-	writeData->cb       = cb;
+	writeData->cb = cb;
 
 	uv_buf_t buffer = uv_buf_init(reinterpret_cast<char*>(writeData->store), pendingLen);
 
@@ -421,9 +417,8 @@ void TcpConnection::Write(
 		if (cb)
 			(*cb)(false);
 
-		// Delete the UvWriteData struct and the cb..
-		std::free(writeData);
-		delete cb;
+		// Delete the UvWriteData struct (it will delete the store and cb too).
+		delete writeData;
 	}
 	else
 	{

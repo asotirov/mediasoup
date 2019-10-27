@@ -11,8 +11,18 @@ public:
 	/* Struct for the data field of uv_req_t when writing data. */
 	struct UvWriteData
 	{
+		UvWriteData(size_t storeSize)
+		{
+			this->store = new uint8_t[storeSize];
+		}
+
+		~UvWriteData()
+		{
+			delete[] this->store;
+		}
+
 		uv_write_t req;
-		uint8_t store[1];
+		uint8_t* store{ nullptr };
 	};
 
 	enum class Role

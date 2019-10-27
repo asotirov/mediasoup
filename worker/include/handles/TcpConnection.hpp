@@ -24,9 +24,20 @@ public:
 	/* Struct for the data field of uv_req_t when writing into the connection. */
 	struct UvWriteData
 	{
+		UvWriteData(size_t storeSize)
+		{
+			this->store = new uint8_t[storeSize];
+		}
+
+		~UvWriteData()
+		{
+			delete[] this->store;
+			delete this->cb;
+		}
+
 		uv_write_t req;
+		uint8_t* store{ nullptr };
 		TcpConnection::onSendCallback* cb{ nullptr };
-		uint8_t store[1];
 	};
 
 public:

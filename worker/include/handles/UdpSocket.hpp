@@ -14,9 +14,20 @@ public:
 	/* Struct for the data field of uv_req_t when sending a datagram. */
 	struct UvSendData
 	{
+		UvSendData(size_t storeSize)
+		{
+			this->store = new uint8_t[storeSize];
+		}
+
+		~UvSendData()
+		{
+			delete[] this->store;
+			delete this->cb;
+		}
+
 		uv_udp_send_t req;
+		uint8_t* store{ nullptr };
 		UdpSocket::onSendCallback* cb{ nullptr };
-		uint8_t store[1];
 	};
 
 public:

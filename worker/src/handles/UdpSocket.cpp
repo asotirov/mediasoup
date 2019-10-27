@@ -44,9 +44,8 @@ inline static void onSend(uv_udp_send_t* req, int status)
 	if (socket)
 		socket->OnUvSend(status, cb);
 
-	// Delete the UvSendData struct and the cb.
-	std::free(sendData);
-	delete cb;
+	// Delete the UvSendData struct (it will delete the store and cb too).
+	delete sendData;
 }
 
 inline static void onClose(uv_handle_t* handle)
@@ -201,11 +200,11 @@ void UdpSocket::Send(
 	// MS_DEBUG_DEV("could not send the datagram at first time, using uv_udp_send() now");
 
 	// Allocate a special UvSendData struct pointer.
-	auto* sendData = static_cast<UvSendData*>(std::malloc(sizeof(UvSendData) + len));
+	auto* sendData = new UvSendData(len);
 
-	std::memcpy(sendData->store, data, len);
 	sendData->req.data = static_cast<void*>(sendData);
-	sendData->cb       = cb;
+	std::memcpy(sendData->store, data, len);
+	sendData->cb = cb;
 
 	buffer = uv_buf_init(reinterpret_cast<char*>(sendData->store), len);
 
@@ -221,9 +220,8 @@ void UdpSocket::Send(
 		if (cb)
 			(*cb)(false);
 
-		// Delete the UvSendData struct and the cb.
-		std::free(sendData);
-		delete cb;
+		// Delete the UvSendData struct (it will delete the store and cb too).
+		delete sendData;
 	}
 	else
 	{
