@@ -1,5 +1,6 @@
 #ifndef MS_RTC_TRANSPORT_HPP
 #define MS_RTC_TRANSPORT_HPP
+// #define ENABLE_RTC_SENDER_BANDWIDTH_ESTIMATOR
 
 #include "common.hpp"
 #include "DepLibUV.hpp"
@@ -17,7 +18,9 @@
 #include "RTC/RtpPacket.hpp"
 #include "RTC/SctpAssociation.hpp"
 #include "RTC/SctpListener.hpp"
+#ifdef ENABLE_RTC_SENDER_BANDWIDTH_ESTIMATOR
 #include "RTC/SenderBandwidthEstimator.hpp"
+#endif
 #include "RTC/TransportCongestionControlClient.hpp"
 #include "RTC/TransportCongestionControlServer.hpp"
 #include "handles/Timer.hpp"
@@ -36,7 +39,9 @@ namespace RTC
 	                  public RTC::SctpAssociation::Listener,
 	                  public RTC::TransportCongestionControlClient::Listener,
 	                  public RTC::TransportCongestionControlServer::Listener,
+#ifdef ENABLE_RTC_SENDER_BANDWIDTH_ESTIMATOR
 	                  public RTC::SenderBandwidthEstimator::Listener,
+#endif
 	                  public Timer::Listener
 	{
 	protected:
@@ -205,12 +210,14 @@ namespace RTC
 		void OnTransportCongestionControlServerSendRtcpPacket(
 		  RTC::TransportCongestionControlServer* tccServer, RTC::RTCP::Packet* packet) override;
 
+#ifdef ENABLE_RTC_SENDER_BANDWIDTH_ESTIMATOR
 		/* Pure virtual methods inherited from RTC::SenderBandwidthEstimator::Listener. */
 	public:
 		void OnSenderBandwidthEstimatorAvailableBitrate(
 		  RTC::SenderBandwidthEstimator* senderBwe,
 		  uint32_t availableBitrate,
 		  uint32_t previousAvailableBitrate) override;
+#endif
 
 		/* Pure virtual methods inherited from Timer::Listener. */
 	public:
@@ -234,7 +241,9 @@ namespace RTC
 		Timer* rtcpTimer{ nullptr };
 		RTC::TransportCongestionControlClient* tccClient{ nullptr };
 		RTC::TransportCongestionControlServer* tccServer{ nullptr };
+#ifdef ENABLE_RTC_SENDER_BANDWIDTH_ESTIMATOR
 		RTC::SenderBandwidthEstimator* senderBwe{ nullptr };
+#endif
 		// Others.
 		bool destroying{ false };
 		struct RTC::RtpHeaderExtensionIds rtpHeaderExtensionIds;

@@ -1,6 +1,5 @@
 #define MS_CLASS "RTC::Transport"
 // #define MS_LOG_DEV_LEVEL 3
-// #define USE_SENDER_BANDWIDTH_ESTIMATOR
 
 #include "RTC/Transport.hpp"
 #include "Logger.hpp"
@@ -177,7 +176,7 @@ namespace RTC
 		delete this->tccServer;
 		this->tccServer = nullptr;
 
-#ifdef USE_SENDER_BANDWIDTH_ESTIMATOR
+#ifdef ENABLE_RTC_SENDER_BANDWIDTH_ESTIMATOR
 		// Delete Sender BWE.
 		delete this->senderBwe;
 		this->senderBwe = nullptr;
@@ -862,7 +861,7 @@ namespace RTC
 				if (this->tccClient)
 					consumer->SetExternallyManagedBitrate();
 
-#ifdef USE_SENDER_BANDWIDTH_ESTIMATOR
+#ifdef ENABLE_RTC_SENDER_BANDWIDTH_ESTIMATOR
 				// TODO
 				// Create SenderBandwidthEstimator if:
 				// - not already created,
@@ -1235,7 +1234,7 @@ namespace RTC
 		if (this->tccServer)
 			this->tccServer->TransportConnected();
 
-#ifdef USE_SENDER_BANDWIDTH_ESTIMATOR
+#ifdef ENABLE_RTC_SENDER_BANDWIDTH_ESTIMATOR
 		// Tell the SenderBandwidthEstimator.
 		if (this->senderBwe)
 			this->senderBwe->TransportConnected();
@@ -1273,7 +1272,7 @@ namespace RTC
 		if (this->tccServer)
 			this->tccServer->TransportDisconnected();
 
-#ifdef USE_SENDER_BANDWIDTH_ESTIMATOR
+#ifdef ENABLE_RTC_SENDER_BANDWIDTH_ESTIMATOR
 		// Tell the SenderBandwidthEstimator.
 		if (this->senderBwe)
 			this->senderBwe->TransportDisconnected();
@@ -1719,7 +1718,7 @@ namespace RTC
 						if (this->tccClient)
 							this->tccClient->ReceiveRtcpTransportFeedback(feedback);
 
-#ifdef USE_SENDER_BANDWIDTH_ESTIMATOR
+#ifdef ENABLE_RTC_SENDER_BANDWIDTH_ESTIMATOR
 						// Pass it to the SenderBandwidthEstimator client.
 						if (this->senderBwe)
 							this->senderBwe->ReceiveRtcpTransportFeedback(feedback);
@@ -2137,7 +2136,7 @@ namespace RTC
 			// Indicate the pacer (and prober) that a packet is to be sent.
 			this->tccClient->InsertPacket(packetInfo);
 
-#ifdef USE_SENDER_BANDWIDTH_ESTIMATOR
+#ifdef ENABLE_RTC_SENDER_BANDWIDTH_ESTIMATOR
 			auto* senderBwe = this->senderBwe;
 			RTC::SenderBandwidthEstimator::SentInfo sentInfo;
 
@@ -2200,7 +2199,7 @@ namespace RTC
 			// Indicate the pacer (and prober) that a packet is to be sent.
 			this->tccClient->InsertPacket(packetInfo);
 
-#ifdef USE_SENDER_BANDWIDTH_ESTIMATOR
+#ifdef ENABLE_RTC_SENDER_BANDWIDTH_ESTIMATOR
 			auto* senderBwe = this->senderBwe;
 			RTC::SenderBandwidthEstimator::SentInfo sentInfo;
 
@@ -2490,7 +2489,7 @@ namespace RTC
 			// Indicate the pacer (and prober) that a packet is to be sent.
 			this->tccClient->InsertPacket(packetInfo);
 
-#ifdef USE_SENDER_BANDWIDTH_ESTIMATOR
+#ifdef ENABLE_RTC_SENDER_BANDWIDTH_ESTIMATOR
 			auto* senderBwe = this->senderBwe;
 			RTC::SenderBandwidthEstimator::SentInfo sentInfo;
 
@@ -2545,6 +2544,7 @@ namespace RTC
 		SendRtcpPacket(packet);
 	}
 
+#ifdef ENABLE_RTC_SENDER_BANDWIDTH_ESTIMATOR
 	inline void Transport::OnSenderBandwidthEstimatorAvailableBitrate(
 	  RTC::SenderBandwidthEstimator* /*senderBwe*/,
 	  uint32_t availableBitrate,
@@ -2561,6 +2561,7 @@ namespace RTC
 		// DistributeAvailableOutgoingBitrate();
 		// ComputeOutgoingDesiredBitrate();
 	}
+#endif
 
 	inline void Transport::OnTimer(Timer* timer)
 	{
