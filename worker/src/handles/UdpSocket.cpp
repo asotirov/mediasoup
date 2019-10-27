@@ -7,7 +7,6 @@
 #include "Logger.hpp"
 #include "MediaSoupErrors.hpp"
 #include "Utils.hpp"
-#include <cstdlib> // std::malloc(), std::free()
 #include <cstring> // std::memcpy()
 
 /* Static. */
