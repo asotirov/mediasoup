@@ -200,8 +200,7 @@ void UnixStreamSocket::Write(const uint8_t* data, size_t len)
 	}
 
 	size_t pendingLen = len - written;
-	// Allocate a special UvWriteData struct pointer.
-	auto* writeData = new UvWriteData(pendingLen);
+	auto* writeData   = new UvWriteData(pendingLen);
 
 	writeData->req.data = static_cast<void*>(writeData);
 	std::memcpy(writeData->store, data + written, pendingLen);
