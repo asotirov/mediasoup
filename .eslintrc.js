@@ -1,5 +1,6 @@
 module.exports =
 {
+	parser: '@typescript-eslint/parser',
 	env:
 	{
 		es6: true,
@@ -8,11 +9,14 @@ module.exports =
 	},
 	plugins:
 	[
+		'@typescript-eslint',
 		'jest'
 	],
 	extends:
 	[
-		'eslint:recommended'
+		'eslint:recommended',
+		'plugin:@typescript-eslint/eslint-recommended',
+		// 'plugin:@typescript-eslint/recommended' // TODO
 	],
 	settings: {},
 	parserOptions:
@@ -65,7 +69,7 @@ module.exports =
 		{
 			allowBlockStart: true,
 			allowObjectStart: true,
-			beforeBlockComment: true,
+			beforeBlockComment: false,
 			beforeLineComment: false
 		}],
 		'max-len': [ 2, 90,
@@ -143,7 +147,8 @@ module.exports =
 		'no-unexpected-multiline': 2,
 		'no-unmodified-loop-condition': 2,
 		'no-unreachable': 2,
-		'no-unused-vars': [ 1, { vars: 'all', args: 'after-used' }],
+		// 'no-unused-vars': [ 1, { vars: 'all', args: 'after-used' }], // Use TS instead.
+		'no-unused-vars': 0,
 		'no-use-before-define': [ 2, { functions: false } ],
 		'no-useless-call': 2,
 		'no-useless-computed-key': 2,
@@ -172,6 +177,18 @@ module.exports =
 		'spaced-comment': [ 2, 'always' ],
 		'strict': 2,
 		'valid-typeof': 2,
-		'yoda': 2
+		'yoda': 2,
+
+    /**
+     * TypeScript options.
+     */
+
+    // Must disable ESLint no-unused-vars.
+		'@typescript-eslint/no-unused-vars': [ 2,
+		{
+			vars               : 'all',
+			args               : 'after-used',
+			ignoreRestSiblings : false
+		}]
 	}
 };
