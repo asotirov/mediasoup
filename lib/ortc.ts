@@ -139,7 +139,7 @@ export function generateRouterRtpCapabilities(
 	}
 
 	return caps;
-};
+}
 
 /**
  * Get a mapping of the codec payload, RTP header extensions and encodings from
@@ -259,7 +259,7 @@ export function getProducerRtpParametersMapping(
 	}
 
 	return rtpMapping;
-};
+}
 
 /**
  * Generate RTP parameters to be internally used by Consumers given the RTP
@@ -390,7 +390,7 @@ export function getConsumableRtpParameters(
 	};
 
 	return consumableParams;
-};
+}
 
 /**
  * Check whether the given RTP capabilities can consume the given Producer.
@@ -401,7 +401,10 @@ export function getConsumableRtpParameters(
  * @returns {RTCRtpParameters}
  * @throws {TypeError} if wrong arguments.
  */
-export function canConsume(consumableParams: RtpReceiveParameters, caps: RtpCapabilities): boolean
+export function canConsume(
+	consumableParams: RtpReceiveParameters,
+	caps: RtpCapabilities
+): boolean
 {
 	const matchingCodecs = [] as any[];
 
@@ -431,7 +434,7 @@ export function canConsume(consumableParams: RtpReceiveParameters, caps: RtpCapa
 	}
 
 	return true;
-};
+}
 
 /**
  * Generate RTP parameters for a specific Consumer.
@@ -465,7 +468,9 @@ export function getConsumerRtpParameters(
 		assertCodecCapability(capCodec);
 	}
 
-	const consumableCodecs = utils.clone(consumableParams.codecs || []);
+	const consumableCodecs =
+		utils.clone(consumableParams.codecs || []) as RtpCodecParameters[];
+
 	let rtxSupported = false;
 
 	for (const codec of consumableCodecs)
@@ -571,7 +576,7 @@ export function getConsumerRtpParameters(
 	consumerParams.rtcp = consumableParams.rtcp;
 
 	return consumerParams;
-};
+}
 
 /**
  * Generate RTP parameters for a pipe Consumer.
@@ -584,7 +589,9 @@ export function getConsumerRtpParameters(
  * @returns {RTCRtpParameters}
  * @throws {TypeError} if wrong arguments.
  */
-export function getPipeConsumerRtpParameters(consumableParams: RtpReceiveParameters): RtpReceiveParameters
+export function getPipeConsumerRtpParameters(
+	consumableParams: RtpReceiveParameters
+): RtpReceiveParameters
 {
 	const consumerParams: RtpReceiveParameters =
 	{
@@ -594,7 +601,8 @@ export function getPipeConsumerRtpParameters(consumableParams: RtpReceiveParamet
 		rtcp             : consumableParams.rtcp
 	};
 
-	const consumableCodecs = utils.clone(consumableParams.codecs || []);
+	const consumableCodecs =
+		utils.clone(consumableParams.codecs || []) as RtpCodecParameters[];
 
 	for (const codec of consumableCodecs)
 	{
@@ -618,7 +626,8 @@ export function getPipeConsumerRtpParameters(consumableParams: RtpReceiveParamet
 			ext.uri !== 'http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01'
 		));
 
-	const consumableEncodings = utils.clone(consumableParams.encodings || []);
+	const consumableEncodings =
+		utils.clone(consumableParams.encodings || []) as RtpEncodingParameters[];
 
 	for (const encoding of consumableEncodings)
 	{
@@ -628,7 +637,7 @@ export function getPipeConsumerRtpParameters(consumableParams: RtpReceiveParamet
 	}
 
 	return consumerParams;
-};
+}
 
 function assertCodecCapability(codec: RtpCodecCapability | RtpCodecParameters)
 {

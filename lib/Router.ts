@@ -39,7 +39,7 @@ export default class Router extends EnhancedEventEmitter
 	 * @emits workerclose
 	 * @emits @close
 	 */
-	constructor({ internal, data, channel }: RouterOptions)
+	constructor({ internal, data, channel }: { internal: any, data: any, channel: Channel })
 	{
 		super(logger);
 

@@ -3,28 +3,23 @@ import EnhancedEventEmitter from './EnhancedEventEmitter';
 import Worker, { WorkerSettings } from './Worker';
 import * as utils from './utils';
 import supportedRtpCapabilities from './supportedRtpCapabilities';
+import { RtpCapabilities } from './types';
 
 /**
  * Expose mediasoup version.
- *
- * @type {String}
  */
 export { version } from '../package.json';
 
 /**
- * Expose parseScalabilityMode function.
- *
- * @type {Function}
+ * Expose parseScalabilityMode function and ScalabilityMode interface.
  */
-export { parse as parseScalabilityMode } from './scalabilityModes';
+export { parse as parseScalabilityMode, ScalabilityMode } from './scalabilityModes';
 
 const logger = new Logger();
 const observer = new EnhancedEventEmitter();
 
 /**
  * Observer.
- *
- * @type {EnhancedEventEmitter}
  *
  * @emits {worker: Worker} newworker
  */
@@ -75,14 +70,14 @@ export async function createWorker(
 
 		worker.on('@failure', reject);
 	});
-};
+}
 
 /**
  * Get a cloned copy of the mediasoup supported RTP capabilities.
  *
  * @return {RTCRtpCapabilities}
  */
-export function getSupportedRtpCapabilities(): any // TODO: Interface
+export function getSupportedRtpCapabilities(): RtpCapabilities
 {
-	return utils.clone(supportedRtpCapabilities);
-};
+	return utils.clone(supportedRtpCapabilities) as RtpCapabilities;
+}

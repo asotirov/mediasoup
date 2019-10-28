@@ -1,4 +1,6 @@
-const supportedRtpCapabilities =
+import { RtpCapabilities } from './types';
+
+const supportedRtpCapabilities: RtpCapabilities =
 {
 	codecs :
 	[

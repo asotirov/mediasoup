@@ -20,7 +20,7 @@ export function clone(obj: any[] | object): any[] | object
 		return {};
 
 	return JSON.parse(JSON.stringify(obj));
-};
+}
 
 /**
  * Generates a random positive integer.

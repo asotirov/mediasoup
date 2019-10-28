@@ -54,9 +54,9 @@ export default class Worker extends EnhancedEventEmitter
 	private _workerLogger: Logger;
 	private _pid: number;
 	private _channel: Channel;
-	private _closed: boolean;
-	private _routers: Set<Router>;
-	private _observer: EnhancedEventEmitter;
+	private _closed: boolean = false;
+	private _routers: Set<Router> = new Set();
+	private _observer: EnhancedEventEmitter = new EnhancedEventEmitter();
 
 	/**
 	 * @private
@@ -76,9 +76,9 @@ export default class Worker extends EnhancedEventEmitter
 			dtlsPrivateKeyFile
 		}: WorkerSettings)
 	{
-		logger.debug('constructor()');
-
 		super();
+
+		logger.debug('constructor()');
 
 		let workerArgs: string[] = [];
 
@@ -113,7 +113,7 @@ export default class Worker extends EnhancedEventEmitter
 			workerArgs.push(`--dtlsCertificateFile=${dtlsCertificateFile}`);
 
 		if (typeof dtlsPrivateKeyFile === 'string' && dtlsPrivateKeyFile)
-			workerArgs.push(`--dtlsPrivateKeyFile=${settings.dtlsPrivateKeyFile}`);
+			workerArgs.push(`--dtlsPrivateKeyFile=${dtlsPrivateKeyFile}`);
 
 		logger.debug(
 			'spawning worker process: %s %s', workerBin, workerArgs.join(' '));
@@ -163,18 +163,10 @@ export default class Worker extends EnhancedEventEmitter
 		// @type {Boolean}
 		this._closed = false;
 
-		// Set of Router instances.
-		// @type {Set<Router>}
-		this._routers = new Set();
-
-		// Observer.
-		// @type {EventEmitter}
-		this._observer = new EnhancedEventEmitter();
-
 		let spawnDone = false;
 
 		// Listen for 'ready' notification.
-		this._channel.once(String(this._pid), (event) =>
+		this._channel.once(String(this._pid), (event: string) =>
 		{
 			if (!spawnDone && event === 'running')
 			{
