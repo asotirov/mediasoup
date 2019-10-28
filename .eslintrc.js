@@ -187,7 +187,7 @@ switch (process.env.MEDIASOUP_NODE_LANGUAGE)
 		[
 			'eslint:recommended',
 			'plugin:@typescript-eslint/eslint-recommended',
-			'plugin:@typescript-eslint/recommended' // TODO
+			'plugin:@typescript-eslint/recommended'
 		];
 		eslintConfig.rules =
 		{
