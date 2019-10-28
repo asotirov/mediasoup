@@ -7,7 +7,6 @@ import {
 	RtpCapabilities,
 	RtpCodecCapability,
 	RtpParameters,
-	RtpReceiveParameters,
 	RtpCodecParameters,
 	RtcpFeedback,
 	RtpEncodingParameters
@@ -275,12 +274,12 @@ export function getProducerRtpParametersMapping(
  */
 export function getConsumableRtpParameters(
 	kind: string,
-	params: RtpReceiveParameters,
+	params: RtpParameters,
 	caps: RtpCapabilities,
 	rtpMapping: any
-): RtpReceiveParameters
+): RtpParameters
 {
-	const consumableParams: RtpReceiveParameters =
+	const consumableParams: RtpParameters =
 	{
 		codecs           : [],
 		headerExtensions : [],
@@ -402,7 +401,7 @@ export function getConsumableRtpParameters(
  * @throws {TypeError} if wrong arguments.
  */
 export function canConsume(
-	consumableParams: RtpReceiveParameters,
+	consumableParams: RtpParameters,
 	caps: RtpCapabilities
 ): boolean
 {
@@ -451,11 +450,11 @@ export function canConsume(
  * @throws {UnsupportedError} if codecs are not compatible.
  */
 export function getConsumerRtpParameters(
-	consumableParams: RtpReceiveParameters,
+	consumableParams: RtpParameters,
 	caps: RtpCapabilities
-): RtpReceiveParameters
+): RtpParameters
 {
-	const consumerParams: RtpReceiveParameters =
+	const consumerParams: RtpParameters =
 	{
 		codecs           : [],
 		headerExtensions : [],
@@ -590,10 +589,10 @@ export function getConsumerRtpParameters(
  * @throws {TypeError} if wrong arguments.
  */
 export function getPipeConsumerRtpParameters(
-	consumableParams: RtpReceiveParameters
-): RtpReceiveParameters
+	consumableParams: RtpParameters
+): RtpParameters
 {
-	const consumerParams: RtpReceiveParameters =
+	const consumerParams: RtpParameters =
 	{
 		codecs           : [],
 		headerExtensions : [],
@@ -639,7 +638,7 @@ export function getPipeConsumerRtpParameters(
 	return consumerParams;
 }
 
-function assertCodecCapability(codec: RtpCodecCapability | RtpCodecParameters)
+function assertCodecCapability(codec: RtpCodecCapability | RtpCodecParameters): void
 {
 	const valid =
 		(typeof codec === 'object' && !Array.isArray(codec)) &&
@@ -654,7 +653,7 @@ function assertCodecCapability(codec: RtpCodecCapability | RtpCodecParameters)
 		codec.kind = codec.mimeType.replace(/\/.*/, '').toLowerCase();
 }
 
-function assertCodecParameters(codec: RtpCodecCapability | RtpCodecParameters)
+function assertCodecParameters(codec: RtpCodecCapability | RtpCodecParameters): void
 {
 	const valid =
 		(typeof codec === 'object' && !Array.isArray(codec)) &&

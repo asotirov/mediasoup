@@ -9,7 +9,13 @@ const MEDIASOUP_TEST_TAGS = process.env.MEDIASOUP_TEST_TAGS || '';
 
 const usage = 'usage:[-h/help/make/test/lint/format]';
 
-run();
+function execute(command)
+{
+	const childProcess = exec(command);
+
+	childProcess.stdout.pipe(process.stdout);
+	childProcess.stderr.pipe(process.stderr);
+}
 
 function run()
 {
@@ -80,10 +86,4 @@ function run()
 	}
 }
 
-function execute(command)
-{
-	const childProcess = exec(command);
-
-	childProcess.stdout.pipe(process.stdout);
-	childProcess.stderr.pipe(process.stderr);
-}
+run();

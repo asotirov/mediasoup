@@ -11,7 +11,7 @@ import { RtpCapabilities } from './types';
 export { version } from '../package.json';
 
 /**
- * Expose parseScalabilityMode function and ScalabilityMode interface.
+ * Expose parseScalabilityMode() function and ScalabilityMode interface.
  */
 export { parse as parseScalabilityMode, ScalabilityMode } from './scalabilityModes';
 
@@ -28,10 +28,6 @@ export { observer };
 /**
  * Create a Worker.
  *
- * @param {WorkerSettings} [settings]
- *
- * @async
- * @returns {Worker}
  * @throws {TypeError} if wrong settings.
  * @throws {Error} if unexpected error.
  */
@@ -74,8 +70,6 @@ export async function createWorker(
 
 /**
  * Get a cloned copy of the mediasoup supported RTP capabilities.
- *
- * @return {RTCRtpCapabilities}
  */
 export function getSupportedRtpCapabilities(): RtpCapabilities
 {

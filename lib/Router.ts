@@ -15,7 +15,7 @@ import { RtpCapabilities, RtpCodecCapability } from './types';
 
 export interface RouterOptions
 {
-	mediaCodecs?: RtpCodecCapability[]
+	mediaCodecs?: RtpCodecCapability[];
 }
 
 const logger = new Logger('Router');
@@ -25,33 +25,41 @@ export default class Router extends EnhancedEventEmitter
 	private _internal: any;
 	private _data: any;
 	private _channel: Channel;
-	private _closed: boolean;
-	private _transports: Map<string, Transport>;
-	private _producers: Map<string, Producer>;
-	private _rtpObservers: Map<string, RtpObserver>;
-	private _dataProducers: Map<string, DataProducer>;
-	private _mapRouterPipeTransports: Map<Router, PipeTransport>;
-	private _observer: EnhancedEventEmitter;
+	private _closed = false;
+	private _transports: Map<string, Transport> = new Map();
+	private _producers: Map<string, Producer> = new Map();
+	private _rtpObservers: Map<string, RtpObserver> = new Map();
+	private _dataProducers: Map<string, DataProducer> = new Map();
+	private _mapRouterPipeTransports: Map<Router, PipeTransport> = new Map();
+	private _observer: EnhancedEventEmitter = new EnhancedEventEmitter();
 
 	/**
 	 * @private
-	 *
 	 * @emits workerclose
 	 * @emits @close
 	 */
-	constructor({ internal, data, channel }: { internal: any, data: any, channel: Channel })
+	constructor(
+		{
+			internal,
+			data,
+			channel
+		}:
+		{
+			internal: any;
+			data: any;
+			channel: Channel;
+		}
+	)
 	{
 		super(logger);
 
 		logger.debug('constructor()');
 
 		// Internal data.
-		// @type {Object}
 		// - .routerId
 		this._internal = internal;
 
 		// Router data.
-		// @type {Object}
 		// - .rtpCapabilities
 		this._data =
 		{
@@ -59,42 +67,11 @@ export default class Router extends EnhancedEventEmitter
 		};
 
 		// Channel instance.
-		// @type {Channel}
 		this._channel = channel;
-
-		// Closed flag.
-		// @type {Boolean}
-		this._closed = false;
-
-		// Map of Transports indexed by id.
-		// @type {Map<String, Transport>}
-		this._transports = new Map();
-
-		// Map of Producers indexed by id.
-		// @type {Map<String, Producer>}
-		this._producers = new Map();
-
-		// Map of RtpObservers indexed by id.
-		// @type {Map<String, RtpObserver>}
-		this._rtpObservers = new Map();
-
-		// Map of DataProducers indexed by id.
-		// @type {Map<String, DataProducer>}
-		this._dataProducers = new Map();
-
-		// Map of other Routers and their respective local and remote PipeTransports.
-		// @type {Map<Router, Array<PipeTransport>}
-		this._mapRouterPipeTransports = new Map();
-
-		// Observer.
-		// @type {EventEmitter}
-		this._observer = new EnhancedEventEmitter();
 	}
 
 	/**
 	 * Router id.
-	 *
-	 * @type {String}
 	 */
 	get id(): string
 	{
@@ -103,8 +80,6 @@ export default class Router extends EnhancedEventEmitter
 
 	/**
 	 * Whether the Router is closed.
-	 *
-	 * @type {Boolean}
 	 */
 	get closed(): boolean
 	{
@@ -113,8 +88,6 @@ export default class Router extends EnhancedEventEmitter
 
 	/**
 	 * RTC capabilities of the Router.
-	 *
-	 * @type {RTCRtpCapabilities}
 	 */
 	get rtpCapabilities(): RtpCapabilities
 	{
@@ -123,8 +96,6 @@ export default class Router extends EnhancedEventEmitter
 
 	/**
 	 * Observer.
-	 *
-	 * @type {EventEmitter}
 	 *
 	 * @emits close
 	 * @emits {transport: Transport} newtransport
@@ -137,7 +108,7 @@ export default class Router extends EnhancedEventEmitter
 	/**
 	 * Close the Router.
 	 */
-	close()
+	close(): void
 	{
 		if (this._closed)
 			return;
@@ -183,7 +154,7 @@ export default class Router extends EnhancedEventEmitter
 	 *
 	 * @private
 	 */
-	workerClosed()
+	workerClosed(): void
 	{
 		if (this._closed)
 			return;
@@ -223,10 +194,6 @@ export default class Router extends EnhancedEventEmitter
 
 	/**
 	 * Dump Router.
-	 *
-	 * @private
-	 *
-	 * @returns {Object}
 	 */
 	async dump(): Promise<any>
 	{
