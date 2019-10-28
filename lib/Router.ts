@@ -1,23 +1,45 @@
-const uuidv4 = require('uuid/v4');
-const Logger = require('./Logger');
-const EnhancedEventEmitter = require('./EnhancedEventEmitter');
-const ortc = require('./ortc');
-const WebRtcTransport = require('./WebRtcTransport');
-const PlainRtpTransport = require('./PlainRtpTransport');
-const PipeTransport = require('./PipeTransport');
-const AudioLevelObserver = require('./AudioLevelObserver');
+import * as uuidv4 from 'uuid/v4';
+import Logger from './Logger';
+import EnhancedEventEmitter from './EnhancedEventEmitter';
+import * as ortc from './ortc';
+import Channel from './Channel';
+import Transport from './Transport';
+import WebRtcTransport from './WebRtcTransport';
+import PlainRtpTransport from './PlainRtpTransport';
+import PipeTransport from './PipeTransport';
+import Producer from './Producer';
+import RtpObserver from './RtpObserver';
+import AudioLevelObserver from './AudioLevelObserver';
+import DataProducer from './DataProducer';
+import { RtpCapabilities, RtpCodecCapability } from './types';
+
+export interface RouterOptions
+{
+	mediaCodecs?: RtpCodecCapability[]
+}
 
 const logger = new Logger('Router');
 
-class Router extends EnhancedEventEmitter
+export default class Router extends EnhancedEventEmitter
 {
+	private _internal: any;
+	private _data: any;
+	private _channel: Channel;
+	private _closed: boolean;
+	private _transports: Map<string, Transport>;
+	private _producers: Map<string, Producer>;
+	private _rtpObservers: Map<string, RtpObserver>;
+	private _dataProducers: Map<string, DataProducer>;
+	private _mapRouterPipeTransports: Map<Router, PipeTransport>;
+	private _observer: EnhancedEventEmitter;
+
 	/**
 	 * @private
 	 *
 	 * @emits workerclose
 	 * @emits @close
 	 */
-	constructor({ internal, data, channel })
+	constructor({ internal, data, channel }: RouterOptions)
 	{
 		super(logger);
 
@@ -74,7 +96,7 @@ class Router extends EnhancedEventEmitter
 	 *
 	 * @type {String}
 	 */
-	get id()
+	get id(): string
 	{
 		return this._internal.routerId;
 	}
@@ -84,7 +106,7 @@ class Router extends EnhancedEventEmitter
 	 *
 	 * @type {Boolean}
 	 */
-	get closed()
+	get closed(): boolean
 	{
 		return this._closed;
 	}
@@ -94,7 +116,7 @@ class Router extends EnhancedEventEmitter
 	 *
 	 * @type {RTCRtpCapabilities}
 	 */
-	get rtpCapabilities()
+	get rtpCapabilities(): RtpCapabilities
 	{
 		return this._data.rtpCapabilities;
 	}
@@ -107,7 +129,7 @@ class Router extends EnhancedEventEmitter
 	 * @emits close
 	 * @emits {transport: Transport} newtransport
 	 */
-	get observer()
+	get observer(): EnhancedEventEmitter
 	{
 		return this._observer;
 	}
@@ -206,7 +228,7 @@ class Router extends EnhancedEventEmitter
 	 *
 	 * @returns {Object}
 	 */
-	async dump()
+	async dump(): Promise<any>
 	{
 		logger.debug('dump()');
 
@@ -804,5 +826,3 @@ class Router extends EnhancedEventEmitter
 		}
 	}
 }
-
-module.exports = Router;

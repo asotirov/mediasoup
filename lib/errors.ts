@@ -1,41 +1,45 @@
 /**
  * Error indicating not support for something.
  */
-class UnsupportedError extends Error
+export class UnsupportedError extends Error
 {
-	constructor(message)
+	constructor(message: string)
 	{
 		super(message);
 
 		this.name = 'UnsupportedError';
 
 		if (Error.hasOwnProperty('captureStackTrace')) // Just in V8.
+		{
+			// @ts-ignore
 			Error.captureStackTrace(this, UnsupportedError);
+		}
 		else
+		{
 			this.stack = (new Error(message)).stack;
+		}
 	}
 }
 
 /**
  * Error produced when calling a method in an invalid state.
  */
-class InvalidStateError extends Error
+export class InvalidStateError extends Error
 {
-	constructor(message)
+	constructor(message: string)
 	{
 		super(message);
 
 		this.name = 'InvalidStateError';
 
 		if (Error.hasOwnProperty('captureStackTrace')) // Just in V8.
+		{
+			// @ts-ignore
 			Error.captureStackTrace(this, InvalidStateError);
+		}
 		else
+		{
 			this.stack = (new Error(message)).stack;
+		}
 	}
 }
-
-module.exports =
-{
-	UnsupportedError,
-	InvalidStateError
-};

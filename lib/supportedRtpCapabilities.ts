@@ -339,7 +339,7 @@ const supportedRtpCapabilities =
 			direction        : 'sendrecv'
 		}
 	],
-	fecMechanisms : []
+	fecMechanisms : [] as string[]
 };
 
-module.exports = supportedRtpCapabilities;
+export default supportedRtpCapabilities;

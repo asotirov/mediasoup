@@ -12,7 +12,7 @@
     "type": "git",
     "url": "https://github.com/versatica/mediasoup.git"
   },
-  "main": "lib/index.js",
+  "main": "build/index.js",
   "keywords": [
     "webrtc",
     "ortc",
@@ -23,6 +23,7 @@
     "node": ">=8.6.0"
   },
   "scripts": {
+    "build": "tsc",
     "lint": "npm run lint:node && npm run lint:worker",
     "lint:node": "eslint -c .eslintrc.js gulpfile.js lib test worker/win-tasks.js",
     "lint:worker": "run-script-os",
@@ -55,6 +56,10 @@
     "uuid": "^3.3.3"
   },
   "devDependencies": {
+    "@types/debug": "^4.1.5",
+    "@types/node": "^12.11.7",
+    "@types/random-number": "0.0.0",
+    "@types/uuid": "^3.4.5",
     "eslint": "^6.6.0",
     "eslint-plugin-jest": "^23.0.0",
     "gulp": "^4.0.2",
@@ -62,7 +67,8 @@
     "jest": "^24.9.0",
     "jest-tobetype": "^1.2.3",
     "open-cli": "^5.0.0",
-    "sctp": "^0.0.18"
+    "sctp": "^0.0.18",
+    "typescript": "^3.6.4"
   },
   "optionalDependencies": {
     "clang-tools-prebuilt": "^0.1.4"

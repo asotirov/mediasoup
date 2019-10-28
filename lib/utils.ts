@@ -1,4 +1,4 @@
-const randomNumber = require('random-number');
+import * as randomNumber from 'random-number';
 
 const randomNumberGenerator = randomNumber.generator(
 	{
@@ -14,7 +14,7 @@ const randomNumberGenerator = randomNumber.generator(
  *
  * @returns {Object|Array}
  */
-exports.clone = function(obj)
+export function clone(obj: any[] | object): any[] | object
 {
 	if (typeof obj !== 'object')
 		return {};
@@ -27,4 +27,4 @@ exports.clone = function(obj)
  *
  * @returns {Number}
  */
-exports.generateRandomNumber = randomNumberGenerator;
+export { randomNumberGenerator as generateRandomNumber };

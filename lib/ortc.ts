@@ -1,8 +1,17 @@
-const h264 = require('h264-profile-level-id');
-const utils = require('./utils');
-const { UnsupportedError } = require('./errors');
-const supportedRtpCapabilities = require('./supportedRtpCapabilities');
-const parseScalabilityMode = require('./scalabilityModes').parse;
+import * as h264 from 'h264-profile-level-id';
+import * as utils from './utils';
+import { UnsupportedError } from './errors';
+import supportedRtpCapabilities from './supportedRtpCapabilities';
+import { parse as parseScalabilityMode } from './scalabilityModes';
+import {
+	RtpCapabilities,
+	RtpCodecCapability,
+	RtpParameters,
+	RtpReceiveParameters,
+	RtpCodecParameters,
+	RtcpFeedback,
+	RtpEncodingParameters
+} from './types';
 
 const DynamicPayloadTypes =
 [
@@ -21,16 +30,18 @@ const DynamicPayloadTypes =
  * @throws {UnsupportedError} if codec not supported.
  * @throws {Error}
  */
-exports.generateRouterRtpCapabilities = function(mediaCodecs = [])
+export function generateRouterRtpCapabilities(
+	mediaCodecs: RtpCodecCapability[] = []
+): RTCRtpCapabilities
 {
 	if (!Array.isArray(mediaCodecs))
 		throw new TypeError('mediaCodecs must be an Array');
 
-	const dynamicPayloadTypes = utils.clone(DynamicPayloadTypes);
+	const dynamicPayloadTypes = utils.clone(DynamicPayloadTypes) as number[];
 	const supportedCodecs = supportedRtpCapabilities.codecs;
 	const caps =
 	{
-		codecs           : [],
+		codecs           : [] as RtpCodecCapability[],
 		headerExtensions : supportedRtpCapabilities.headerExtensions,
 		fecMechanisms    : supportedRtpCapabilities.fecMechanisms
 	};
@@ -51,7 +62,7 @@ exports.generateRouterRtpCapabilities = function(mediaCodecs = [])
 		}
 
 		// Clone the supported codec.
-		const codec = utils.clone(matchedSupportedCodec);
+		const codec = utils.clone(matchedSupportedCodec) as RtpCodecCapability;
 
 		// If the given media codec has preferredPayloadType, keep it.
 		if (typeof mediaCodec.preferredPayloadType === 'number')
@@ -115,7 +126,7 @@ exports.generateRouterRtpCapabilities = function(mediaCodecs = [])
 				mimeType             : `${codec.kind}/rtx`,
 				preferredPayloadType : pt,
 				clockRate            : codec.clockRate,
-				rtcpFeedback         : [],
+				rtcpFeedback         : [] as RtcpFeedback[],
 				parameters           :
 				{
 					apt : codec.preferredPayloadType
@@ -146,12 +157,15 @@ exports.generateRouterRtpCapabilities = function(mediaCodecs = [])
  * @throws {UnsupportedError} if codec not supported.
  * @throws {Error}
  */
-exports.getProducerRtpParametersMapping = function(params, caps)
+export function getProducerRtpParametersMapping(
+	params: RtpParameters,
+	caps: RtpCapabilities
+): object
 {
 	const rtpMapping =
 	{
-		codecs    : [],
-		encodings : []
+		codecs    : [] as any[],
+		encodings : [] as any[]
 	};
 
 	// Match parameters media codecs to capabilities media codecs.
@@ -230,7 +244,7 @@ exports.getProducerRtpParametersMapping = function(params, caps)
 
 	for (const encoding of (params.encodings || []))
 	{
-		const mappedEncoding = {};
+		const mappedEncoding: any = {};
 
 		mappedEncoding.mappedSsrc = mappedSsrc++;
 
@@ -259,9 +273,14 @@ exports.getProducerRtpParametersMapping = function(params, caps)
  * @returns {RTCRtpParameters}
  * @throws {TypeError} if invalid or non supported RTP parameters are given.
  */
-exports.getConsumableRtpParameters = function(kind, params, caps, rtpMapping)
+export function getConsumableRtpParameters(
+	kind: string,
+	params: RtpReceiveParameters,
+	caps: RtpCapabilities,
+	rtpMapping: any
+): RtpReceiveParameters
 {
-	const consumableParams =
+	const consumableParams: RtpReceiveParameters =
 	{
 		codecs           : [],
 		headerExtensions : [],
@@ -345,7 +364,7 @@ exports.getConsumableRtpParameters = function(kind, params, caps, rtpMapping)
 	}
 
 	// Clone Producer encodings since we'll mangle them.
-	const consumableEncodings = utils.clone(params.encodings);
+	const consumableEncodings = utils.clone(params.encodings) as RtpEncodingParameters[];
 
 	for (let i = 0; i < consumableEncodings.length; ++i)
 	{
@@ -382,9 +401,9 @@ exports.getConsumableRtpParameters = function(kind, params, caps, rtpMapping)
  * @returns {RTCRtpParameters}
  * @throws {TypeError} if wrong arguments.
  */
-exports.canConsume = function(consumableParams, caps)
+export function canConsume(consumableParams: RtpReceiveParameters, caps: RtpCapabilities): boolean
 {
-	const matchingCodecs = [];
+	const matchingCodecs = [] as any[];
 
 	for (const capCodec of caps.codecs || [])
 	{
@@ -428,9 +447,12 @@ exports.canConsume = function(consumableParams, caps)
  * @throws {TypeError} if wrong arguments.
  * @throws {UnsupportedError} if codecs are not compatible.
  */
-exports.getConsumerRtpParameters = function(consumableParams, caps)
+export function getConsumerRtpParameters(
+	consumableParams: RtpReceiveParameters,
+	caps: RtpCapabilities
+): RtpReceiveParameters
 {
-	const consumerParams =
+	const consumerParams: RtpReceiveParameters =
 	{
 		codecs           : [],
 		headerExtensions : [],
@@ -514,7 +536,7 @@ exports.getConsumerRtpParameters = function(consumableParams, caps)
 		}
 	}
 
-	const consumerEncoding =
+	const consumerEncoding: RtpEncodingParameters =
 	{
 		ssrc : utils.generateRandomNumber()
 	};
@@ -562,9 +584,9 @@ exports.getConsumerRtpParameters = function(consumableParams, caps)
  * @returns {RTCRtpParameters}
  * @throws {TypeError} if wrong arguments.
  */
-exports.getPipeConsumerRtpParameters = function(consumableParams)
+export function getPipeConsumerRtpParameters(consumableParams: RtpReceiveParameters): RtpReceiveParameters
 {
-	const consumerParams =
+	const consumerParams: RtpReceiveParameters =
 	{
 		codecs           : [],
 		headerExtensions : [],
@@ -608,7 +630,7 @@ exports.getPipeConsumerRtpParameters = function(consumableParams)
 	return consumerParams;
 };
 
-function assertCodecCapability(codec)
+function assertCodecCapability(codec: RtpCodecCapability | RtpCodecParameters)
 {
 	const valid =
 		(typeof codec === 'object' && !Array.isArray(codec)) &&
@@ -623,7 +645,7 @@ function assertCodecCapability(codec)
 		codec.kind = codec.mimeType.replace(/\/.*/, '').toLowerCase();
 }
 
-function assertCodecParameters(codec)
+function assertCodecParameters(codec: RtpCodecCapability | RtpCodecParameters)
 {
 	const valid =
 		(typeof codec === 'object' && !Array.isArray(codec)) &&
@@ -634,7 +656,11 @@ function assertCodecParameters(codec)
 		throw new TypeError('invalid RTCRtpCodecParameters');
 }
 
-function matchCodecs(aCodec, bCodec, { strict = false, modify = false } = {})
+function matchCodecs(
+	aCodec: RtpCodecCapability | RtpCodecParameters,
+	bCodec: RtpCodecCapability | RtpCodecParameters,
+	{ strict = false, modify = false } = {}
+): boolean
 {
 	const aMimeType = aCodec.mimeType.toLowerCase();
 	const bMimeType = bCodec.mimeType.toLowerCase();
