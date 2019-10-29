@@ -17,7 +17,7 @@ const supportedRtpCapabilities_1 = require("./supportedRtpCapabilities");
 /**
  * Expose mediasoup version.
  */
-exports.version = '__MEDIASOUP_VERSION__';
+exports.version = '3.2.5';
 /**
  * Expose parseScalabilityMode() function and ScalabilityMode interface.
  */

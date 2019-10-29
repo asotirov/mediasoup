@@ -73,7 +73,7 @@ class Worker extends EnhancedEventEmitter_1.default {
         // options
         {
             env: {
-                MEDIASOUP_VERSION: '__MEDIASOUP_VERSION__'
+                MEDIASOUP_VERSION: '3.2.5'
             },
             detached: false,
             // fd 0 (stdin)   : Just ignore it.
