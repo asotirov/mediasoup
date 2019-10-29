@@ -2,21 +2,21 @@
 	"compileOnSave": true,
   "compilerOptions":
   {
-  	"lib": [ "ES6", "dom" ],
-		"target": "ES6",
+  	"lib": [ "es6", "dom" ],
+		"target": "es6",
 		"module": "commonjs",
 		"moduleResolution": "node",
 		"declaration": true,
 		"declarationMap": true,
 		"outDir": "build",
-		"resolveJsonModule": false,
 		"strict": true,
 		"strictNullChecks": false,
 		"noUnusedLocals": true,
 		"noUnusedParameters": false,
 		"noImplicitAny" : true,
 		"noImplicitReturns": true,
-		"noFallthroughCasesInSwitch": true
+		"noFallthroughCasesInSwitch": true,
+		"resolveJsonModule": false
 	},
-	"include": [ "lib/**/*" ]
+	"include": [ "lib" ]
 }
