@@ -43,7 +43,6 @@ namespace RTC
 
 		RTC::RtpStream::FillJsonStats(jsonObject);
 
-		jsonObject["timestamp"]   = nowMs;
 		jsonObject["type"]        = "outbound-rtp";
 		jsonObject["packetCount"] = this->transmissionCounter.GetPacketCount();
 		jsonObject["byteCount"]   = this->transmissionCounter.GetBytes();

@@ -16,6 +16,16 @@ export interface DataConsumerOptions
 	appData?: any;
 }
 
+export interface DataConsumerStat
+{
+	type: string;
+	timestamp: number;
+	label: string;
+	protocol: string;
+	messagesSent: number;
+	bytesSent: number;
+}
+
 const logger = new Logger('DataConsumer');
 
 export default class DataConsumer extends EnhancedEventEmitter
@@ -210,7 +220,7 @@ export default class DataConsumer extends EnhancedEventEmitter
 	/**
 	 * Get DataConsumer stats.
 	 */
-	async getStats(): Promise<object[]> // TODO: Proper stats interface.
+	async getStats(): Promise<DataConsumerStat[]>
 	{
 		logger.debug('getStats()');
 

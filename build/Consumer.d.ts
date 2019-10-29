@@ -45,6 +45,25 @@ export interface ConsumerLayers {
      */
     temporalLayer?: number;
 }
+export interface ConsumerStat {
+    type: string;
+    timestamp: number;
+    ssrc: number;
+    rtxSsrc?: number;
+    rid?: string;
+    kind: string;
+    mimeType: string;
+    packetsLost: number;
+    fractionLost: number;
+    packetsDiscarded: number;
+    packetsRetransmitted: number;
+    packetsRepaired: number;
+    nackCount: number;
+    nackPacketCount: number;
+    pliCount: number;
+    firCount: number;
+    score: number;
+}
 export default class Consumer extends EnhancedEventEmitter {
     private _internal;
     private _data;
@@ -156,7 +175,7 @@ export default class Consumer extends EnhancedEventEmitter {
     /**
      * Get Consumer stats.
      */
-    getStats(): Promise<object[]>;
+    getStats(): Promise<ConsumerStat[]>;
     /**
      * Pause the Consumer.
      */

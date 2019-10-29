@@ -56,6 +56,28 @@ export interface ConsumerLayers
 	temporalLayer?: number;
 }
 
+export interface ConsumerStat
+{
+	// Common to all RtpStreams.
+	type: string;
+	timestamp: number;
+	ssrc: number;
+	rtxSsrc?: number;
+	rid?: string;
+	kind: string;
+	mimeType: string;
+	packetsLost: number;
+	fractionLost: number;
+	packetsDiscarded: number;
+	packetsRetransmitted: number;
+	packetsRepaired: number;
+	nackCount: number;
+	nackPacketCount: number;
+	pliCount: number;
+	firCount: number;
+	score: number;
+}
+
 const logger = new Logger('Consumer');
 
 export default class Consumer extends EnhancedEventEmitter
@@ -307,7 +329,7 @@ export default class Consumer extends EnhancedEventEmitter
 	/**
 	 * Get Consumer stats.
 	 */
-	async getStats(): Promise<object[]> // TODO: Proper stats interface.
+	async getStats(): Promise<ConsumerStat[]>
 	{
 		logger.debug('getStats()');
 

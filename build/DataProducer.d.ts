@@ -23,6 +23,14 @@ export interface DataProducerOptions {
      */
     appData?: any;
 }
+export interface DataProducerStat {
+    type: string;
+    timestamp: number;
+    label: string;
+    protocol: string;
+    messagesReceived: number;
+    bytesReceived: number;
+}
 export default class DataProducer extends EnhancedEventEmitter {
     private _internal;
     private _data;
@@ -91,7 +99,7 @@ export default class DataProducer extends EnhancedEventEmitter {
     /**
      * Get DataProducer stats.
      */
-    getStats(): Promise<object[]>;
+    getStats(): Promise<DataProducerStat[]>;
     private _handleWorkerNotifications;
 }
 //# sourceMappingURL=DataProducer.d.ts.map

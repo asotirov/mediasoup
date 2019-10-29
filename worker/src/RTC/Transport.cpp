@@ -385,7 +385,7 @@ namespace RTC
 		jsonObject["transportId"] = this->id;
 
 		// Add timestamp.
-		jsonObject["timestamp"] = DepLibUV::GetTimeMs();
+		jsonObject["timestamp"] = nowMs;
 
 		if (this->sctpAssociation)
 		{

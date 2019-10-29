@@ -31,6 +31,16 @@ export interface DataProducerOptions
 	appData?: any;
 }
 
+export interface DataProducerStat
+{
+	type: string;
+	timestamp: number;
+	label: string;
+	protocol: string;
+	messagesReceived: number;
+	bytesReceived: number;
+}
+
 const logger = new Logger('DataProducer');
 
 export default class DataProducer extends EnhancedEventEmitter
@@ -211,7 +221,7 @@ export default class DataProducer extends EnhancedEventEmitter
 	/**
 	 * Get DataProducer stats.
 	 */
-	async getStats(): Promise<object[]> // TODO: Proper stats interface.
+	async getStats(): Promise<DataProducerStat[]>
 	{
 		logger.debug('getStats()');
 

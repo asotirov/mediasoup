@@ -11,6 +11,14 @@ export interface DataConsumerOptions {
      */
     appData?: any;
 }
+export interface DataConsumerStat {
+    type: string;
+    timestamp: number;
+    label: string;
+    protocol: string;
+    messagesSent: number;
+    bytesSent: number;
+}
 export default class DataConsumer extends EnhancedEventEmitter {
     private _internal;
     private _data;
@@ -85,7 +93,7 @@ export default class DataConsumer extends EnhancedEventEmitter {
     /**
      * Get DataConsumer stats.
      */
-    getStats(): Promise<object[]>;
+    getStats(): Promise<DataConsumerStat[]>;
     private _handleWorkerNotifications;
 }
 //# sourceMappingURL=DataConsumer.d.ts.map

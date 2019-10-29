@@ -31,6 +31,36 @@ export interface ProducerOptions
 	appData?: object;
 }
 
+export interface ProducerStat
+{
+	// Common to all RtpStreams.
+	type: string;
+	timestamp: number;
+	ssrc: number;
+	rtxSsrc?: number;
+	rid?: string;
+	kind: string;
+	mimeType: string;
+	packetsLost: number;
+	fractionLost: number;
+	packetsDiscarded: number;
+	packetsRetransmitted: number;
+	packetsRepaired: number;
+	nackCount: number;
+	nackPacketCount: number;
+	pliCount: number;
+	firCount: number;
+	score: number;
+	packetCount: number;
+	byteCount: number;
+	bitrate: number;
+	roundTripTime?: number;
+
+	// RtpStreamRecv specific.
+	jitter: number;
+	bitrateByLayer?: object;
+}
+
 const logger = new Logger('Producer');
 
 export default class Producer extends EnhancedEventEmitter
@@ -253,7 +283,7 @@ export default class Producer extends EnhancedEventEmitter
 	/**
 	 * Get Producer stats.
 	 */
-	async getStats(): Promise<object[]> // TODO: Proper stats interface.
+	async getStats(): Promise<ProducerStat[]>
 	{
 		logger.debug('getStats()');
 

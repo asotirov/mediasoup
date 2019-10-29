@@ -23,6 +23,31 @@ export interface ProducerOptions {
      */
     appData?: object;
 }
+export interface ProducerStat {
+    type: string;
+    timestamp: number;
+    ssrc: number;
+    rtxSsrc?: number;
+    rid?: string;
+    kind: string;
+    mimeType: string;
+    packetsLost: number;
+    fractionLost: number;
+    packetsDiscarded: number;
+    packetsRetransmitted: number;
+    packetsRepaired: number;
+    nackCount: number;
+    nackPacketCount: number;
+    pliCount: number;
+    firCount: number;
+    score: number;
+    packetCount: number;
+    byteCount: number;
+    bitrate: number;
+    roundTripTime?: number;
+    jitter: number;
+    bitrateByLayer?: object;
+}
 export default class Producer extends EnhancedEventEmitter {
     private _internal;
     private _data;
@@ -114,7 +139,7 @@ export default class Producer extends EnhancedEventEmitter {
     /**
      * Get Producer stats.
      */
-    getStats(): Promise<object[]>;
+    getStats(): Promise<ProducerStat[]>;
     /**
      * Pause the Producer.
      */

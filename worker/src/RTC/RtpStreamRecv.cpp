@@ -214,15 +214,11 @@ namespace RTC
 
 		RTC::RtpStream::FillJsonStats(jsonObject);
 
-		jsonObject["timestamp"]   = nowMs;
 		jsonObject["type"]        = "inbound-rtp";
 		jsonObject["jitter"]      = this->jitter;
 		jsonObject["packetCount"] = this->transmissionCounter.GetPacketCount();
 		jsonObject["byteCount"]   = this->transmissionCounter.GetBytes();
 		jsonObject["bitrate"]     = this->transmissionCounter.GetBitrate(nowMs);
-
-		if (this->rtt != 0.0f)
-			jsonObject["roundTripTime"] = this->rtt;
 
 		if (GetSpatialLayers() > 1 || GetTemporalLayers() > 1)
 		{
@@ -238,6 +234,9 @@ namespace RTC
 				}
 			}
 		}
+
+		if (this->rtt != 0.0f)
+			jsonObject["roundTripTime"] = this->rtt;
 	}
 
 	bool RtpStreamRecv::ReceivePacket(RTC::RtpPacket* packet)

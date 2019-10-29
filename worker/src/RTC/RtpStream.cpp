@@ -49,6 +49,9 @@ namespace RTC
 	{
 		MS_TRACE();
 
+		uint64_t nowMs = DepLibUV::GetTimeMs();
+
+		jsonObject["timestamp"]            = nowMs;
 		jsonObject["ssrc"]                 = this->params.ssrc;
 		jsonObject["kind"]                 = RtpCodecMimeType::type2String[this->params.mimeType.type];
 		jsonObject["mimeType"]             = this->params.mimeType.ToString();

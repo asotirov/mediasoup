@@ -2,6 +2,7 @@
 // #define MS_LOG_DEV_LEVEL 3
 
 #include "RTC/DataConsumer.hpp"
+#include "DepLibUV.hpp"
 #include "Logger.hpp"
 #include "MediaSoupErrors.hpp"
 #include "Channel/Notifier.hpp"
@@ -66,6 +67,9 @@ namespace RTC
 
 		// Add type.
 		jsonObject["type"] = "data-consumer";
+
+		// Add timestamp.
+		jsonObject["timestamp"] = DepLibUV::GetTimeMs();
 
 		// Add label.
 		jsonObject["label"] = this->label;
