@@ -36,7 +36,7 @@ switch (task)
 		else
 			execute('rmdir /s build && tsc');
 
-		taskJavaScriptReplaceVersion();
+		taskReplaceVersion();
 
 		break;
 	}
@@ -48,7 +48,7 @@ switch (task)
 		else
 			execute('rmdir /s build && tsc --pretty --watch');
 
-		taskJavaScriptReplaceVersion();
+		taskReplaceVersion();
 
 		break;
 	}
@@ -90,7 +90,7 @@ switch (task)
 
 	case 'test:node':
 	{
-		taskJavaScriptReplaceVersion();
+		taskReplaceVersion();
 		execute('jest');
 
 		break;
@@ -114,7 +114,7 @@ switch (task)
 
 	case 'coverage':
 	{
-		taskJavaScriptReplaceVersion();
+		taskReplaceVersion();
 		execute('jest --coverage');
 		execute('open-cli coverage/lcov-report/index.html');
 
@@ -142,7 +142,7 @@ switch (task)
 	}
 }
 
-function taskJavaScriptReplaceVersion()
+function taskReplaceVersion()
 {
 	const files = [ 'build/index.js', 'build/Worker.js' ];
 
