@@ -2,15 +2,11 @@ import * as process from 'process';
 import * as path from 'path';
 import { spawn, ChildProcess } from 'child_process';
 import * as uuidv4 from 'uuid/v4';
-// import { version } from '../package.json';
 import Logger from './Logger';
 import EnhancedEventEmitter from './EnhancedEventEmitter';
 import * as ortc from './ortc';
 import Channel from './Channel';
 import Router, { RouterOptions } from './Router';
-
-// TODO
-const version = '3.3.3-foo';
 
 export interface WorkerSettings
 {
@@ -142,7 +138,7 @@ export default class Worker extends EnhancedEventEmitter
 			{
 				env :
 				{
-					MEDIASOUP_VERSION : version
+					MEDIASOUP_VERSION : '__MEDIASOUP_VERSION__'
 				},
 
 				detached : false,

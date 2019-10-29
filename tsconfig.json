@@ -9,7 +9,7 @@
 		"declaration": true,
 		"declarationMap": true,
 		"outDir": "build",
-		"resolveJsonModule": true,
+		"resolveJsonModule": false,
 		"strict": true,
 		"strictNullChecks": false,
 		"noUnusedLocals": true,

@@ -8,9 +8,7 @@ import { RtpCapabilities } from './types';
 /**
  * Expose mediasoup version.
  */
-// export { version } from '../package.json';
-// TODO
-export const version = '3.3.3-foo';
+export const version = '__MEDIASOUP_VERSION__';
 
 /**
  * Expose parseScalabilityMode() function and ScalabilityMode interface.
