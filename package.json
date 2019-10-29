@@ -46,7 +46,7 @@
     "test:worker:win32": "\"\"%NODE%\"\" worker/win-tasks.js test",
     "test:worker:default": "make test -C worker",
     "coverage:node": "npm run postinstall && jest --coverage && open-cli coverage/lcov-report/index.html",
-    "postinstall": "run-script-os",
+    "postinstall": "run-script-os --no-arguments",
     "postinstall:win32": "\"\"%NODE%\"\" worker/win-tasks.js make",
     "postinstall:default": "make -C worker"
   },
