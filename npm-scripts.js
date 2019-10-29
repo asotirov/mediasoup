@@ -62,7 +62,7 @@ switch (task)
 		}
 		else
 		{
-			notSupported(task);
+			notSupportedTask();
 		}
 
 		break;
@@ -170,8 +170,7 @@ function execute(command)
 	}
 }
 
-// eslint-disable-next-line no-shadow
-function notSupported(task)
+function notSupportedTask()
 {
 	// eslint-disable-next-line no-console
 	console.error(`npm-scripts.js [ERROR] task "${task}" not supported`);
