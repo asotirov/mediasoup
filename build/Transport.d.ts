@@ -152,14 +152,20 @@ export default class Transport extends EnhancedEventEmitter {
     dump(): Promise<any>;
     /**
      * Get Transport stats.
+     *
+     * @abstract
      */
-    getStats(): Promise<object[]>;
+    getStats(): Promise<any>;
     /**
      * Provide the Transport remote parameters.
      *
      * @abstract
      */
     connect(params: any): Promise<void>;
+    /**
+     * Set maximum incoming bitrate for receiving media.
+     */
+    setMaxIncomingBitrate(bitrate: number): Promise<void>;
     /**
      * Create a Producer.
      */

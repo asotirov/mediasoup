@@ -40,6 +40,36 @@ export interface PlainRtpTransportOptions {
      */
     appData?: object;
 }
+export interface PlainRtpTransportStat {
+    type: string;
+    transportId: string;
+    timestamp: number;
+    sctpState?: SctpState;
+    bytesReceived: number;
+    recvBitrate: number;
+    bytesSent: number;
+    sendBitrate: number;
+    rtpBytesReceived: number;
+    rtpRecvBitrate: number;
+    rtpBytesSent: number;
+    rtpSendBitrate: number;
+    rtxBytesReceived: number;
+    rtxRecvBitrate: number;
+    rtxBytesSent: number;
+    rtxSendBitrate: number;
+    probationBytesReceived: number;
+    probationRecvBitrate: number;
+    probationBytesSent: number;
+    probationSendBitrate: number;
+    availableOutgoingBitrate?: number;
+    availableIncomingBitrate?: number;
+    maxIncomingBitrate?: number;
+    rtcpMux: boolean;
+    comedia: boolean;
+    multiSource: boolean;
+    tuple: TransportTuple;
+    rtcpTuple?: TransportTuple;
+}
 export default class PlainRtpTransport extends Transport {
     /**
      * @private
@@ -87,6 +117,12 @@ export default class PlainRtpTransport extends Transport {
      * @override
      */
     routerClosed(): void;
+    /**
+     * Get PlainRtpTransport stats.
+     *
+     * @override
+     */
+    getStats(): Promise<PlainRtpTransportStat[]>;
     /**
      * Provide the PlainRtpTransport remote parameters.
      *

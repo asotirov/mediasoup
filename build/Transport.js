@@ -185,11 +185,13 @@ class Transport extends EnhancedEventEmitter_1.default {
     }
     /**
      * Get Transport stats.
+     *
+     * @abstract
      */
     getStats() {
         return __awaiter(this, void 0, void 0, function* () {
-            logger.debug('getStats()');
-            return this._channel.request('transport.getStats', this._internal);
+            // Should not happen.
+            throw new Error('method not implemented in the subclass');
         });
     }
     /**
@@ -202,6 +204,16 @@ class Transport extends EnhancedEventEmitter_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             // Should not happen.
             throw new Error('method not implemented in the subclass');
+        });
+    }
+    /**
+     * Set maximum incoming bitrate for receiving media.
+     */
+    setMaxIncomingBitrate(bitrate) {
+        return __awaiter(this, void 0, void 0, function* () {
+            logger.debug('setMaxIncomingBitrate() [bitrate:%s]', bitrate);
+            const reqData = { bitrate };
+            yield this._channel.request('transport.setMaxIncomingBitrate', this._internal, reqData);
         });
     }
     /**

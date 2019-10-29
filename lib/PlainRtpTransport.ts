@@ -57,6 +57,41 @@ export interface PlainRtpTransportOptions
 	appData?: object;
 }
 
+export interface PlainRtpTransportStat
+{
+	// Common to all Transports.
+	type: string;
+	transportId: string;
+	timestamp: number;
+	sctpState?: SctpState;
+	bytesReceived: number;
+	recvBitrate: number;
+	bytesSent: number;
+	sendBitrate: number;
+	rtpBytesReceived: number;
+	rtpRecvBitrate: number;
+	rtpBytesSent: number;
+	rtpSendBitrate: number;
+	rtxBytesReceived: number;
+	rtxRecvBitrate: number;
+	rtxBytesSent: number;
+	rtxSendBitrate: number;
+	probationBytesReceived: number;
+	probationRecvBitrate: number;
+	probationBytesSent: number;
+	probationSendBitrate: number;
+	availableOutgoingBitrate?: number;
+	availableIncomingBitrate?: number;
+	maxIncomingBitrate?: number;
+
+	// PlainRtpTransport specific.
+	rtcpMux: boolean;
+	comedia: boolean;
+	multiSource: boolean;
+	tuple: TransportTuple;
+	rtcpTuple?: TransportTuple;
+}
+
 const logger = new Logger('PlainRtpTransport');
 
 export default class PlainRtpTransport extends Transport
@@ -185,6 +220,18 @@ export default class PlainRtpTransport extends Transport
 			this._data.sctpState = 'closed';
 
 		super.routerClosed();
+	}
+
+	/**
+	 * Get PlainRtpTransport stats.
+	 *
+	 * @override
+	 */
+	async getStats(): Promise<PlainRtpTransportStat[]>
+	{
+		logger.debug('getStats()');
+
+		return this._channel.request('transport.getStats', this._internal);
 	}
 
 	/**

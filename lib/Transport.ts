@@ -347,12 +347,13 @@ export default class Transport extends EnhancedEventEmitter
 
 	/**
 	 * Get Transport stats.
+	 *
+	 * @abstract
 	 */
-	async getStats(): Promise<object[]> // TODO: Proper stats interface.
+	async getStats(): Promise<any>
 	{
-		logger.debug('getStats()');
-
-		return this._channel.request('transport.getStats', this._internal);
+		// Should not happen.
+		throw new Error('method not implemented in the subclass');
 	}
 
 	/**
@@ -365,6 +366,19 @@ export default class Transport extends EnhancedEventEmitter
 	{
 		// Should not happen.
 		throw new Error('method not implemented in the subclass');
+	}
+
+	/**
+	 * Set maximum incoming bitrate for receiving media.
+	 */
+	async setMaxIncomingBitrate(bitrate: number): Promise<void>
+	{
+		logger.debug('setMaxIncomingBitrate() [bitrate:%s]', bitrate);
+
+		const reqData = { bitrate };
+
+		await this._channel.request(
+			'transport.setMaxIncomingBitrate', this._internal, reqData);
 	}
 
 	/**

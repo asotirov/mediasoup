@@ -40,6 +40,37 @@ export interface PipeTransportOptions
 	appData?: object;
 }
 
+export interface PipeTransportStat
+{
+	// Common to all Transports.
+	type: string;
+	transportId: string;
+	timestamp: number;
+	sctpState?: SctpState;
+	bytesReceived: number;
+	recvBitrate: number;
+	bytesSent: number;
+	sendBitrate: number;
+	rtpBytesReceived: number;
+	rtpRecvBitrate: number;
+	rtpBytesSent: number;
+	rtpSendBitrate: number;
+	rtxBytesReceived: number;
+	rtxRecvBitrate: number;
+	rtxBytesSent: number;
+	rtxSendBitrate: number;
+	probationBytesReceived: number;
+	probationRecvBitrate: number;
+	probationBytesSent: number;
+	probationSendBitrate: number;
+	availableOutgoingBitrate?: number;
+	availableIncomingBitrate?: number;
+	maxIncomingBitrate?: number;
+
+	// PipeTransport specific.
+	tuple: TransportTuple;
+}
+
 const logger = new Logger('PipeTransport');
 
 export default class PipeTransport extends Transport
@@ -149,6 +180,18 @@ export default class PipeTransport extends Transport
 			this._data.sctpState = 'closed';
 
 		super.routerClosed();
+	}
+
+	/**
+	 * Get PipeTransport stats.
+	 *
+	 * @override
+	 */
+	async getStats(): Promise<PipeTransportStat[]>
+	{
+		logger.debug('getStats()');
+
+		return this._channel.request('transport.getStats', this._internal);
 	}
 
 	/**

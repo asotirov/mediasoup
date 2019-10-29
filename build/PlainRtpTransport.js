@@ -116,6 +116,17 @@ class PlainRtpTransport extends Transport_1.default {
         super.routerClosed();
     }
     /**
+     * Get PlainRtpTransport stats.
+     *
+     * @override
+     */
+    getStats() {
+        return __awaiter(this, void 0, void 0, function* () {
+            logger.debug('getStats()');
+            return this._channel.request('transport.getStats', this._internal);
+        });
+    }
+    /**
      * Provide the PlainRtpTransport remote parameters.
      *
      * @override

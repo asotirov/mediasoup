@@ -185,6 +185,17 @@ class WebRtcTransport extends Transport_1.default {
         super.routerClosed();
     }
     /**
+     * Get WebRtcTransport stats.
+     *
+     * @override
+     */
+    getStats() {
+        return __awaiter(this, void 0, void 0, function* () {
+            logger.debug('getStats()');
+            return this._channel.request('transport.getStats', this._internal);
+        });
+    }
+    /**
      * Provide the WebRtcTransport remote parameters.
      *
      * @override
@@ -196,16 +207,6 @@ class WebRtcTransport extends Transport_1.default {
             const data = yield this._channel.request('transport.connect', this._internal, reqData);
             // Update data.
             this._data.dtlsParameters.role = data.dtlsLocalRole;
-        });
-    }
-    /**
-     * Set maximum incoming bitrate for receiving media.
-     */
-    setMaxIncomingBitrate(bitrate) {
-        return __awaiter(this, void 0, void 0, function* () {
-            logger.debug('setMaxIncomingBitrate() [bitrate:%s]', bitrate);
-            const reqData = { bitrate };
-            yield this._channel.request('transport.setMaxIncomingBitrate', this._internal, reqData);
         });
     }
     /**

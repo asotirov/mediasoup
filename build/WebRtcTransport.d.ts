@@ -78,6 +78,35 @@ export interface DtlsFingerprints {
 export declare type IceState = 'new' | 'connected' | 'completed' | 'disconnected' | 'closed';
 export declare type DtlsRole = 'auto' | 'client' | 'server';
 export declare type DtlsState = 'new' | 'connecting' | 'connected' | 'failed' | 'closed';
+export interface WebRtcTransportStat {
+    type: string;
+    transportId: string;
+    timestamp: number;
+    sctpState?: SctpState;
+    bytesReceived: number;
+    recvBitrate: number;
+    bytesSent: number;
+    sendBitrate: number;
+    rtpBytesReceived: number;
+    rtpRecvBitrate: number;
+    rtpBytesSent: number;
+    rtpSendBitrate: number;
+    rtxBytesReceived: number;
+    rtxRecvBitrate: number;
+    rtxBytesSent: number;
+    rtxSendBitrate: number;
+    probationBytesReceived: number;
+    probationRecvBitrate: number;
+    probationBytesSent: number;
+    probationSendBitrate: number;
+    availableOutgoingBitrate?: number;
+    availableIncomingBitrate?: number;
+    maxIncomingBitrate?: number;
+    iceRole: string;
+    iceState: IceState;
+    iceSelectedTuple?: TransportTuple;
+    dtlsState: DtlsState;
+}
 export default class WebRtcTransport extends Transport {
     /**
      * @private
@@ -156,6 +185,12 @@ export default class WebRtcTransport extends Transport {
      */
     routerClosed(): void;
     /**
+     * Get WebRtcTransport stats.
+     *
+     * @override
+     */
+    getStats(): Promise<WebRtcTransportStat[]>;
+    /**
      * Provide the WebRtcTransport remote parameters.
      *
      * @override
@@ -163,10 +198,6 @@ export default class WebRtcTransport extends Transport {
     connect({ dtlsParameters }: {
         dtlsParameters: DtlsParameters;
     }): Promise<void>;
-    /**
-     * Set maximum incoming bitrate for receiving media.
-     */
-    setMaxIncomingBitrate(bitrate: number): Promise<void>;
     /**
      * Restart ICE.
      */

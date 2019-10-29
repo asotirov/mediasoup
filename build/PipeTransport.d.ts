@@ -24,6 +24,32 @@ export interface PipeTransportOptions {
      */
     appData?: object;
 }
+export interface PipeTransportStat {
+    type: string;
+    transportId: string;
+    timestamp: number;
+    sctpState?: SctpState;
+    bytesReceived: number;
+    recvBitrate: number;
+    bytesSent: number;
+    sendBitrate: number;
+    rtpBytesReceived: number;
+    rtpRecvBitrate: number;
+    rtpBytesSent: number;
+    rtpSendBitrate: number;
+    rtxBytesReceived: number;
+    rtxRecvBitrate: number;
+    rtxBytesSent: number;
+    rtxSendBitrate: number;
+    probationBytesReceived: number;
+    probationRecvBitrate: number;
+    probationBytesSent: number;
+    probationSendBitrate: number;
+    availableOutgoingBitrate?: number;
+    availableIncomingBitrate?: number;
+    maxIncomingBitrate?: number;
+    tuple: TransportTuple;
+}
 export default class PipeTransport extends Transport {
     /**
      * @private
@@ -66,6 +92,12 @@ export default class PipeTransport extends Transport {
      * @override
      */
     routerClosed(): void;
+    /**
+     * Get PipeTransport stats.
+     *
+     * @override
+     */
+    getStats(): Promise<PipeTransportStat[]>;
     /**
      * Provide the PipeTransport remote parameters.
      *

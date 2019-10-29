@@ -108,6 +108,40 @@ export type DtlsRole = 'auto' | 'client' | 'server';
 
 export type DtlsState = 'new' | 'connecting' | 'connected' | 'failed' | 'closed';
 
+export interface WebRtcTransportStat
+{
+	// Common to all Transports.
+	type: string;
+	transportId: string;
+	timestamp: number;
+	sctpState?: SctpState;
+	bytesReceived: number;
+	recvBitrate: number;
+	bytesSent: number;
+	sendBitrate: number;
+	rtpBytesReceived: number;
+	rtpRecvBitrate: number;
+	rtpBytesSent: number;
+	rtpSendBitrate: number;
+	rtxBytesReceived: number;
+	rtxRecvBitrate: number;
+	rtxBytesSent: number;
+	rtxSendBitrate: number;
+	probationBytesReceived: number;
+	probationRecvBitrate: number;
+	probationBytesSent: number;
+	probationSendBitrate: number;
+	availableOutgoingBitrate?: number;
+	availableIncomingBitrate?: number;
+	maxIncomingBitrate?: number;
+
+	// WebRtcTransport specific.
+	iceRole: string;
+	iceState: IceState;
+	iceSelectedTuple?: TransportTuple;
+	dtlsState: DtlsState;
+}
+
 const logger = new Logger('WebRtcTransport');
 
 export default class WebRtcTransport extends Transport
@@ -322,6 +356,18 @@ export default class WebRtcTransport extends Transport
 	}
 
 	/**
+	 * Get WebRtcTransport stats.
+	 *
+	 * @override
+	 */
+	async getStats(): Promise<WebRtcTransportStat[]>
+	{
+		logger.debug('getStats()');
+
+		return this._channel.request('transport.getStats', this._internal);
+	}
+
+	/**
 	 * Provide the WebRtcTransport remote parameters.
 	 *
 	 * @override
@@ -337,19 +383,6 @@ export default class WebRtcTransport extends Transport
 
 		// Update data.
 		this._data.dtlsParameters.role = data.dtlsLocalRole;
-	}
-
-	/**
-	 * Set maximum incoming bitrate for receiving media.
-	 */
-	async setMaxIncomingBitrate(bitrate: number): Promise<void>
-	{
-		logger.debug('setMaxIncomingBitrate() [bitrate:%s]', bitrate);
-
-		const reqData = { bitrate };
-
-		await this._channel.request(
-			'transport.setMaxIncomingBitrate', this._internal, reqData);
 	}
 
 	/**

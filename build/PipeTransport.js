@@ -102,6 +102,17 @@ class PipeTransport extends Transport_1.default {
         super.routerClosed();
     }
     /**
+     * Get PipeTransport stats.
+     *
+     * @override
+     */
+    getStats() {
+        return __awaiter(this, void 0, void 0, function* () {
+            logger.debug('getStats()');
+            return this._channel.request('transport.getStats', this._internal);
+        });
+    }
+    /**
      * Provide the PipeTransport remote parameters.
      *
      * @override
