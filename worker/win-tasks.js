@@ -7,7 +7,7 @@ const MSBUILD = process.env.MSBUILD || 'MSBuild';
 const MEDIASOUP_BUILDTYPE = process.env.MEDIASOUP_BUILDTYPE || 'Release';
 const MEDIASOUP_TEST_TAGS = process.env.MEDIASOUP_TEST_TAGS || '';
 
-const usage = 'usage:[-h/help/make/test/lint/format]';
+const usage = 'usage: win-tasks.js [-h | help | make | test | lint | format]';
 
 function execute(command)
 {

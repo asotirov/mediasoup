@@ -1,3 +1,4 @@
+// @ts-ignore
 import * as h264 from 'h264-profile-level-id';
 import * as utils from './utils';
 import { UnsupportedError } from './errors';
@@ -392,7 +393,7 @@ export function canConsume(
 	caps: RtpCapabilities
 ): boolean
 {
-	const matchingCodecs = [] as any[];
+	const matchingCodecs = [] as RtpCodecParameters[];
 
 	for (const capCodec of caps.codecs || [])
 	{

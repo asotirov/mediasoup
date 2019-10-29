@@ -281,7 +281,7 @@ test('router.pipeToRouter() succeeds with audio', async () =>
 	expect(pipeConsumer.type).toBe('pipe');
 	expect(pipeConsumer.paused).toBe(false);
 	expect(pipeConsumer.producerPaused).toBe(false);
-	expect(pipeConsumer.score).toBe(undefined);
+	expect(pipeConsumer.score).toEqual({ consumer: 10, producerScore: 10 });
 	expect(pipeConsumer.appData).toEqual({});
 
 	expect(pipeProducer.id).toBe(audioProducer.id);
@@ -384,9 +384,9 @@ test('router.pipeToRouter() succeeds with video', async () =>
 		]);
 
 	expect(pipeConsumer.type).toBe('pipe');
-	expect(pipeConsumer.paused).toBe(false);
+	expect(pipeConsumer.paused).toBe(true);
 	expect(pipeConsumer.producerPaused).toBe(true);
-	expect(pipeConsumer.score).toBe(undefined);
+	expect(pipeConsumer.score).toEqual({ consumer: 10, producerScore: 10 });
 	expect(pipeConsumer.appData).toEqual({});
 
 	expect(pipeProducer.id).toBe(videoProducer.id);
@@ -497,17 +497,13 @@ test('producer.pause() and producer.resume() are transmitted to pipe Consumer', 
 	expect(videoConsumer.paused).toBe(false);
 
 	await videoProducer.resume();
-
-	if (videoConsumer.producerPaused)
-		await new Promise((resolve) => videoConsumer.once('producerresume', resolve));
+	await new Promise((resolve) => videoConsumer.once('producerresume', resolve));
 
 	expect(videoConsumer.producerPaused).toBe(false);
 	expect(videoConsumer.paused).toBe(false);
 
 	await videoProducer.pause();
-
-	if (!videoConsumer.producerPaused)
-		await new Promise((resolve) => videoConsumer.once('producerpause', resolve));
+	await new Promise((resolve) => videoConsumer.once('producerpause', resolve));
 
 	expect(videoConsumer.producerPaused).toBe(true);
 	expect(videoConsumer.paused).toBe(false);

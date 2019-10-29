@@ -148,7 +148,7 @@ test('router.createPlainRtpTransport() succeeds', async () =>
 
 test('router.createPlainRtpTransport() with wrong arguments rejects with TypeError', async () =>
 {
-	await expect(router.createPlainRtpTransport())
+	await expect(router.createPlainRtpTransport({}))
 		.rejects
 		.toThrow(TypeError);
 
@@ -229,7 +229,7 @@ test('plaintRtpTransport.connect() succeeds', async () =>
 
 test('plaintRtpTransport.connect() with wrong arguments rejects with TypeError', async () =>
 {
-	await expect(transport.connect())
+	await expect(transport.connect({}))
 		.rejects
 		.toThrow(TypeError);
 
@@ -264,7 +264,7 @@ test('PlaintRtpTransport methods reject if closed', async () =>
 		.rejects
 		.toThrow(Error);
 
-	await expect(transport.connect())
+	await expect(transport.connect({}))
 		.rejects
 		.toThrow(Error);
 }, 2000);

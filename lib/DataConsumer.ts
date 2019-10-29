@@ -1,26 +1,59 @@
-const Logger = require('./Logger');
-const EnhancedEventEmitter = require('./EnhancedEventEmitter');
+import Logger from './Logger';
+import EnhancedEventEmitter from './EnhancedEventEmitter';
+import Channel from './Channel';
+import { SctpStreamParameters } from './types';
+
+export interface DataConsumerOptions
+{
+	/**
+	 * The id of the DataProducer to consume.
+	 */
+	dataProducerId: string;
+
+	/**
+	 * Custom application data.
+	 */
+	appData?: any;
+}
 
 const logger = new Logger('DataConsumer');
 
-class DataConsumer extends EnhancedEventEmitter
+export default class DataConsumer extends EnhancedEventEmitter
 {
+	private _internal: any;
+	private _data: any;
+	private _channel: Channel;
+	private _closed = false;
+	private _appData?: object;
+	private _observer = new EnhancedEventEmitter();
+
 	/**
 	 * @private
-	 *
 	 * @emits transportclose
 	 * @emits dataproducerclose
 	 * @emits @close
 	 * @emits @dataproducerclose
 	 */
-	constructor({ internal, data, channel, appData })
+	constructor(
+		{
+			internal,
+			data,
+			channel,
+			appData
+		}:
+		{
+			internal: any;
+			data: any;
+			channel: Channel;
+			appData: object;
+		}
+	)
 	{
 		super(logger);
 
 		logger.debug('constructor()');
 
 		// Internal data.
-		// @type {Object}
 		// - .routerId
 		// - .transportId
 		// - .dataConsumerId
@@ -28,97 +61,73 @@ class DataConsumer extends EnhancedEventEmitter
 		this._internal = internal;
 
 		// DataConsumer data.
-		// @type {RTCSctpStreamParameters}
 		// - .sctpStreamParameters
 		// - .label
 		// - .protocol
 		this._data = data;
 
 		// Channel instance.
-		// @type {Channel}
 		this._channel = channel;
-
-		// Closed flag.
-		// @type {Boolean}
-		this._closed = false;
 
 		// App custom data.
 		// @type {Object}
 		this._appData = appData;
-
-		// Observer.
-		// @type {EventEmitter}
-		this._observer = new EnhancedEventEmitter();
 
 		this._handleWorkerNotifications();
 	}
 
 	/**
 	 * DataConsumer id.
-	 *
-	 * @type {String}
 	 */
-	get id()
+	get id(): string
 	{
 		return this._internal.dataConsumerId;
 	}
 
 	/**
 	 * Associated DataProducer id.
-	 *
-	 * @type {String}
 	 */
-	get dataProducerId()
+	get dataProducerId(): string
 	{
 		return this._internal.dataProducerId;
 	}
 
 	/**
 	 * Whether the DataConsumer is closed.
-	 *
-	 * @type {Boolean}
 	 */
-	get closed()
+	get closed(): boolean
 	{
 		return this._closed;
 	}
 
 	/**
 	 * SCTP stream parameters.
-	 *
-	 * @type {RTCSctpStreamParameters}
 	 */
-	get sctpStreamParameters()
+	get sctpStreamParameters(): SctpStreamParameters
 	{
 		return this._data.sctpStreamParameters;
 	}
 
 	/**
 	 * DataChannel label.
-	 *
-	 * @returns {String}
 	 */
-	get label()
+	get label(): string
 	{
 		return this._data.label;
 	}
 
 	/**
 	 * DataChannel protocol.
-	 *
-	 * @returns {String}
 	 */
-	get protocol()
+	get protocol(): string
 	{
 		return this._data.protocol;
 	}
 
 	/**
 	 * App custom data.
-	 *
-	 * @type {Object}
 	 */
-	get appData()
+	get appData(): object
 	{
 		return this._appData;
 	}
@@ -126,7 +135,7 @@ class DataConsumer extends EnhancedEventEmitter
 	/**
 	 * Invalid setter.
 	 */
-	set appData(appData) // eslint-disable-line no-unused-vars
+	set appData(appData: object) // eslint-disable-line no-unused-vars
 	{
 		throw new Error('cannot override appData object');
 	}
@@ -134,11 +143,9 @@ class DataConsumer extends EnhancedEventEmitter
 	/**
 	 * Observer.
 	 *
-	 * @type {EventEmitter}
-	 *
 	 * @emits close
 	 */
-	get observer()
+	get observer(): EnhancedEventEmitter
 	{
 		return this._observer;
 	}
@@ -146,7 +153,7 @@ class DataConsumer extends EnhancedEventEmitter
 	/**
 	 * Close the DataConsumer.
 	 */
-	close()
+	close(): void
 	{
 		if (this._closed)
 			return;
@@ -172,7 +179,7 @@ class DataConsumer extends EnhancedEventEmitter
 	 *
 	 * @private
 	 */
-	transportClosed()
+	transportClosed(): void
 	{
 		if (this._closed)
 			return;
@@ -192,11 +199,8 @@ class DataConsumer extends EnhancedEventEmitter
 
 	/**
 	 * Dump DataConsumer.
-	 *
-	 * @async
-	 * @returns {Object}
 	 */
-	async dump()
+	async dump(): Promise<any>
 	{
 		logger.debug('dump()');
 
@@ -205,23 +209,17 @@ class DataConsumer extends EnhancedEventEmitter
 
 	/**
 	 * Get DataConsumer stats.
-	 *
-	 * @async
-	 * @returns {Array<Object>}
 	 */
-	async getStats()
+	async getStats(): Promise<object[]> // TODO: Proper stats interface.
 	{
 		logger.debug('getStats()');
 
 		return this._channel.request('dataConsumer.getStats', this._internal);
 	}
 
-	/**
-	 * @private
-	 */
-	_handleWorkerNotifications()
+	private _handleWorkerNotifications(): void
 	{
-		this._channel.on(this._internal.dataConsumerId, (event) =>
+		this._channel.on(this._internal.dataConsumerId, (event: string) =>
 		{
 			switch (event)
 			{
@@ -252,5 +250,3 @@ class DataConsumer extends EnhancedEventEmitter
 		});
 	}
 }
-
-module.exports = DataConsumer;

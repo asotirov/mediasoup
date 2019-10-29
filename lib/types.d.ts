@@ -1,9 +1,3 @@
-// TODO: Temporal until TypeScript definition is added to h264-profile-level-id.
-declare module 'h264-profile-level-id'
-{
-	// TODO: it doe snot work.
-}
-
 /**
  * The RTP capabilities define what mediasoup or an endpoint can receive at
  * media level.

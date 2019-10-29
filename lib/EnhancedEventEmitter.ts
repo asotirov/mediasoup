@@ -3,7 +3,7 @@ import Logger from './Logger';
 
 export default class EnhancedEventEmitter extends EventEmitter
 {
-	private _logger: Logger;
+	protected _logger: Logger;
 
 	constructor(logger?: Logger)
 	{
@@ -31,7 +31,7 @@ export default class EnhancedEventEmitter extends EventEmitter
 		}
 	}
 
-	async safeEmitAsPromise(event: string, ...args: any[]): Promise<boolean>
+	async safeEmitAsPromise(event: string, ...args: any[]): Promise<any>
 	{
 		return new Promise((resolve, reject) =>
 		{

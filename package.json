@@ -23,8 +23,8 @@
     "node": ">=8.6.0"
   },
   "scripts": {
-    "typescript:watch": "tsc --pretty --watch",
-    "typescript:build": "tsc",
+    "typescript:watch": "rm -rf build; tsc --pretty --watch",
+    "typescript:build": "rm -rf build; tsc",
     "lint": "npm run lint:node && npm run lint:worker",
     "lint:node": "MEDIASOUP_NODE_LANGUAGE=typescript eslint -c .eslintrc.js --ext=ts lib/ && MEDIASOUP_NODE_LANGUAGE=javascript eslint -c .eslintrc.js --ext=js --ignore-pattern '!.eslintrc.js' .eslintrc.js gulpfile.js test/ worker/win-tasks.js",
     "lint:worker": "run-script-os",

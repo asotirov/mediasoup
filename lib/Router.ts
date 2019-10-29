@@ -8,14 +8,14 @@ import Transport, {
 	TransportNumSctpStreams
 } from './Transport';
 import WebRtcTransport, { WebRtcTransportOptions } from './WebRtcTransport';
-import PlainRtpTransport from './PlainRtpTransport';
-import PipeTransport from './PipeTransport';
+import PlainRtpTransport, { PlainRtpTransportOptions } from './PlainRtpTransport';
+import PipeTransport, { PipeTransportOptions } from './PipeTransport';
 import Producer from './Producer';
 import Consumer from './Consumer';
 import DataProducer from './DataProducer';
 import DataConsumer from './DataConsumer';
 import RtpObserver from './RtpObserver';
-import AudioLevelObserver from './AudioLevelObserver';
+import AudioLevelObserver, { AudioLevelObserverOptions } from './AudioLevelObserver';
 import { RtpCapabilities, RtpCodecCapability } from './types';
 
 export interface RouterOptions
@@ -24,6 +24,62 @@ export interface RouterOptions
 	 * Router media codecs.
 	 */
 	mediaCodecs?: RtpCodecCapability[];
+}
+
+export interface PipeToRouterOptions
+{
+	/**
+	 * The id of the Producer to consume.
+	 */
+	producerId?: string;
+
+	/**
+	 * The id of the DataProducer to consume.
+	 */
+	dataProducerId?: string;
+
+	/**
+	 * Target Router instance.
+	 */
+	router: Router;
+
+	/**
+	 * IP used in the PipeTransport pair. Default '127.0.0.1'.
+	 */
+	listenIp?: TransportListenIp | string;
+
+	/**
+	 * Create a SCTP association. Default false.
+	 */
+	enableSctp?: boolean;
+
+	/**
+	 * SCTP streams number.
+	 */
+	numSctpStreams?: TransportNumSctpStreams;
+}
+
+export interface PipeToRouterResult
+{
+	/**
+	 * The Consumer created in the current Router.
+	 */
+	pipeConsumer?: Consumer;
+
+	/**
+	 * The Producer created in the target Router.
+	 */
+	pipeProducer?: Producer;
+
+	/**
+	 * The DataConsumer created in the current Router.
+	 */
+	pipeDataConsumer?: DataConsumer;
+
+	/**
+	 * The DataProducer created in the target Router.
+	 */
+	pipeDataProducer?: DataProducer;
 }
 
 const logger = new Logger('Router');
@@ -38,7 +94,7 @@ export default class Router extends EnhancedEventEmitter
 	private _producers: Map<string, Producer> = new Map();
 	private _rtpObservers: Map<string, RtpObserver> = new Map();
 	private _dataProducers: Map<string, DataProducer> = new Map();
-	private _mapRouterPipeTransports: Map<Router, PipeTransport> = new Map();
+	private _mapRouterPipeTransports: Map<Router, PipeTransport[]> = new Map();
 	private _observer = new EnhancedEventEmitter();
 
 	/**
@@ -277,11 +333,11 @@ export default class Router extends EnhancedEventEmitter
 				data,
 				channel                  : this._channel,
 				appData,
-				getRouterRtpCapabilities : () => this._data.rtpCapabilities,
-				getProducerById          : (producerId: string) => (
+				getRouterRtpCapabilities : (): RtpCapabilities => this._data.rtpCapabilities,
+				getProducerById          : (producerId: string): Producer => (
 					this._producers.get(producerId)
 				),
-				getDataProducerById : (dataProducerId: string) => (
+				getDataProducerById : (dataProducerId: string): DataProducer => (
 					this._dataProducers.get(dataProducerId)
 				)
 			});
@@ -305,24 +361,6 @@ export default class Router extends EnhancedEventEmitter
 
 	/**
 	 * Create a PlainRtpTransport.
-	 *
-	 * @param {String|Object} listenIp - Listen IP string or an object with ip and
-	 *   optional announcedIp string.
-	 * @param {Boolean} [rtcpMux=true] - Use RTCP-mux.
-	 * @param {Boolean} [comedia=false] - Whether remote IP:port should be
-	 *   auto-detected based on first RTP/RTCP packet received. If enabled, connect()
-	 *   method must not be called. This option is ignored if multiSource is set.
-	 * @param {Boolean} [multiSource=false] - Whether RTP/RTCP from different remote
-	 *   IPs:ports is allowed. If set, the transport will just be valid for receiving
-	 *   media (consume() cannot be called on it) and connect() must not be called.
-	 * @param {Boolean} [enableSctp=false] - Enable SCTP.
-	 * @param {Object} [numSctpStreams={ OS: 1024, MIS: 1024 }] - Number of SCTP
-	 *   streams (initially requested outbound streams and maximum inbound streams).
-	 * @param {Number} [maxSctpMessageSize=262144] - Max SCTP message size (in bytes).
-	 * @param {Object} [appData={}] - Custom app data.
-   *
-	 * @async
-	 * @returns {PlainRtpTransport}
 	 */
 	async createPlainRtpTransport(
 		{
@@ -334,8 +372,8 @@ export default class Router extends EnhancedEventEmitter
 			numSctpStreams = { OS: 1024, MIS: 1024 },
 			maxSctpMessageSize = 262144,
 			appData = {}
-		} = {}
-	)
+		}: PlainRtpTransportOptions
+	): Promise<PlainRtpTransport>
 	{
 		logger.debug('createPlainRtpTransport()');
 
@@ -344,7 +382,7 @@ export default class Router extends EnhancedEventEmitter
 		else if (appData && typeof appData !== 'object')
 			throw new TypeError('if given, appData must be an object');
 
-		if (typeof listenIp === 'string')
+		if (typeof listenIp === 'string' && listenIp)
 		{
 			listenIp = { ip: listenIp };
 		}
@@ -382,11 +420,11 @@ export default class Router extends EnhancedEventEmitter
 				data,
 				channel                  : this._channel,
 				appData,
-				getRouterRtpCapabilities : () => this._data.rtpCapabilities,
-				getProducerById          : (producerId: string) => (
+				getRouterRtpCapabilities : (): RtpCapabilities => this._data.rtpCapabilities,
+				getProducerById          : (producerId: string): Producer => (
 					this._producers.get(producerId)
 				),
-				getDataProducerById : (dataProducerId: string) => (
+				getDataProducerById : (dataProducerId: string): DataProducer => (
 					this._dataProducers.get(dataProducerId)
 				)
 			});
@@ -410,17 +448,6 @@ export default class Router extends EnhancedEventEmitter
 
 	/**
 	 * Create a PipeTransport.
-	 *
-	 * @param {String|Object} listenIp - Listen IP string or an object with ip and optional
-	 *   announcedIp string.
-	 * @param {Boolean} [enableSctp=false] - Enable SCTP.
-	 * @param {Object} [numSctpStreams={ OS: 1024, MIS: 1024 }] - Number of SCTP
-	 *   streams (initially requested outbound streams and maximum inbound streams).
-	 * @param {Number} [maxSctpMessageSize=1073741823] - Max SCTP message size (in bytes).
-	 * @param {Object} [appData={}] - Custom app data.
-   *
-	 * @async
-	 * @returns {PipeTransport}
 	 */
 	async createPipeTransport(
 		{
@@ -429,7 +456,8 @@ export default class Router extends EnhancedEventEmitter
 			numSctpStreams = { OS: 1024, MIS: 1024 },
 			maxSctpMessageSize = 1073741823,
 			appData = {}
-		} = {})
+		}: PipeTransportOptions
+	): Promise<PipeTransport>
 	{
 		logger.debug('createPipeTransport()');
 
@@ -438,7 +466,7 @@ export default class Router extends EnhancedEventEmitter
 		else if (appData && typeof appData !== 'object')
 			throw new TypeError('if given, appData must be an object');
 
-		if (typeof listenIp === 'string')
+		if (typeof listenIp === 'string' && listenIp)
 		{
 			listenIp = { ip: listenIp };
 		}
@@ -473,11 +501,11 @@ export default class Router extends EnhancedEventEmitter
 				data,
 				channel                  : this._channel,
 				appData,
-				getRouterRtpCapabilities : () => this._data.rtpCapabilities,
-				getProducerById          : (producerId: string) => (
+				getRouterRtpCapabilities : (): RtpCapabilities => this._data.rtpCapabilities,
+				getProducerById          : (producerId: string): Producer => (
 					this._producers.get(producerId)
 				),
-				getDataProducerById : (dataProducerId: string) => (
+				getDataProducerById : (dataProducerId: string): DataProducer => (
 					this._dataProducers.get(dataProducerId)
 				)
 			});
@@ -501,20 +529,6 @@ export default class Router extends EnhancedEventEmitter
 
 	/**
 	 * Pipes the given Producer or DataProducer into another Router in same host.
-	 *
-	 * @param {String} [producerId]
-	 * @param {String} [dataProducerId]
-	 * @param {Router} router
-	 * @param {String|Object} [listenIp='127.0.0.1'] - Listen IP string or an
-	 *   object with ip and optional announcedIp string.
-	 * @param {Boolean} [enableSctp=true] - Enable SCTP.
-	 * @param {Object} [numSctpStreams={ OS: 1024, MIS: 1024 }] - Number of SCTP
-	 *   streams (initially requested outbound streams and maximum inbound streams).
-	 *
-	 * @async
-	 * @returns {Object} - Contains `pipeConsumer` {Consumer} created in the current
-	 *   Router and `pipeProducer` {Producer} created in the destination Router, or
-	 *   `pipeDataConsumer` {DataConsumer} and `pipeDataProducer` {DataProducer}.
 	 */
 	async pipeToRouter(
 		{
@@ -524,16 +538,8 @@ export default class Router extends EnhancedEventEmitter
 			listenIp = '127.0.0.1',
 			enableSctp = true,
 			numSctpStreams = { OS: 1024, MIS: 1024 }
-		}:
-		{
-			producerId?: string;
-			dataProducerId?: string;
-			router: Router;
-			listenIp?: string;
-			enableSctp?: boolean;
-			numSctpStreams?: TransportNumSctpStreams;
-		}
-	): Promise<object> // TODO: return Interface?
+		}: PipeToRouterOptions
+	): Promise<PipeToRouterResult>
 	{
 		if (!producerId && !dataProducerId)
 			throw new TypeError('missing producerId or dataProducerId');
@@ -728,23 +734,14 @@ export default class Router extends EnhancedEventEmitter
 
 	/**
 	 * Create an AudioLevelObserver.
-	 *
-	 * @param {Number} [maxEntries=1] - Maximum number of entries in the 'volumes'
-	 *                                  event.
-	 * @param {Number} [threshold=-80] - Minimum average volume (in dBvo from -127 to 0)
-	 *                                   for entries in the 'volumes' event.
-	 * @param {Number} [interval=1000] - Interval in ms for checking audio volumes.
-	 *
-	 * @async
-	 * @returns {AudioLevelObserver}
 	 */
 	async createAudioLevelObserver(
 		{
 			maxEntries = 1,
 			threshold = -80,
 			interval = 1000
-		} = {}
-	)
+		}: AudioLevelObserverOptions = {}
+	): Promise<AudioLevelObserver>
 	{
 		logger.debug('createAudioLevelObserver()');
 
@@ -757,7 +754,9 @@ export default class Router extends EnhancedEventEmitter
 			{
 				internal,
 				channel         : this._channel,
-				getProducerById : (producerId: string) => this._producers.get(producerId)
+				getProducerById : (producerId: string): Producer => (
+					this._producers.get(producerId)
+				)
 			});
 
 		this._rtpObservers.set(audioLevelObserver.id, audioLevelObserver);

@@ -1,49 +1,58 @@
-const netstring = require('netstring');
-const Logger = require('./Logger');
-const EnhancedEventEmitter = require('./EnhancedEventEmitter');
-const { InvalidStateError } = require('./errors');
+import { Duplex } from 'stream';
+// @ts-ignore
+import * as netstring from 'netstring';
+import Logger from './Logger';
+import EnhancedEventEmitter from './EnhancedEventEmitter';
+import { InvalidStateError } from './errors';
+
+interface Sent
+{
+	id: number;
+	method: string;
+	resolve: (data?: any) => void;
+	reject: (error: Error) => void;
+	timer: NodeJS.Timer;
+	close: () => void;
+}
 
 // netstring length for a 4194304 bytes payload.
 const NS_MESSAGE_MAX_LEN = 4194313;
 const NS_PAYLOAD_MAX_LEN = 4194304;
 
-class Channel extends EnhancedEventEmitter
+export default class Channel extends EnhancedEventEmitter
 {
+	private _workerLogger: Logger;
+	private _closed = false;
+	private _producerSocket: Duplex;
+	private _consumerSocket: Duplex;
+	private _nextId = 0;
+	private _sents: Map<number, Sent> = new Map();
+	private _recvBuffer?: Buffer;
+
 	/**
 	 * @private
 	 */
-	constructor({ producerSocket, consumerSocket, pid })
+	constructor(
+		{
+			producerSocket,
+			consumerSocket,
+			pid
+		}:
+		{
+			producerSocket: any;
+			consumerSocket: any;
+			pid: number;
+		})
 	{
-		const logger = new Logger(`Channel[pid:${pid}]`);
-		const workerLogger = new Logger(`worker[pid:${pid}]`);
-
-		super(logger);
-
-		this._logger = logger;
-		this._workerLogger = workerLogger;
+		super(new Logger(`Channel[pid:${pid}]`));
 
 		this._logger.debug('constructor()');
 
-		// Closed flag.
-		// @type {Boolean}
-		this._closed = false;
+		this._workerLogger = new Logger(`worker[pid:${pid}]`);
 
 		// Unix Socket instance.
-		// @type {net.Socket}
-		this._producerSocket = producerSocket;
-		this._consumerSocket = consumerSocket;
-
-		// Next request id.
-		// @type {Number}
-		this._nextId = 0;
-
-		// Map of pending sent request objects indexed by request id.
-		// @type {Map<String, Object}
-		this._sents = new Map();
-
-		// Buffer for incomplete data received from the Channel's socket.
-		// @type {Buffer}
-		this._recvBuffer = null;
+		this._producerSocket = producerSocket as Duplex;
+		this._consumerSocket = consumerSocket as Duplex;
 
 		// Read Channel responses/notifications from the worker.
 		this._consumerSocket.on('data', (buffer) =>
@@ -83,7 +92,7 @@ class Channel extends EnhancedEventEmitter
 						'invalid netstring data received from the worker process: %s', String(error));
 
 					// Reset the buffer and exit.
-					this._recvBuffer = null;
+					this._recvBuffer = undefined;
 
 					return;
 				}
@@ -141,7 +150,7 @@ class Channel extends EnhancedEventEmitter
 
 				if (!this._recvBuffer.length)
 				{
-					this._recvBuffer = null;
+					this._recvBuffer = undefined;
 
 					return;
 				}
@@ -158,7 +167,7 @@ class Channel extends EnhancedEventEmitter
 	/**
 	 * @private
 	 */
-	close()
+	close(): void
 	{
 		if (this._closed)
 			return;
@@ -195,10 +204,8 @@ class Channel extends EnhancedEventEmitter
 
 	/**
 	 * @private
-	 *
-	 * @async
 	 */
-	async request(method, internal, data)
+	async request(method: string, internal?: object, data?: any): Promise<any>
 	{
 		this._nextId < 4294967295 ? ++this._nextId : (this._nextId = 1);
 
@@ -221,7 +228,7 @@ class Channel extends EnhancedEventEmitter
 		return new Promise((pResolve, pReject) =>
 		{
 			const timeout = 1000 * (15 + (0.1 * this._sents.size));
-			const sent =
+			const sent: Sent =
 			{
 				id      : id,
 				method  : method,
@@ -260,10 +267,7 @@ class Channel extends EnhancedEventEmitter
 		});
 	}
 
-	/**
-	 * @private
-	 */
-	_processMessage(msg)
+	private _processMessage(msg: any): void
 	{
 		// If a response retrieve its associated request.
 		if (msg.id)
@@ -321,5 +325,3 @@ class Channel extends EnhancedEventEmitter
 		}
 	}
 }
-
-module.exports = Channel;

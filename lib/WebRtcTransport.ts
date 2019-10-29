@@ -114,7 +114,6 @@ export default class WebRtcTransport extends Transport
 {
 	/**
 	 * @private
-	 *
 	 * @emits {iceState: string} icestatechange
 	 * @emits {iceSelectedTuple: Object} iceselectedtuplechange
 	 * @emits {dtlsState: string} dtlsstatechange

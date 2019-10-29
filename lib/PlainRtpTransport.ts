@@ -1,25 +1,79 @@
-const Logger = require('./Logger');
-const Transport = require('./Transport');
+import Logger from './Logger';
+import EnhancedEventEmitter from './EnhancedEventEmitter';
+import Transport, {
+	TransportListenIp,
+	TransportTuple,
+	TransportSctpParameters,
+	TransportNumSctpStreams,
+	SctpState
+} from './Transport';
+import Consumer, { ConsumerOptions } from './Consumer';
+
+export interface PlainRtpTransportOptions
+{
+	/**
+	 * Listening IP address
+	 */
+	listenIp: TransportListenIp | string;
+
+	/**
+	 * Use RTCP-mux (RTP and RTCP in the same port). Default true.
+	 */
+	rtcpMux?: boolean;
+
+	/**
+	 * Whether remote IP:port should be auto-detected based on first RTP/RTCP
+	 * packet received. If enabled, connect() method must not be called. This
+	 * option is ignored if multiSource is set. Default false.
+	 */
+	comedia?: boolean;
+
+	/**
+	 * Whether RTP/RTCP from different remote IPs:ports is allowed. If set, the
+	 * transport will just be valid for receiving media (consume() cannot be
+	 * called on it) and connect() must not be called. Default false.
+	 */
+	multiSource?: boolean;
+
+	/**
+	 * Create a SCTP association. Default false.
+	 */
+	enableSctp?: boolean;
+
+	/**
+	 * SCTP streams number.
+	 */
+	numSctpStreams?: TransportNumSctpStreams;
+
+	/**
+	 * Maximum size of data that can be passed to DataProducer's send() method.
+	 * Default 262144.
+	 */
+	maxSctpMessageSize?: number;
+
+	/**
+	 * Custom application data.
+	 */
+	appData?: object;
+}
 
 const logger = new Logger('PlainRtpTransport');
 
-class PlainRtpTransport extends Transport
+export default class PlainRtpTransport extends Transport
 {
 	/**
 	 * @private
-	 *
-	 * @emits {sctpState: String} sctpstatechange
+	 * @emits {sctpState: string} sctpstatechange
 	 */
-	constructor(params)
+	constructor(params: any)
 	{
 		super(params);
 
 		logger.debug('constructor()');
 
-		const { data } = params;
+		const { data } = params as any;
 
 		// PlainRtpTransport data.
-		// @type {Object}
 		// - .rtcpMux
 		// - .comedia
 		// - .multiSource
@@ -53,33 +107,33 @@ class PlainRtpTransport extends Transport
 	}
 
 	/**
-	 * @type {Object}
+	 * Transport tuple.
 	 */
-	get tuple()
+	get tuple(): TransportTuple
 	{
 		return this._data.tuple;
 	}
 
 	/**
-	 * @type {Object}
+	 * Transport RTCP tuple.
 	 */
-	get rtcpTuple()
+	get rtcpTuple(): TransportTuple
 	{
 		return this._data.rtcpTuple;
 	}
 
 	/**
-	 * @type {Object}
+	 * SCTP parameters.
 	 */
-	get sctpParameters()
+	get sctpParameters(): TransportSctpParameters | undefined
 	{
 		return this._data.sctpParameters;
 	}
 
 	/**
-	 * @type {String}
+	 * SCTP state.
 	 */
-	get sctpState()
+	get sctpState(): SctpState
 	{
 		return this._data.sctpState;
 	}
@@ -88,16 +142,14 @@ class PlainRtpTransport extends Transport
 	 * Observer.
 	 *
 	 * @override
-	 * @type {EventEmitter}
-	 *
 	 * @emits close
 	 * @emits {producer: Producer} newproducer
 	 * @emits {consumer: Consumer} newconsumer
 	 * @emits {producer: DataProducer} newdataproducer
 	 * @emits {consumer: DataConsumer} newdataconsumer
-	 * @emits {sctpState: String} sctpstatechange
+	 * @emits {sctpState: string} sctpstatechange
 	 */
-	get observer()
+	get observer(): EnhancedEventEmitter
 	{
 		return this._observer;
 	}
@@ -107,7 +159,7 @@ class PlainRtpTransport extends Transport
 	 *
 	 * @override
 	 */
-	close()
+	close(): void
 	{
 		if (this._closed)
 			return;
@@ -124,7 +176,7 @@ class PlainRtpTransport extends Transport
 	 * @private
 	 * @override
 	 */
-	routerClosed()
+	routerClosed(): void
 	{
 		if (this._closed)
 			return;
@@ -138,14 +190,20 @@ class PlainRtpTransport extends Transport
 	/**
 	 * Provide the PlainRtpTransport remote parameters.
 	 *
-	 * @param {String} ip - Remote IP.
-	 * @param {Number} port - Remote port.
-	 * @param {Number} [rtcpPort] - Remote RTCP port (ignored if rtcpMux was true).
-	 *
-	 * @async
 	 * @override
 	 */
-	async connect({ ip, port, rtcpPort } = {})
+	async connect(
+		{
+			ip,
+			port,
+			rtcpPort
+		}:
+		{
+			ip: string;
+			port: number;
+			rtcpPort?: number;
+		}
+	): Promise<void>
 	{
 		logger.debug('connect()');
 
@@ -162,21 +220,19 @@ class PlainRtpTransport extends Transport
 	/**
 	 * Override Transport.consume() method to reject it if multiSource is set.
 	 *
-	 * @async
 	 * @override
-	 * @returns {Consumer}
 	 */
-	async consume({ ...params } = {})
+	async consume(params: ConsumerOptions): Promise<Consumer>
 	{
 		if (this._data.multiSource)
 			throw new Error('cannot call consume() with multiSource set');
 
-		return super.consume({ ...params });
+		return super.consume(params);
 	}
 
-	private _handleWorkerNotifications()
+	private _handleWorkerNotifications(): void
 	{
-		this._channel.on(this._internal.transportId, (event, data) =>
+		this._channel.on(this._internal.transportId, (event: string, data?: any) =>
 		{
 			switch (event)
 			{
@@ -202,5 +258,3 @@ class PlainRtpTransport extends Transport
 		});
 	}
 }
-
-module.exports = PlainRtpTransport;

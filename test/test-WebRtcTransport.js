@@ -175,7 +175,7 @@ test('router.createWebRtcTransport() succeeds', async () =>
 
 test('router.createWebRtcTransport() with wrong arguments rejects with TypeError', async () =>
 {
-	await expect(router.createWebRtcTransport())
+	await expect(router.createWebRtcTransport({}))
 		.rejects
 		.toThrow(TypeError);
 
@@ -279,7 +279,7 @@ test('webRtcTransport.connect() with wrong arguments rejects with TypeError', as
 {
 	let dtlsRemoteParameters;
 
-	await expect(transport.connect())
+	await expect(transport.connect({}))
 		.rejects
 		.toThrow(TypeError);
 
@@ -421,7 +421,7 @@ test('WebRtcTransport methods reject if closed', async () =>
 		.rejects
 		.toThrow(Error);
 
-	await expect(transport.connect())
+	await expect(transport.connect({}))
 		.rejects
 		.toThrow(Error);
 

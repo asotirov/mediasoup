@@ -4,10 +4,10 @@ import EnhancedEventEmitter from './EnhancedEventEmitter';
 import * as utils from './utils';
 import * as ortc from './ortc';
 import Channel from './Channel';
-import Producer from './Producer';
-import Consumer from './Consumer';
-import DataProducer from './DataProducer';
-import DataConsumer from './DataConsumer';
+import Producer, { ProducerOptions } from './Producer';
+import Consumer, { ConsumerOptions } from './Consumer';
+import DataProducer, { DataProducerOptions } from './DataProducer';
+import DataConsumer, { DataConsumerOptions } from './DataConsumer';
 import { RtpCapabilities, SctpStreamParameters } from './types';
 
 export interface TransportListenIp
@@ -26,7 +26,7 @@ export interface TransportListenIp
 
 export interface TransportTuple
 {
-	localIP: string;
+	localIp: string;
 	localPort: number;
 	remoteIp?: string;
 	remotePort?: number;
@@ -102,13 +102,13 @@ export default class Transport extends EnhancedEventEmitter
 	protected _channel: Channel;
 	protected _closed = false;
 	private _appData?: object;
-	private _getRouterRtpCapabilities: () => RtpCapabilities;
-	private _getProducerById: (producerId: string) => Producer;
-	private _getDataProducerById: (dataProducerId: string) => DataProducer;
-	private _producers: Map<string, Producer> = new Map();
-	private _consumers: Map<string, Consumer> = new Map();
-	private _dataProducers: Map<string, DataProducer> = new Map();
-	private _dataConsumers: Map<string, DataConsumer> = new Map();
+	protected _getRouterRtpCapabilities: () => RtpCapabilities;
+	protected _getProducerById: (producerId: string) => Producer;
+	protected _getDataProducerById: (dataProducerId: string) => DataProducer;
+	protected _producers: Map<string, Producer> = new Map();
+	protected _consumers: Map<string, Consumer> = new Map();
+	protected _dataProducers: Map<string, DataProducer> = new Map();
+	protected _dataConsumers: Map<string, DataConsumer> = new Map();
 	private _cnameForProducers?: string;
 	private _sctpStreamIds?: Buffer;
 	private _nextSctpStreamId = 0;
@@ -117,7 +117,6 @@ export default class Transport extends EnhancedEventEmitter
 	/**
 	 * @private
 	 * @interface
-	 *
 	 * @emits routerclose
 	 * @emits @close
 	 * @emits @newproducer
@@ -378,7 +377,7 @@ export default class Transport extends EnhancedEventEmitter
 			rtpParameters,
 			paused = false,
 			appData = {}
-		} = {} // TODO: ProducerOptions interface
+		}: ProducerOptions
 	): Promise<Producer>
 	{
 		logger.debug('produce()');
@@ -478,7 +477,7 @@ export default class Transport extends EnhancedEventEmitter
 			paused = false,
 			preferredLayers,
 			appData = {}
-		} = {} // TODO: ConsumerOptions interface
+		}: ConsumerOptions
 	): Promise<Consumer>
 	{
 		logger.debug('consume()');
@@ -546,7 +545,7 @@ export default class Transport extends EnhancedEventEmitter
 			label = '',
 			protocol = '',
 			appData = {}
-		} = {} // TODO: DataProducerOptions interface
+		}: DataProducerOptions
 	): Promise<DataProducer>
 	{
 		logger.debug('produceData()');
@@ -594,7 +593,7 @@ export default class Transport extends EnhancedEventEmitter
 		{
 			dataProducerId,
 			appData = {}
-		} = {} // TODO: DataConsumerOptions interface
+		}: DataConsumerOptions
 	): Promise<DataConsumer>
 	{
 		logger.debug('consumeData()');

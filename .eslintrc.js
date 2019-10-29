@@ -192,8 +192,14 @@ switch (process.env.MEDIASOUP_NODE_LANGUAGE)
 		eslintConfig.rules =
 		{
 			...eslintConfig.rules,
-			'no-unused-vars'                     : 0,
-			'@typescript-eslint/ban-ts-ignore'   : 0,
+			'no-unused-vars'                            : 0,
+			'@typescript-eslint/ban-ts-ignore'          : 0,
+			'@typescript-eslint/member-delimiter-style' : [ 2,
+				{
+					multiline  : { delimiter: 'semi', requireLast: true },
+					singleline : { delimiter: 'semi', requireLast: false }
+				}
+			],
 			'@typescript-eslint/no-explicit-any' : 0,
 			'@typescript-eslint/no-unused-vars'  : [ 2,
 				{

@@ -3,6 +3,34 @@ import EnhancedEventEmitter from './EnhancedEventEmitter';
 import Channel from './Channel';
 import { RtpParameters } from './types';
 
+export interface ProducerOptions
+{
+	/**
+	 * Producer id (just for Router.pipeToRouter() method).
+	 */
+	id?: string;
+
+	/**
+	 * Media kind ('audio' or 'video').
+	 */
+	kind: 'audio' | 'video';
+
+	/**
+	 * RTP parameters defining what the endpoint is sending.
+	 */
+	rtpParameters: RtpParameters;
+
+	/**
+	 * Whether the producer must start in paused mode. Default false.
+	 */
+	paused?: boolean;
+
+	/**
+	 * Custom application data.
+	 */
+	appData?: object;
+}
+
 const logger = new Logger('Producer');
 
 export default class Producer extends EnhancedEventEmitter
@@ -18,7 +46,6 @@ export default class Producer extends EnhancedEventEmitter
 
 	/**
 	 * @private
-	 *
 	 * @emits transportclose
 	 * @emits {Array<Object>} score
 	 * @emits {Object} videoorientationchange
@@ -89,7 +116,7 @@ export default class Producer extends EnhancedEventEmitter
 	/**
 	 * Media kind.
 	 */
-	get kind(): string // TODO: enum?
+	get kind(): 'audio' | 'video'
 	{
 		return this._data.kind;
 	}

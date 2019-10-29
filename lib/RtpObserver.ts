@@ -1,82 +1,81 @@
-const Logger = require('./Logger');
-const EnhancedEventEmitter = require('./EnhancedEventEmitter');
+import Logger from './Logger';
+import EnhancedEventEmitter from './EnhancedEventEmitter';
+import Channel from './Channel';
+import Producer from './Producer';
 
 const logger = new Logger('RtpObserver');
 
-class RtpObserver extends EnhancedEventEmitter
+export default class RtpObserver extends EnhancedEventEmitter
 {
+	protected _internal: any;
+	protected _channel: Channel;
+	protected _closed = false;
+	protected _paused = false;
+	protected _getProducerById: (producerId: string) => Producer;
+
 	/**
 	 * @private
 	 * @interface
-	 *
 	 * @emits routerclose
 	 * @emits @close
 	 */
-	constructor({ internal, channel, getProducerById })
+	constructor(
+		{
+			internal,
+			channel,
+			getProducerById
+		}:
+		{
+			internal: any;
+			channel: Channel;
+			getProducerById: (producerId: string) => Producer;
+		}
+	)
 	{
 		super(logger);
 
 		logger.debug('constructor()');
 
 		// Internal data.
-		// @type {Object}
 		// - .routerId
 		// - .rtpObserverId
 		this._internal = internal;
 
 		// Channel instance.
-		// @type {Channel}
 		this._channel = channel;
 
-		// Closed flag.
-		// @type {Boolean}
-		this._closed = false;
-
-		// Paused flag.
-		// @type {Boolean}
-		this._paused = false;
-
 		// Function that gets any Producer in the Router.
-		// @type {Function: Producer}
 		this._getProducerById = getProducerById;
 	}
 
 	/**
 	 * RtpObserver id.
-	 *
-	 * @type {String}
 	 */
-	get id()
+	get id(): string
 	{
 		return this._internal.rtpObserverId;
 	}
 
 	/**
 	 * Whether the RtpObserver is closed.
-	 *
-	 * @type {Boolean}
 	 */
-	get closed()
+	get closed(): boolean
 	{
 		return this._closed;
 	}
 
 	/**
 	 * Whether the RtpObserver is paused.
-	 *
-	 * @type {Boolean}
 	 */
-	get paused()
+	get paused(): boolean
 	{
 		return this._paused;
 	}
 
 	/**
 	 * Close the RtpObserver.
-	 *
-	 * @virtual
 	 */
-	close()
+	close(): void
 	{
 		if (this._closed)
 			return;
@@ -98,9 +97,8 @@ class RtpObserver extends EnhancedEventEmitter
 	 * Router was closed.
 	 *
 	 * @private
-	 * @virtual
 	 */
-	routerClosed()
+	routerClosed(): void
 	{
 		if (this._closed)
 			return;
@@ -117,10 +115,8 @@ class RtpObserver extends EnhancedEventEmitter
 
 	/**
 	 * Pause the RtpObserver.
-	 *
-	 * @async
 	 */
-	async pause()
+	async pause(): Promise<void>
 	{
 		if (this._paused)
 			return;
@@ -134,10 +130,8 @@ class RtpObserver extends EnhancedEventEmitter
 
 	/**
 	 * Resume the RtpObserver.
-	 *
-	 * @async
 	 */
-	async resume()
+	async resume(): Promise<void>
 	{
 		if (!this._paused)
 			return;
@@ -151,12 +145,8 @@ class RtpObserver extends EnhancedEventEmitter
 
 	/**
 	 * Add a Producer to the RtpObserver.
-	 *
-	 * @param {String} producerId - The id of a Producer.
-	 *
-	 * @async
 	 */
-	async addProducer({ producerId } = {})
+	async addProducer({ producerId }: { producerId: string }): Promise<void>
 	{
 		logger.debug('addProducer()');
 
@@ -167,12 +157,8 @@ class RtpObserver extends EnhancedEventEmitter
 
 	/**
 	 * Remove a Producer from the RtpObserver.
-	 *
-	 * @param {String} producerId - The id of a Producer.
-	 *
-	 * @async
 	 */
-	async removeProducer({ producerId } = {})
+	async removeProducer({ producerId }: { producerId: string }): Promise<void>
 	{
 		logger.debug('removeProducer()');
 
@@ -181,5 +167,3 @@ class RtpObserver extends EnhancedEventEmitter
 		await this._channel.request('rtpObserver.removeProducer', internal);
 	}
 }
-
-module.exports = RtpObserver;

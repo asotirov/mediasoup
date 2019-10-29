@@ -1,26 +1,61 @@
-const uuidv4 = require('uuid/v4');
-const Logger = require('./Logger');
-const ortc = require('./ortc');
-const Transport = require('./Transport');
-const Consumer = require('./Consumer');
+import * as uuidv4 from 'uuid/v4';
+import Logger from './Logger';
+import EnhancedEventEmitter from './EnhancedEventEmitter';
+import * as ortc from './ortc';
+import Transport, {
+	TransportListenIp,
+	TransportTuple,
+	TransportSctpParameters,
+	TransportNumSctpStreams,
+	SctpState
+} from './Transport';
+import Consumer, { ConsumerOptions } from './Consumer';
+
+export interface PipeTransportOptions
+{
+	/**
+	 * Listening IP address
+	 */
+	listenIp: TransportListenIp | string;
+
+	/**
+	 * Create a SCTP association. Default false.
+	 */
+	enableSctp?: boolean;
+
+	/**
+	 * SCTP streams number.
+	 */
+	numSctpStreams?: TransportNumSctpStreams;
+
+	/**
+	 * Maximum size of data that can be passed to DataProducer's send() method.
+	 * Default 262144.
+	 */
+	maxSctpMessageSize?: number;
+
+	/**
+	 * Custom application data.
+	 */
+	appData?: object;
+}
 
 const logger = new Logger('PipeTransport');
 
-class PipeTransport extends Transport
+export default class PipeTransport extends Transport
 {
 	/**
 	 * @private
 	 */
-	constructor(params)
+	constructor(params: any)
 	{
 		super(params);
 
 		logger.debug('constructor()');
 
-		const { data } = params;
+		const { data } = params as any;
 
 		// PipeTransport data.
-		// @type {Object}
 		// - .tuple
 		//   - .localIp
 		//   - .localPort
@@ -44,25 +79,25 @@ class PipeTransport extends Transport
 	}
 
 	/**
-	 * @type {Object}
+	 * Transport tuple.
 	 */
-	get tuple()
+	get tuple(): TransportTuple
 	{
 		return this._data.tuple;
 	}
 
 	/**
-	 * @type {Object}
+	 * SCTP parameters.
 	 */
-	get sctpParameters()
+	get sctpParameters(): TransportSctpParameters | undefined
 	{
 		return this._data.sctpParameters;
 	}
 
 	/**
-	 * @type {String}
+	 * SCTP state.
 	 */
-	get sctpState()
+	get sctpState(): SctpState
 	{
 		return this._data.sctpState;
 	}
@@ -71,16 +106,14 @@ class PipeTransport extends Transport
 	 * Observer.
 	 *
 	 * @override
-	 * @type {EventEmitter}
-	 *
 	 * @emits close
 	 * @emits {producer: Producer} newproducer
 	 * @emits {consumer: Consumer} newconsumer
 	 * @emits {producer: DataProducer} newdataproducer
 	 * @emits {consumer: DataConsumer} newdataconsumer
-	 * @emits {sctpState: String} sctpstatechange
+	 * @emits {sctpState: string} sctpstatechange
 	 */
-	get observer()
+	get observer(): EnhancedEventEmitter
 	{
 		return this._observer;
 	}
@@ -90,7 +123,7 @@ class PipeTransport extends Transport
 	 *
 	 * @override
 	 */
-	close()
+	close(): void
 	{
 		if (this._closed)
 			return;
@@ -107,7 +140,7 @@ class PipeTransport extends Transport
 	 * @private
 	 * @override
 	 */
-	routerClosed()
+	routerClosed(): void
 	{
 		if (this._closed)
 			return;
@@ -121,13 +154,18 @@ class PipeTransport extends Transport
 	/**
 	 * Provide the PipeTransport remote parameters.
 	 *
-	 * @param {String} ip - Remote IP.
-	 * @param {Number} port - Remote port.
-	 *
-	 * @async
 	 * @override
 	 */
-	async connect({ ip, port } = {})
+	async connect(
+		{
+			ip,
+			port
+		}:
+		{
+			ip: string;
+			port: number;
+		}
+	): Promise<void>
 	{
 		logger.debug('connect()');
 
@@ -143,14 +181,15 @@ class PipeTransport extends Transport
 	/**
 	 * Create a pipe Consumer.
 	 *
-	 * @param {String} producerId
-	 * @param {Object} [appData={}] - Custom app data.
-   *
-	 * @async
 	 * @override
-	 * @returns {Consumer}
 	 */
-	async consume({ producerId, appData = {} } = {})
+	async consume(
+		{
+			producerId,
+			paused = false,
+			appData = {}
+		}: ConsumerOptions
+	): Promise<Consumer>
 	{
 		logger.debug('consume()');
 
@@ -174,7 +213,8 @@ class PipeTransport extends Transport
 			kind                   : producer.kind,
 			rtpParameters,
 			type                   : 'pipe',
-			consumableRtpEncodings : producer.consumableRtpParameters.encodings
+			consumableRtpEncodings : producer.consumableRtpParameters.encodings,
+			paused
 		};
 
 		const status =
@@ -202,9 +242,9 @@ class PipeTransport extends Transport
 		return consumer;
 	}
 
-	private _handleWorkerNotifications()
+	private _handleWorkerNotifications(): void
 	{
-		this._channel.on(this._internal.transportId, (event, data) =>
+		this._channel.on(this._internal.transportId, (event: string, data?: any) =>
 		{
 			switch (event)
 			{
@@ -230,5 +270,3 @@ class PipeTransport extends Transport
 		});
 	}
 }
-
-module.exports = PipeTransport;

@@ -5,9 +5,10 @@
   	"lib": [ "ES6", "dom" ],
 		"target": "ES6",
 		"module": "commonjs",
+		"moduleResolution": "node",
 		"declaration": true,
 		"declarationMap": true,
-		"outDir": "./build",
+		"outDir": "build",
 		"resolveJsonModule": true,
 		"strict": true,
 		"strictNullChecks": false,
@@ -15,8 +16,7 @@
 		"noUnusedParameters": false,
 		"noImplicitAny" : true,
 		"noImplicitReturns": true,
-		"noFallthroughCasesInSwitch": true,
-		"moduleResolution": "node"
+		"noFallthroughCasesInSwitch": true
 	},
 	"include": [ "lib/**/*" ]
 }
