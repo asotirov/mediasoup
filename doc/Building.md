@@ -8,6 +8,14 @@ This document is intended for mediasoup developers.
 The `package.json` file in the main folder includes the following scripts:
 
 
+### `num run typescript:build`
+
+Compiles mediasoup TypeScript code into ES6 JavaScript and places it into the `build` directory.
+
+### `num run typescript:watch`
+
+Compiles mediasoup TypeScript code into ES6 JavaScript, places it into the `build` directory an watches for TypeScript changes.
+
 ### `npm run lint`
 
 Runs both `npm run lint:node` and `npm run lint:worker`.
