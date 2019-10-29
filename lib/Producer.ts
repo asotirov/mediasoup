@@ -1,10 +1,21 @@
-const Logger = require('./Logger');
-const EnhancedEventEmitter = require('./EnhancedEventEmitter');
+import Logger from './Logger';
+import EnhancedEventEmitter from './EnhancedEventEmitter';
+import Channel from './Channel';
+import { RtpParameters } from './types';
 
 const logger = new Logger('Producer');
 
-class Producer extends EnhancedEventEmitter
+export default class Producer extends EnhancedEventEmitter
 {
+	private _internal: any;
+	private _data: any;
+	private _channel: Channel;
+	private _closed = false;
+	private _appData?: object;
+	private _paused = false;
+	private _score: object[] = [];
+	private _observer = new EnhancedEventEmitter();
+
 	/**
 	 * @private
 	 *
@@ -13,21 +24,34 @@ class Producer extends EnhancedEventEmitter
 	 * @emits {Object} videoorientationchange
 	 * @emits @close
 	 */
-	constructor({ internal, data, channel, appData, paused })
+	constructor(
+		{
+			internal,
+			data,
+			channel,
+			appData,
+			paused
+		}:
+		{
+			internal: any;
+			data: any;
+			channel: Channel;
+			appData?: object;
+			paused: boolean;
+		}
+	)
 	{
 		super(logger);
 
 		logger.debug('constructor()');
 
 		// Internal data.
-		// @type {Object}
 		// - .routerId
 		// - .transportId
 		// - .producerId
 		this._internal = internal;
 
 		// Producer data.
-		// @type {Object}
 		// - .kind
 		// - .rtpParameters
 		// - .type
@@ -35,78 +59,53 @@ class Producer extends EnhancedEventEmitter
 		this._data = data;
 
 		// Channel instance.
-		// @type {Channel}
 		this._channel = channel;
 
-		// Closed flag.
-		// @type {Boolean}
-		this._closed = false;
-
-		// App data.
-		// @type {Object}
+		// App custom data.
 		this._appData = appData;
 
 		// Paused flag.
-		// @type {Boolean}
 		this._paused = paused;
-
-		// Score list
-		// @type {Array<Object>}
-		this._score = [];
-
-		// Observer.
-		// @type {EventEmitter}
-		this._observer = new EnhancedEventEmitter();
 
 		this._handleWorkerNotifications();
 	}
 
 	/**
 	 * Producer id.
-	 *
-	 * @type {String}
 	 */
-	get id()
+	get id(): string
 	{
 		return this._internal.producerId;
 	}
 
 	/**
 	 * Whether the Producer is closed.
-	 *
-	 * @type {Boolean}
 	 */
-	get closed()
+	get closed(): boolean
 	{
 		return this._closed;
 	}
 
 	/**
 	 * Media kind.
-	 *
-	 * @type {String}
 	 */
-	get kind()
+	get kind(): string // TODO: enum?
 	{
 		return this._data.kind;
 	}
 
 	/**
 	 * RTP parameters.
-	 *
-	 * @type {RTCRtpParameters}
 	 */
-	get rtpParameters()
+	get rtpParameters(): RtpParameters
 	{
 		return this._data.rtpParameters;
 	}
 
 	/**
 	 * Producer type.
-	 *
-	 * @type {String} - It can be 'simple', 'simulcast' or 'svc'.
 	 */
-	get type()
+	get type(): 'simple' | 'simulcast' | 'svc'
 	{
 		return this._data.type;
 	}
@@ -115,39 +114,32 @@ class Producer extends EnhancedEventEmitter
 	 * Consumable RTP parameters.
 	 *
 	 * @private
-	 * @type {RTCRtpParameters}
 	 */
-	get consumableRtpParameters()
+	get consumableRtpParameters(): RtpParameters
 	{
 		return this._data.consumableRtpParameters;
 	}
 
 	/**
 	 * Whether the Producer is paused.
-	 *
-	 * @return {Boolean}
 	 */
-	get paused()
+	get paused(): boolean
 	{
 		return this._paused;
 	}
 
 	/**
 	 * Producer score list.
-	 *
-	 * @type {Array<Object>}
 	 */
-	get score()
+	get score(): object[]
 	{
 		return this._score;
 	}
 
 	/**
 	 * App custom data.
-	 *
-	 * @type {Object}
 	 */
-	get appData()
+	get appData(): object
 	{
 		return this._appData;
 	}
@@ -155,7 +147,7 @@ class Producer extends EnhancedEventEmitter
 	/**
 	 * Invalid setter.
 	 */
-	set appData(appData) // eslint-disable-line no-unused-vars
+	set appData(appData: object) // eslint-disable-line no-unused-vars
 	{
 		throw new Error('cannot override appData object');
 	}
@@ -163,15 +155,13 @@ class Producer extends EnhancedEventEmitter
 	/**
 	 * Observer.
 	 *
-	 * @type {EventEmitter}
-	 *
 	 * @emits close
 	 * @emits pause
 	 * @emits resume
 	 * @emits {Array<Object>} score
 	 * @emits {Object} videoorientationchange
 	 */
-	get observer()
+	get observer(): EnhancedEventEmitter
 	{
 		return this._observer;
 	}
@@ -179,7 +169,7 @@ class Producer extends EnhancedEventEmitter
 	/**
 	 * Close the Producer.
 	 */
-	close()
+	close(): void
 	{
 		if (this._closed)
 			return;
@@ -205,7 +195,7 @@ class Producer extends EnhancedEventEmitter
 	 *
 	 * @private
 	 */
-	transportClosed()
+	transportClosed(): void
 	{
 		if (this._closed)
 			return;
@@ -225,11 +215,8 @@ class Producer extends EnhancedEventEmitter
 
 	/**
 	 * Dump Producer.
-	 *
-	 * @async
-	 * @returns {Object}
 	 */
-	async dump()
+	async dump(): Promise<any>
 	{
 		logger.debug('dump()');
 
@@ -238,11 +225,8 @@ class Producer extends EnhancedEventEmitter
 
 	/**
 	 * Get Producer stats.
-	 *
-	 * @async
-	 * @returns {Array<Object>}
 	 */
-	async getStats()
+	async getStats(): Promise<object[]> // TODO: Proper stats interface.
 	{
 		logger.debug('getStats()');
 
@@ -251,10 +235,8 @@ class Producer extends EnhancedEventEmitter
 
 	/**
 	 * Pause the Producer.
-	 *
-	 * @async
 	 */
-	async pause()
+	async pause(): Promise<void>
 	{
 		logger.debug('pause()');
 
@@ -271,10 +253,8 @@ class Producer extends EnhancedEventEmitter
 
 	/**
 	 * Resume the Producer.
-	 *
-	 * @async
 	 */
-	async resume()
+	async resume(): Promise<void>
 	{
 		logger.debug('resume()');
 
@@ -289,12 +269,9 @@ class Producer extends EnhancedEventEmitter
 			this._observer.safeEmit('resume');
 	}
 
-	/**
-	 * @private
-	 */
-	_handleWorkerNotifications()
+	private _handleWorkerNotifications(): void
 	{
-		this._channel.on(this._internal.producerId, (event, data) =>
+		this._channel.on(this._internal.producerId, (event: string, data?: any) =>
 		{
 			switch (event)
 			{
@@ -332,5 +309,3 @@ class Producer extends EnhancedEventEmitter
 		});
 	}
 }
-
-module.exports = Producer;

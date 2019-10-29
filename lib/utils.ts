@@ -9,10 +9,6 @@ const randomNumberGenerator = randomNumber.generator(
 
 /**
  * Clones the given object/array.
- *
- * @param {Object|Array} obj
- *
- * @returns {Object|Array}
  */
 export function clone(obj: any[] | object): any[] | object
 {
@@ -24,7 +20,5 @@ export function clone(obj: any[] | object): any[] | object
 
 /**
  * Generates a random positive integer.
- *
- * @returns {Number}
  */
 export { randomNumberGenerator as generateRandomNumber };

@@ -1,10 +1,23 @@
-const Logger = require('./Logger');
-const EnhancedEventEmitter = require('./EnhancedEventEmitter');
+import Logger from './Logger';
+import EnhancedEventEmitter from './EnhancedEventEmitter';
+import Channel from './Channel';
+import { RtpParameters } from './types';
 
 const logger = new Logger('Consumer');
 
-class Consumer extends EnhancedEventEmitter
+export default class Consumer extends EnhancedEventEmitter
 {
+	private _internal: any;
+	private _data: any;
+	private _channel: Channel;
+	private _closed = false;
+	private _appData?: object;
+	private _paused = false;
+	private _producerPaused = false;
+	private _score: { consumer: number; producerScore: number };
+	private _currentLayers: object | null = null;
+	private _observer = new EnhancedEventEmitter();
+
 	/**
 	 * @private
 	 *
@@ -12,19 +25,36 @@ class Consumer extends EnhancedEventEmitter
 	 * @emits producerclose
 	 * @emits producerpause
 	 * @emits producerresume
-	 * @emits {consumer: Number, producerScore: Number} score
-	 * @emits {spatialLayer: Number, temporalLayer: Number|Null} layerschange
+	 * @emits {consumer: number; producerScore: number} score
+	 * @emits {spatialLayer: number; temporalLayer: number|null} layerschange
 	 * @emits @close
 	 * @emits @producerclose
 	 */
-	constructor({ internal, data, channel, appData, paused, producerPaused, score })
+	constructor(
+		{
+			internal,
+			data,
+			channel,
+			appData,
+			paused,
+			producerPaused,
+			score
+		}:
+		{
+			internal: any;
+			data: any;
+			channel: Channel;
+			appData?: object;
+			paused: boolean;
+			producerPaused: boolean;
+			score: { consumer: number; producerScore: number };
+		})
 	{
 		super(logger);
 
 		logger.debug('constructor()');
 
 		// Internal data.
-		// @type {Object}
 		// - .routerId
 		// - .transportId
 		// - .consumerId
@@ -32,153 +62,113 @@ class Consumer extends EnhancedEventEmitter
 		this._internal = internal;
 
 		// Consumer data.
-		// @type {Object}
 		// - .kind
 		// - .rtpParameters
 		// - .type
 		this._data = data;
 
 		// Channel instance.
-		// @type {Channel}
 		this._channel = channel;
 
-		// Closed flag.
-		// @type {Boolean}
-		this._closed = false;
-
-		// App data.
-		// @type {Object}
+		// App custom data.
 		this._appData = appData;
 
 		// Paused flag.
-		// @type {Boolean}
 		this._paused = paused;
 
 		// Producer paused flag.
-		// @type {Boolean}
 		this._producerPaused = producerPaused;
 
 		// Score with score and producerScore keys.
-		// @type {Object}
 		this._score = score;
-
-		// Current video layers (just for video with simulcast or SVC).
-		// @type {Object}
-		this._currentLayers = null;
-
-		// Observer.
-		// @type {EventEmitter}
-		this._observer = new EnhancedEventEmitter();
 
 		this._handleWorkerNotifications();
 	}
 
 	/**
 	 * Consumer id.
-	 *
-	 * @type {String}
 	 */
-	get id()
+	get id(): string
 	{
 		return this._internal.consumerId;
 	}
 
 	/**
 	 * Associated Producer id.
-	 *
-	 * @type {String}
 	 */
-	get producerId()
+	get producerId(): string
 	{
 		return this._internal.producerId;
 	}
 
 	/**
 	 * Whether the Consumer is closed.
-	 *
-	 * @type {Boolean}
 	 */
-	get closed()
+	get closed(): boolean
 	{
 		return this._closed;
 	}
 
 	/**
 	 * Media kind.
-	 *
-	 * @type {String}
 	 */
-	get kind()
+	get kind(): string
 	{
 		return this._data.kind;
 	}
 
 	/**
 	 * RTP parameters.
-	 *
-	 * @type {RTCRtpParameters}
 	 */
-	get rtpParameters()
+	get rtpParameters(): RtpParameters
 	{
 		return this._data.rtpParameters;
 	}
 
 	/**
 	 * Associated Producer type.
-	 *
-	 * @type {String} - It can be 'simple', 'simulcast' or 'svc'.
 	 */
-	get type()
+	get type(): 'simple' | 'simulcast' | 'svc'
 	{
 		return this._data.type;
 	}
 
 	/**
 	 * Whether the Consumer is paused.
-	 *
-	 * @return {Boolean}
 	 */
-	get paused()
+	get paused(): boolean
 	{
 		return this._paused;
 	}
 
 	/**
 	 * Whether the associate Producer  is paused.
-	 *
-	 * @return {Boolean}
 	 */
-	get producerPaused()
+	get producerPaused(): boolean
 	{
 		return this._producerPaused;
 	}
 
 	/**
 	 * Consumer score with consumer and producerScore keys.
-	 *
-	 * @type {Object}
 	 */
-	get score()
+	get score(): { consumer: number; producerScore: number }
 	{
 		return this._score;
 	}
 
 	/**
 	 * Current video layers.
-	 *
-	 *  @type {Object}
 	 */
-	get currentLayers()
+	get currentLayers(): object | null
 	{
 		return this._currentLayers;
 	}
 
 	/**
 	 * App custom data.
-	 *
-	 * @type {Object}
 	 */
-	get appData()
+	get appData(): object
 	{
 		return this._appData;
 	}
@@ -194,15 +184,13 @@ class Consumer extends EnhancedEventEmitter
 	/**
 	 * Observer.
 	 *
-	 * @type {EventEmitter}
-	 *
 	 * @emits close
 	 * @emits pause
 	 * @emits resume
-	 * @emits {consumer: Number, producerScore: Number} score
-	 * @emits {spatialLayer: Number, temporalLayer: Number|Null} layerschange
+	 * @emits {consumer: number; producerScore: number} score
+	 * @emits {spatialLayer: number; temporalLayer: number|null} layerschange
 	 */
-	get observer()
+	get observer(): EnhancedEventEmitter
 	{
 		return this._observer;
 	}
@@ -210,7 +198,7 @@ class Consumer extends EnhancedEventEmitter
 	/**
 	 * Close the Consumer.
 	 */
-	close()
+	close(): void
 	{
 		if (this._closed)
 			return;
@@ -236,7 +224,7 @@ class Consumer extends EnhancedEventEmitter
 	 *
 	 * @private
 	 */
-	transportClosed()
+	transportClosed(): void
 	{
 		if (this._closed)
 			return;
@@ -256,11 +244,8 @@ class Consumer extends EnhancedEventEmitter
 
 	/**
 	 * Dump Consumer.
-	 *
-	 * @async
-	 * @returns {Object}
 	 */
-	async dump()
+	async dump(): Promise<any>
 	{
 		logger.debug('dump()');
 
@@ -269,11 +254,8 @@ class Consumer extends EnhancedEventEmitter
 
 	/**
 	 * Get Consumer stats.
-	 *
-	 * @async
-	 * @returns {Array<Object>}
 	 */
-	async getStats()
+	async getStats(): Promise<object[]> // TODO: Proper stats interface.
 	{
 		logger.debug('getStats()');
 
@@ -282,10 +264,8 @@ class Consumer extends EnhancedEventEmitter
 
 	/**
 	 * Pause the Consumer.
-	 *
-	 * @async
 	 */
-	async pause()
+	async pause(): Promise<void>
 	{
 		logger.debug('pause()');
 
@@ -302,10 +282,8 @@ class Consumer extends EnhancedEventEmitter
 
 	/**
 	 * Resume the Consumer.
-	 *
-	 * @async
 	 */
-	async resume()
+	async resume(): Promise<void>
 	{
 		logger.debug('resume()');
 
@@ -322,10 +300,17 @@ class Consumer extends EnhancedEventEmitter
 
 	/**
 	 * Set preferred video layers.
-	 *
-	 * @async
 	 */
-	async setPreferredLayers({ spatialLayer, temporalLayer } = {})
+	async setPreferredLayers(
+		{
+			spatialLayer,
+			temporalLayer
+		}:
+		{
+			spatialLayer: number;
+			temporalLayer?: number;
+		}
+	): Promise<void>
 	{
 		logger.debug('setPreferredLayers()');
 
@@ -337,22 +322,17 @@ class Consumer extends EnhancedEventEmitter
 
 	/**
 	 * Request a key frame to the Producer.
-	 *
-	 * @async
 	 */
-	async requestKeyFrame()
+	async requestKeyFrame(): Promise<void>
 	{
 		logger.debug('requestKeyFrame()');
 
 		await this._channel.request('consumer.requestKeyFrame', this._internal);
 	}
 
-	/**
-	 * @private
-	 */
-	_handleWorkerNotifications()
+	private _handleWorkerNotifications(): void
 	{
-		this._channel.on(this._internal.consumerId, (event, data) =>
+		this._channel.on(this._internal.consumerId, (event: string, data?: any) =>
 		{
 			switch (event)
 			{

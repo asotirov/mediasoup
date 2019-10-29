@@ -12,7 +12,7 @@
 		"strict": true,
 		"strictNullChecks": false,
 		"noUnusedLocals": true,
-		"noUnusedParameters": true,
+		"noUnusedParameters": false,
 		"noImplicitAny" : true,
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,

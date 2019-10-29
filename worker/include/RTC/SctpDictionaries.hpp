@@ -18,10 +18,10 @@ namespace RTC
 		void FillJson(json& jsonObject) const;
 
 	public:
-		uint16_t streamId{ 0 };
+		uint16_t streamId{ 0u };
 		bool ordered{ true };
-		uint16_t maxPacketLifeTime{ 0 };
-		uint16_t maxRetransmits{ 0 };
+		uint16_t maxPacketLifeTime{ 0u };
+		uint16_t maxRetransmits{ 0u };
 	};
 } // namespace RTC
 

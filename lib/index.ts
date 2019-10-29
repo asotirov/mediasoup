@@ -27,9 +27,6 @@ export { observer };
 
 /**
  * Create a Worker.
- *
- * @throws {TypeError} if wrong settings.
- * @throws {Error} if unexpected error.
  */
 export async function createWorker(
 	{

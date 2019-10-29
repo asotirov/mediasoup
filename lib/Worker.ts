@@ -68,7 +68,7 @@ export default class Worker extends EnhancedEventEmitter
 	private _channel: Channel;
 	private _closed = false;
 	private _routers: Set<Router> = new Set();
-	private _observer: EnhancedEventEmitter = new EnhancedEventEmitter();
+	private _observer = new EnhancedEventEmitter();
 
 	/**
 	 * @private
@@ -358,8 +358,6 @@ export default class Worker extends EnhancedEventEmitter
 
 	/**
 	 * Create a Router.
-	 *
-	 * @throws {TypeError} if wrong options.
 	 */
 	async createRouter({ mediaCodecs }: RouterOptions = {}): Promise<Router>
 	{

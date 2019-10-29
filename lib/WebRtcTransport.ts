@@ -1,28 +1,134 @@
-const Logger = require('./Logger');
-const Transport = require('./Transport');
+import Logger from './Logger';
+import EnhancedEventEmitter from './EnhancedEventEmitter';
+import Transport, {
+	TransportListenIp,
+	TransportTuple,
+	TransportSctpParameters,
+	TransportNumSctpStreams,
+	SctpState
+} from './Transport';
+
+export interface WebRtcTransportOptions
+{
+	/**
+	 * Listening IP address or addresses in order of preference (first one is the
+	 * preferred one).
+	 */
+	listenIps: TransportListenIp[] | string[];
+
+	/**
+	 * Listen in UDP. Default true.
+	 */
+	enableUdp?: boolean;
+
+	/**
+	 * Listen in TCP. Default false.
+	 */
+	enableTcp?: boolean;
+
+	/**
+	 * Prefer UDP. Default false.
+	 */
+	preferUdp?: boolean;
+
+	/**
+	 * Prefer TCP. Default false.
+	 */
+	preferTcp?: boolean;
+
+	/**
+	 * Initial available outgoing bitrate (in bps). Default 600000.
+	 */
+	initialAvailableOutgoingBitrate?: number;
+
+	/**
+	 * Create a SCTP association. Default false.
+	 */
+	enableSctp?: boolean;
+
+	/**
+	 * SCTP streams number.
+	 */
+	numSctpStreams?: TransportNumSctpStreams;
+
+	/**
+	 * Maximum size of data that can be passed to DataProducer's send() method.
+	 * Default 262144.
+	 */
+	maxSctpMessageSize?: number;
+
+	/**
+	 * Custom application data.
+	 */
+	appData?: object;
+}
+
+export interface IceParameters
+{
+	usernameFragment: string;
+	password: string;
+	iceLite?: boolean;
+}
+
+export interface IceCandidate
+{
+	foundation: string;
+	priority: number;
+	ip: string;
+	protocol: 'udp' | 'tcp';
+	port: number;
+	type: 'host';
+	tcpType: 'passive' | undefined;
+}
+
+export interface DtlsParameters
+{
+	role?: DtlsRole;
+	fingerprints: DtlsFingerprints;
+}
+
+/**
+ * Map of DTLS algorithms (as defined in the "Hash function Textual Names"
+ * registry initially specified in RFC 4572 Section 8) and their corresponding
+ * certificate fingerprint values (in lowercase hex string as expressed
+ * utilizing the syntax of "fingerprint" in RFC 4572 Section 5).
+ */
+export interface DtlsFingerprints
+{
+	'sha-1'?: string;
+	'sha-224'?: string;
+	'sha-256'?: string;
+	'sha-384'?: string;
+	'sha-512'?: string;
+}
+
+export type IceState = 'new' | 'connected' | 'completed' | 'disconnected' | 'closed';
+
+export type DtlsRole = 'auto' | 'client' | 'server';
+
+export type DtlsState = 'new' | 'connecting' | 'connected' | 'failed' | 'closed';
 
 const logger = new Logger('WebRtcTransport');
 
-class WebRtcTransport extends Transport
+export default class WebRtcTransport extends Transport
 {
 	/**
 	 * @private
 	 *
-	 * @emits {iceState: String} icestatechange
+	 * @emits {iceState: string} icestatechange
 	 * @emits {iceSelectedTuple: Object} iceselectedtuplechange
-	 * @emits {dtlsState: String} dtlsstatechange
-	 * @emits {sctpState: String} sctpstatechange
+	 * @emits {dtlsState: string} dtlsstatechange
+	 * @emits {sctpState: string} sctpstatechange
 	 */
-	constructor(params)
+	constructor(params: any)
 	{
 		super(params);
 
 		logger.debug('constructor()');
 
-		const { data } = params;
+		const { data } = params as any;
 
 		// WebRtcTransport data.
-		// @type {Object}
 		// - .iceRole
 		// - .iceParameters
 		//   - .usernameFragment
@@ -72,84 +178,86 @@ class WebRtcTransport extends Transport
 			sctpParameters   : data.sctpParameters,
 			sctpState        : data.sctpState
 		};
+
+		this._handleWorkerNotifications();
 	}
 
 	/**
-	 * @type {String}
+	 * ICE role.
 	 */
-	get iceRole()
+	get iceRole(): 'controlled'
 	{
 		return this._data.iceRole;
 	}
 
 	/**
-	 * @type {Object}
+	 * ICE parameters.
 	 */
-	get iceParameters()
+	get iceParameters(): IceParameters
 	{
 		return this._data.iceParameters;
 	}
 
 	/**
-	 * @type {Array<RTCIceCandidate>}
+	 * ICE candidates.
 	 */
-	get iceCandidates()
+	get iceCandidates(): IceCandidate[]
 	{
 		return this._data.iceCandidates;
 	}
 
 	/**
-	 * @type {String}
+	 * ICE state.
 	 */
-	get iceState()
+	get iceState(): IceState
 	{
 		return this._data.iceState;
 	}
 
 	/**
-	 * @type {Object}
+	 * ICE selected tuple.
 	 */
-	get iceSelectedTuple()
+	get iceSelectedTuple(): TransportTuple | undefined
 	{
 		return this._data.iceSelectedTuple;
 	}
 
 	/**
-	 * @type {Object}
+	 * DTLS parameters.
 	 */
-	get dtlsParameters()
+	get dtlsParameters(): DtlsParameters
 	{
 		return this._data.dtlsParameters;
 	}
 
 	/**
-	 * @type {String}
+	 * DTLS state.
 	 */
-	get dtlsState()
+	get dtlsState(): DtlsState
 	{
 		return this._data.dtlsState;
 	}
 
 	/**
-	 * @type {String}
+	 * Remote certificate in PEM format.
 	 */
-	get dtlsRemoteCert()
+	get dtlsRemoteCert(): string | undefined
 	{
 		return this._data.dtlsRemoteCert;
 	}
 
 	/**
-	 * @type {Object}
+	 * SCTP parameters.
 	 */
-	get sctpParameters()
+	get sctpParameters(): TransportSctpParameters | undefined
 	{
 		return this._data.sctpParameters;
 	}
 
 	/**
-	 * @type {String}
+	 * SCTP state.
 	 */
-	get sctpState()
+	get sctpState(): SctpState
 	{
 		return this._data.sctpState;
 	}
@@ -158,19 +266,17 @@ class WebRtcTransport extends Transport
 	 * Observer.
 	 *
 	 * @override
-	 * @type {EventEmitter}
-	 *
 	 * @emits close
 	 * @emits {producer: Producer} newproducer
 	 * @emits {consumer: Consumer} newconsumer
 	 * @emits {producer: DataProducer} newdataproducer
 	 * @emits {consumer: DataConsumer} newdataconsumer
-	 * @emits {iceState: String} icestatechange
+	 * @emits {iceState: string} icestatechange
 	 * @emits {iceSelectedTuple: Object} iceselectedtuplechange
-	 * @emits {dtlsState: String} dtlsstatechange
-	 * @emits {sctpState: String} sctpstatechange
+	 * @emits {dtlsState: string} dtlsstatechange
+	 * @emits {sctpState: string} sctpstatechange
 	 */
-	get observer()
+	get observer(): EnhancedEventEmitter
 	{
 		return this._observer;
 	}
@@ -180,7 +286,7 @@ class WebRtcTransport extends Transport
 	 *
 	 * @override
 	 */
-	close()
+	close(): void
 	{
 		if (this._closed)
 			return;
@@ -201,7 +307,7 @@ class WebRtcTransport extends Transport
 	 * @private
 	 * @override
 	 */
-	routerClosed()
+	routerClosed(): void
 	{
 		if (this._closed)
 			return;
@@ -219,12 +325,9 @@ class WebRtcTransport extends Transport
 	/**
 	 * Provide the WebRtcTransport remote parameters.
 	 *
-	 * @param {RTCDtlsParameters} dtlsParameters - Remote DTLS parameters.
-	 *
-	 * @async
 	 * @override
 	 */
-	async connect({ dtlsParameters })
+	async connect({ dtlsParameters }: { dtlsParameters: DtlsParameters }): Promise<void>
 	{
 		logger.debug('connect()');
 
@@ -239,12 +342,8 @@ class WebRtcTransport extends Transport
 
 	/**
 	 * Set maximum incoming bitrate for receiving media.
-	 *
-	 * @param {Number} bitrate - In bps.
-	 *
-	 * @async
 	 */
-	async setMaxIncomingBitrate(bitrate)
+	async setMaxIncomingBitrate(bitrate: number): Promise<void>
 	{
 		logger.debug('setMaxIncomingBitrate() [bitrate:%s]', bitrate);
 
@@ -256,11 +355,8 @@ class WebRtcTransport extends Transport
 
 	/**
 	 * Restart ICE.
-	 *
-	 * @async
-	 * @returns {RTCIceParameters}
 	 */
-	async restartIce()
+	async restartIce(): Promise<IceParameters>
 	{
 		logger.debug('restartIce()');
 
@@ -274,13 +370,9 @@ class WebRtcTransport extends Transport
 		return iceParameters;
 	}
 
-	/**
-	 * @private
-	 * @override
-	 */
-	_handleWorkerNotifications()
+	private _handleWorkerNotifications(): void
 	{
-		this._channel.on(this._internal.transportId, (event, data) =>
+		this._channel.on(this._internal.transportId, (event: string, data?: any) =>
 		{
 			switch (event)
 			{
@@ -351,5 +443,3 @@ class WebRtcTransport extends Transport
 		});
 	}
 }
-
-module.exports = WebRtcTransport;

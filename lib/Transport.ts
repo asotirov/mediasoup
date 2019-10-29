@@ -1,17 +1,119 @@
-const uuidv4 = require('uuid/v4');
-const Logger = require('./Logger');
-const EnhancedEventEmitter = require('./EnhancedEventEmitter');
-const utils = require('./utils');
-const ortc = require('./ortc');
-const Producer = require('./Producer');
-const Consumer = require('./Consumer');
-const DataProducer = require('./DataProducer');
-const DataConsumer = require('./DataConsumer');
+import * as uuidv4 from 'uuid/v4';
+import Logger from './Logger';
+import EnhancedEventEmitter from './EnhancedEventEmitter';
+import * as utils from './utils';
+import * as ortc from './ortc';
+import Channel from './Channel';
+import Producer from './Producer';
+import Consumer from './Consumer';
+import DataProducer from './DataProducer';
+import DataConsumer from './DataConsumer';
+import { RtpCapabilities, SctpStreamParameters } from './types';
+
+export interface TransportListenIp
+{
+	/**
+	 * Listening IPv4 or IPv6.
+	 */
+	ip: string;
+
+	/**
+	 * Announced IPv4 or IPv6 (useful when running mediasoup behind NAT with
+	 * private IP).
+	 */
+	announcedIp?: string;
+}
+
+export interface TransportTuple
+{
+	localIP: string;
+	localPort: number;
+	remoteIp?: string;
+	remotePort?: number;
+	protocol: 'udp' | 'tcp';
+}
+
+export interface TransportSctpParameters
+{
+	/**
+	 * Must always equal 5000
+	 */
+	port: number;
+
+	/**
+	 * Initially requested number of outgoing SCTP streams.
+	 */
+	OS: number;
+
+	/**
+	 * Maximum number of incoming SCTP streams.
+	 */
+	MIS: number;
+
+	/**
+	Maximum allowed size for SCTP messages.*/
+	maxMessageSize: number;
+}
+
+/**
+ * Both OS and MIS are part of the SCTP INIT+ACK handshake. OS refers to the
+ * initial number of outgoing SCTP streams that the server side transport creates
+ * (to be used by DataConsumers), while MIS refers to the maximum number of
+ * incoming SCTP streams that the server side transport can receive (to be used
+ * by DataProducers). So, if the server side transport will just be used to
+ * create data producers (but no data consumers), OS can be low (~1). However,
+ * if data consumers are desired on the server side transport, OS must have a
+ * proper value and such a proper value depends on whether the remote endpoint
+ * supports  SCTP_ADD_STREAMS extension or not.
+ *
+ * libwebrtc (Chrome, Safari, etc) does not enable SCTP_ADD_STREAMS so, if data
+ * consumers are required,  OS should be 1024 (the maximum number of DataChannels
+ * that libwebrtc enables).
+ *
+ * Firefox does enable SCTP_ADD_STREAMS so, if data consumers are required, OS
+ * can be lower (16 for instance). The mediasoup transport will allocate and
+ * announce more outgoing SCTM streams when needed.
+ *
+ * mediasoup-client provides specific per browser/version OS and MIS values via
+ * the device.sctpCapabilities getter.
+ */
+export interface TransportNumSctpStreams
+{
+	/**
+	 * Initially requested number of outgoing SCTP streams (from 1 to 65535).
+	 * Default 1024.
+	 */
+	OS: number;
+
+	/**
+	 * Maximum number of incoming SCTP streams (from 1 to 65535). Default 1024.
+	 */
+	MIS: number;
+}
+
+export type SctpState = 'new' | 'connecting' | 'connected' | 'failed' | 'closed';
 
 const logger = new Logger('Transport');
 
-class Transport extends EnhancedEventEmitter
+export default class Transport extends EnhancedEventEmitter
 {
+	protected _internal: any;
+	protected _data: any;
+	protected _channel: Channel;
+	protected _closed = false;
+	private _appData?: object;
+	private _getRouterRtpCapabilities: () => RtpCapabilities;
+	private _getProducerById: (producerId: string) => Producer;
+	private _getDataProducerById: (dataProducerId: string) => DataProducer;
+	private _producers: Map<string, Producer> = new Map();
+	private _consumers: Map<string, Consumer> = new Map();
+	private _dataProducers: Map<string, DataProducer> = new Map();
+	private _dataConsumers: Map<string, DataConsumer> = new Map();
+	private _cnameForProducers?: string;
+	private _sctpStreamIds?: Buffer;
+	private _nextSctpStreamId = 0;
+	protected _observer = new EnhancedEventEmitter();
+
 	/**
 	 * @private
 	 * @interface
@@ -32,109 +134,66 @@ class Transport extends EnhancedEventEmitter
 			getRouterRtpCapabilities,
 			getProducerById,
 			getDataProducerById
-		})
+		}:
+		{
+			internal: any;
+			data: any;
+			channel: Channel;
+			appData: object;
+			getRouterRtpCapabilities: () => RtpCapabilities;
+			getProducerById: (producerId: string) => Producer;
+			getDataProducerById: (dataProducerId: string) => DataProducer;
+		}
+	)
 	{
 		super(logger);
 
 		logger.debug('constructor()');
 
 		// Internal data.
-		// @type {Object}
 		// - .routerId
 		// - .transportId
 		this._internal = internal;
 
 		// Transport specific data.
-		// @type {Object}
 		this._data = data;
 
 		// Channel instance.
-		// @type {Channel}
 		this._channel = channel;
 
-		// Closed flag.
-		// @type {Boolean}
-		this._closed = false;
-
 		// App custom data.
-		// @type {Object}
 		this._appData = appData;
 
 		// Function that returns router RTP capabilities.
-		// @type {Function: RTCRtpCapabilities}
 		this._getRouterRtpCapabilities = getRouterRtpCapabilities;
 
 		// Function that gets any Producer in the Router.
-		// @type {Function: Producer}
 		this._getProducerById = getProducerById;
 
 		// Function that gets any DataProducer in the Router.
-		// @type {Function: DataProducer}
 		this._getDataProducerById = getDataProducerById;
-
-		// Map of Producers indexed by id.
-		// @type {Map<String, Producer>}
-		this._producers = new Map();
-
-		// Map of Consumers indexed by id.
-		// @type {Map<String, Consumer>}
-		this._consumers = new Map();
-
-		// Map of DataProducers indexed by id.
-		// @type {Map<String, DataProducer>}
-		this._dataProducers = new Map();
-
-		// Map of DataConsumers indexed by id.
-		// @type {Map<String, DataConsumer>}
-		this._dataConsumers = new Map();
-
-		// CNAME of Producers in this Transport. This is for the scenario in which
-		// a Producer does not signal any CNAME in its RTP parameters.
-		// @type {String}
-		this._cnameForProducers = null;
-
-		// Array for holding used and unused SCTP stream ids.
-		// @type {Buffer}
-		this._sctpStreamIds = null;
-
-		// SCTP stream id value counter.
-		// @type {Number}
-		this._nextSctpStreamId = 0;
-
-		// Observer.
-		// @type {EventEmitter}
-		this._observer = new EnhancedEventEmitter();
-
-		// This method must be implemented in every subclass.
-		this._handleWorkerNotifications();
 	}
 
 	/**
 	 * Transport id.
-	 *
-	 * @type {String}
 	 */
-	get id()
+	get id(): string
 	{
 		return this._internal.transportId;
 	}
 
 	/**
 	 * Whether the Transport is closed.
-	 *
-	 * @type {Boolean}
 	 */
-	get closed()
+	get closed(): boolean
 	{
 		return this._closed;
 	}
 
 	/**
 	 * App custom data.
-	 *
-	 * @type {Object}
 	 */
-	get appData()
+	get appData(): object
 	{
 		return this._appData;
 	}
@@ -142,7 +201,7 @@ class Transport extends EnhancedEventEmitter
 	/**
 	 * Invalid setter.
 	 */
-	set appData(appData) // eslint-disable-line no-unused-vars
+	set appData(appData: object) // eslint-disable-line no-unused-vars
 	{
 		throw new Error('cannot override appData object');
 	}
@@ -150,25 +209,21 @@ class Transport extends EnhancedEventEmitter
 	/**
 	 * Observer.
 	 *
-	 * @type {EventEmitter}
-	 *
 	 * @emits close
 	 * @emits {producer: Producer} newproducer
 	 * @emits {consumer: Consumer} newconsumer
 	 * @emits {producer: DataProducer} newdataproducer
 	 * @emits {consumer: DataConsumer} newdataconsumer
 	 */
-	get observer()
+	get observer(): EnhancedEventEmitter
 	{
 		return this._observer;
 	}
 
 	/**
 	 * Close the Transport.
-	 *
-	 * @virtual
 	 */
-	close()
+	close(): void
 	{
 		if (this._closed)
 			return;
@@ -229,7 +284,7 @@ class Transport extends EnhancedEventEmitter
 	 * @private
 	 * @virtual
 	 */
-	routerClosed()
+	routerClosed(): void
 	{
 		if (this._closed)
 			return;
@@ -283,11 +338,8 @@ class Transport extends EnhancedEventEmitter
 
 	/**
 	 * Dump Transport.
-	 *
-	 * @async
-	 * @returns {Object}
 	 */
-	async dump()
+	async dump(): Promise<any>
 	{
 		logger.debug('dump()');
 
@@ -296,11 +348,8 @@ class Transport extends EnhancedEventEmitter
 
 	/**
 	 * Get Transport stats.
-	 *
-	 * @async
-	 * @returns {Array<Object>}
 	 */
-	async getStats()
+	async getStats(): Promise<object[]> // TODO: Proper stats interface.
 	{
 		logger.debug('getStats()');
 
@@ -310,10 +359,10 @@ class Transport extends EnhancedEventEmitter
 	/**
 	 * Provide the Transport remote parameters.
 	 *
-	 * @async
 	 * @abstract
 	 */
-	async connect()
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async connect(params: any): Promise<void>
 	{
 		// Should not happen.
 		throw new Error('method not implemented in the subclass');
@@ -321,15 +370,6 @@ class Transport extends EnhancedEventEmitter
 
 	/**
 	 * Create a Producer.
-	 *
-	 * @param {String} [id] - Producer id (just for PipeTransports).
-	 * @param {String} kind - 'audio'/'video'.
-	 * @param {RTCRtpParameters} rtpParameters - Remote RTP parameters.
-	 * @param {Boolean} [paused=false] - Whether the Producer must start paused.
-	 * @param {Object} [appData={}] - Custom app data.
-   *
-	 * @async
-	 * @returns {Producer}
 	 */
 	async produce(
 		{
@@ -338,8 +378,8 @@ class Transport extends EnhancedEventEmitter
 			rtpParameters,
 			paused = false,
 			appData = {}
-		} = {}
-	)
+		} = {} // TODO: ProducerOptions interface
+	): Promise<Producer>
 	{
 		logger.debug('produce()');
 
@@ -429,15 +469,7 @@ class Transport extends EnhancedEventEmitter
 	/**
 	 * Create a Consumer.
 	 *
-	 * @param {String} producerId
-	 * @param {RTCRtpCapabilities} rtpCapabilities - Remote RTP capabilities.
-	 * @param {Boolean} [paused=false] - Whether the Consumer must start paused.
-	 * @param {Object} [preferredLayers] - Preferred spatial and temporal layers.
-	 * @param {Object} [appData={}] - Custom app data.
-   *
-	 * @async
 	 * @virtual
-	 * @returns {Consumer}
 	 */
 	async consume(
 		{
@@ -446,8 +478,8 @@ class Transport extends EnhancedEventEmitter
 			paused = false,
 			preferredLayers,
 			appData = {}
-		} = {}
-	)
+		} = {} // TODO: ConsumerOptions interface
+	): Promise<Consumer>
 	{
 		logger.debug('consume()');
 
@@ -506,16 +538,6 @@ class Transport extends EnhancedEventEmitter
 
 	/**
 	 * Create a DataProducer.
-	 *
-	 * @param {String} [id] - DataProducer id (just for PipeTransports).
-	 * @param {RTCSctpStreamParameters} sctpStreamParameters - Remote SCTP stream
-	 *   parameters.
-	 * @param {String} [label='']
-	 * @param {String} [protocol='']
-	 * @param {Object} [appData={}] - Custom app data.
-   *
-	 * @async
-	 * @returns {DataProducer}
 	 */
 	async produceData(
 		{
@@ -524,8 +546,8 @@ class Transport extends EnhancedEventEmitter
 			label = '',
 			protocol = '',
 			appData = {}
-		} = {}
-	)
+		} = {} // TODO: DataProducerOptions interface
+	): Promise<DataProducer>
 	{
 		logger.debug('produceData()');
 
@@ -567,20 +589,13 @@ class Transport extends EnhancedEventEmitter
 
 	/**
 	 * Create a DataConsumer.
-	 *
-	 * @param {String} dataProducerId
-	 * @param {Object} [appData={}] - Custom app data.
-   *
-	 * @async
-	 * @virtual
-	 * @returns {DataConsumer}
 	 */
 	async consumeData(
 		{
 			dataProducerId,
 			appData = {}
-		} = {}
-	)
+		} = {} // TODO: DataConsumerOptions interface
+	): Promise<DataConsumer>
 	{
 		logger.debug('consumeData()');
 
@@ -594,13 +609,15 @@ class Transport extends EnhancedEventEmitter
 		if (!dataProducer)
 			throw Error(`DataProducer with id "${dataProducerId}" not found`);
 
-		const sctpStreamParameters = utils.clone(dataProducer.sctpStreamParameters);
+		const sctpStreamParameters =
+			utils.clone(dataProducer.sctpStreamParameters) as SctpStreamParameters;
+
 		const { label, protocol } = dataProducer;
 
 		// This may throw.
 		const sctpStreamId = this._getNextSctpStreamId();
 
-		this._sctpStreamIds[sctpStreamId] = true;
+		this._sctpStreamIds[sctpStreamId] = 1;
 		sctpStreamParameters.streamId = sctpStreamId;
 
 		const internal = { ...this._internal, dataConsumerId: uuidv4(), dataProducerId };
@@ -622,13 +639,13 @@ class Transport extends EnhancedEventEmitter
 		{
 			this._dataConsumers.delete(dataConsumer.id);
 
-			this._sctpStreamIds[sctpStreamId] = false;
+			this._sctpStreamIds[sctpStreamId] = 0;
 		});
 		dataConsumer.on('@dataproducerclose', () =>
 		{
 			this._dataConsumers.delete(dataConsumer.id);
 
-			this._sctpStreamIds[sctpStreamId] = false;
+			this._sctpStreamIds[sctpStreamId] = 0;
 		});
 
 		// Emit observer event.
@@ -637,17 +654,7 @@ class Transport extends EnhancedEventEmitter
 		return dataConsumer;
 	}
 
-	/**
-	 * @private
-	 * @abstract
-	 */
-	_handleWorkerNotifications()
-	{
-		// Should not happen.
-		throw new Error('method not implemented in the subclass');
-	}
-
-	_getNextSctpStreamId()
+	private _getNextSctpStreamId(): number
 	{
 		if (
 			!this._data.sctpParameters ||
@@ -660,7 +667,7 @@ class Transport extends EnhancedEventEmitter
 		const numStreams = this._data.sctpParameters.MIS;
 
 		if (!this._sctpStreamIds)
-			this._sctpStreamIds = Buffer.alloc(numStreams, false);
+			this._sctpStreamIds = Buffer.alloc(numStreams, 0);
 
 		let sctpStreamId;
 
@@ -679,5 +686,3 @@ class Transport extends EnhancedEventEmitter
 		throw new Error('no sctpStreamId available');
 	}
 }
-
-module.exports = Transport;

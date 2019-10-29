@@ -359,6 +359,10 @@ export interface RtcpParameters
 export interface SctpStreamParameters
 {
 	/**
+	 * SCTP stream id.
+	 */
+	streamId: number;
+	/**
 	 * Whether data messages must be received in order. if true the messages will
 	 * be sent reliably. Default true.
 	 */

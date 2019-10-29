@@ -3,18 +3,26 @@ import Logger from './Logger';
 import EnhancedEventEmitter from './EnhancedEventEmitter';
 import * as ortc from './ortc';
 import Channel from './Channel';
-import Transport from './Transport';
-import WebRtcTransport from './WebRtcTransport';
+import Transport, {
+	TransportListenIp,
+	TransportNumSctpStreams
+} from './Transport';
+import WebRtcTransport, { WebRtcTransportOptions } from './WebRtcTransport';
 import PlainRtpTransport from './PlainRtpTransport';
 import PipeTransport from './PipeTransport';
 import Producer from './Producer';
+import Consumer from './Consumer';
+import DataProducer from './DataProducer';
+import DataConsumer from './DataConsumer';
 import RtpObserver from './RtpObserver';
 import AudioLevelObserver from './AudioLevelObserver';
-import DataProducer from './DataProducer';
 import { RtpCapabilities, RtpCodecCapability } from './types';
 
 export interface RouterOptions
 {
+	/**
+	 * Router media codecs.
+	 */
 	mediaCodecs?: RtpCodecCapability[];
 }
 
@@ -31,7 +39,7 @@ export default class Router extends EnhancedEventEmitter
 	private _rtpObservers: Map<string, RtpObserver> = new Map();
 	private _dataProducers: Map<string, DataProducer> = new Map();
 	private _mapRouterPipeTransports: Map<Router, PipeTransport> = new Map();
-	private _observer: EnhancedEventEmitter = new EnhancedEventEmitter();
+	private _observer = new EnhancedEventEmitter();
 
 	/**
 	 * @private
@@ -204,24 +212,6 @@ export default class Router extends EnhancedEventEmitter
 
 	/**
 	 * Create a WebRtcTransport.
-	 *
-	 * @param {Array<String|Object>} listenIps - Listen IPs in order of preference.
-	 *   Each entry can be a IP string or an object with ip and optional
-	 *   announcedIp strings.
-	 * @param {Boolean} [enableUdp=true] - Enable UDP.
-	 * @param {Boolean} [enableTcp=false] - Enable TCP.
-	 * @param {Boolean} [preferUdp=false] - Prefer UDP.
-	 * @param {Boolean} [preferTcp=false] - Prefer TCP.
-	 * @param {Number} [initialAvailableOutgoingBitrate=600000] - Initial available
-	 *   outgoing bitrate (in bps) when the endpoint supports REMB or Transport-CC.
-	 * @param {Boolean} [enableSctp=false] - Enable SCTP.
-	 * @param {Object} [numSctpStreams={ OS: 1024, MIS: 1024 }] - Number of SCTP
-	 *   streams (initially requested outbound streams and maximum inbound streams).
-	 * @param {Number} [maxSctpMessageSize=262144] - Max SCTP message size (in bytes).
-	 * @param {Object} [appData={}] - Custom app data.
-   *
-	 * @async
-	 * @returns {WebRtcTransport}
 	 */
 	async createWebRtcTransport(
 		{
@@ -235,8 +225,8 @@ export default class Router extends EnhancedEventEmitter
 			numSctpStreams = { OS: 1024, MIS: 1024 },
 			maxSctpMessageSize = 262144,
 			appData = {}
-		} = {}
-	)
+		}: WebRtcTransportOptions
+	): Promise<WebRtcTransport>
 	{
 		logger.debug('createWebRtcTransport()');
 
@@ -245,9 +235,9 @@ export default class Router extends EnhancedEventEmitter
 		else if (appData && typeof appData !== 'object')
 			throw new TypeError('if given, appData must be an object');
 
-		listenIps = listenIps.map((listenIp) =>
+		listenIps = (listenIps as any[]).map((listenIp: TransportListenIp | string) =>
 		{
-			if (typeof listenIp === 'string')
+			if (typeof listenIp === 'string' && listenIp)
 			{
 				return { ip: listenIp };
 			}
@@ -288,20 +278,22 @@ export default class Router extends EnhancedEventEmitter
 				channel                  : this._channel,
 				appData,
 				getRouterRtpCapabilities : () => this._data.rtpCapabilities,
-				getProducerById          : (producerId) => this._producers.get(producerId),
-				getDataProducerById      : (dataProducerId) => (
+				getProducerById          : (producerId: string) => (
+					this._producers.get(producerId)
+				),
+				getDataProducerById : (dataProducerId: string) => (
 					this._dataProducers.get(dataProducerId)
 				)
 			});
 
 		this._transports.set(transport.id, transport);
 		transport.on('@close', () => this._transports.delete(transport.id));
-		transport.on('@newproducer', (producer) => this._producers.set(producer.id, producer));
-		transport.on('@producerclose', (producer) => this._producers.delete(producer.id));
-		transport.on('@newdataproducer', (dataProducer) => (
+		transport.on('@newproducer', (producer: Producer) => this._producers.set(producer.id, producer));
+		transport.on('@producerclose', (producer: Producer) => this._producers.delete(producer.id));
+		transport.on('@newdataproducer', (dataProducer: DataProducer) => (
 			this._dataProducers.set(dataProducer.id, dataProducer)
 		));
-		transport.on('@dataproducerclose', (dataProducer) => (
+		transport.on('@dataproducerclose', (dataProducer: DataProducer) => (
 			this._dataProducers.delete(dataProducer.id)
 		));
 
@@ -391,20 +383,22 @@ export default class Router extends EnhancedEventEmitter
 				channel                  : this._channel,
 				appData,
 				getRouterRtpCapabilities : () => this._data.rtpCapabilities,
-				getProducerById          : (producerId) => this._producers.get(producerId),
-				getDataProducerById      : (dataProducerId) => (
+				getProducerById          : (producerId: string) => (
+					this._producers.get(producerId)
+				),
+				getDataProducerById : (dataProducerId: string) => (
 					this._dataProducers.get(dataProducerId)
 				)
 			});
 
 		this._transports.set(transport.id, transport);
 		transport.on('@close', () => this._transports.delete(transport.id));
-		transport.on('@newproducer', (producer) => this._producers.set(producer.id, producer));
-		transport.on('@producerclose', (producer) => this._producers.delete(producer.id));
-		transport.on('@newdataproducer', (dataProducer) => (
+		transport.on('@newproducer', (producer: Producer) => this._producers.set(producer.id, producer));
+		transport.on('@producerclose', (producer: Producer) => this._producers.delete(producer.id));
+		transport.on('@newdataproducer', (dataProducer: DataProducer) => (
 			this._dataProducers.set(dataProducer.id, dataProducer)
 		));
-		transport.on('@dataproducerclose', (dataProducer) => (
+		transport.on('@dataproducerclose', (dataProducer: DataProducer) => (
 			this._dataProducers.delete(dataProducer.id)
 		));
 
@@ -480,20 +474,22 @@ export default class Router extends EnhancedEventEmitter
 				channel                  : this._channel,
 				appData,
 				getRouterRtpCapabilities : () => this._data.rtpCapabilities,
-				getProducerById          : (producerId) => this._producers.get(producerId),
-				getDataProducerById      : (dataProducerId) => (
+				getProducerById          : (producerId: string) => (
+					this._producers.get(producerId)
+				),
+				getDataProducerById : (dataProducerId: string) => (
 					this._dataProducers.get(dataProducerId)
 				)
 			});
 
 		this._transports.set(transport.id, transport);
 		transport.on('@close', () => this._transports.delete(transport.id));
-		transport.on('@newproducer', (producer) => this._producers.set(producer.id, producer));
-		transport.on('@producerclose', (producer) => this._producers.delete(producer.id));
-		transport.on('@newdataproducer', (dataProducer) => (
+		transport.on('@newproducer', (producer: Producer) => this._producers.set(producer.id, producer));
+		transport.on('@producerclose', (producer: Producer) => this._producers.delete(producer.id));
+		transport.on('@newdataproducer', (dataProducer: DataProducer) => (
 			this._dataProducers.set(dataProducer.id, dataProducer)
 		));
-		transport.on('@dataproducerclose', (dataProducer) => (
+		transport.on('@dataproducerclose', (dataProducer: DataProducer) => (
 			this._dataProducers.delete(dataProducer.id)
 		));
 
@@ -528,8 +524,16 @@ export default class Router extends EnhancedEventEmitter
 			listenIp = '127.0.0.1',
 			enableSctp = true,
 			numSctpStreams = { OS: 1024, MIS: 1024 }
-		} = {}
-	)
+		}:
+		{
+			producerId?: string;
+			dataProducerId?: string;
+			router: Router;
+			listenIp?: string;
+			enableSctp?: boolean;
+			numSctpStreams?: TransportNumSctpStreams;
+		}
+	): Promise<object> // TODO: return Interface?
 	{
 		if (!producerId && !dataProducerId)
 			throw new TypeError('missing producerId or dataProducerId');
@@ -540,8 +544,8 @@ export default class Router extends EnhancedEventEmitter
 		else if (router === this)
 			throw new TypeError('cannot use this Router as destination');
 
-		let producer;
-		let dataProducer;
+		let producer: Producer;
+		let dataProducer: DataProducer;
 
 		if (producerId)
 		{
@@ -559,8 +563,8 @@ export default class Router extends EnhancedEventEmitter
 		}
 
 		let pipeTransportPair = this._mapRouterPipeTransports.get(router);
-		let localPipeTransport;
-		let remotePipeTransport;
+		let localPipeTransport: PipeTransport;
+		let remotePipeTransport: PipeTransport;
 
 		if (pipeTransportPair)
 		{
@@ -627,8 +631,8 @@ export default class Router extends EnhancedEventEmitter
 
 		if (producer)
 		{
-			let pipeConsumer;
-			let pipeProducer;
+			let pipeConsumer: Consumer;
+			let pipeProducer: Producer;
 
 			try
 			{
@@ -674,8 +678,8 @@ export default class Router extends EnhancedEventEmitter
 		}
 		else if (dataProducer)
 		{
-			let pipeDataConsumer;
-			let pipeDataProducer;
+			let pipeDataConsumer: DataConsumer;
+			let pipeDataProducer: DataProducer;
 
 			try
 			{
@@ -716,6 +720,10 @@ export default class Router extends EnhancedEventEmitter
 				throw error;
 			}
 		}
+		else
+		{
+			throw new Error('internal error');
+		}
 	}
 
 	/**
@@ -749,7 +757,7 @@ export default class Router extends EnhancedEventEmitter
 			{
 				internal,
 				channel         : this._channel,
-				getProducerById : (producerId) => this._producers.get(producerId)
+				getProducerById : (producerId: string) => this._producers.get(producerId)
 			});
 
 		this._rtpObservers.set(audioLevelObserver.id, audioLevelObserver);
@@ -763,13 +771,17 @@ export default class Router extends EnhancedEventEmitter
 
 	/**
 	 * Check whether the given RTP capabilities can consume the given Producer.
-	 *
-	 * @param {String} producerId
-	 * @param {RTCRtpCapabilities} rtpCapabilities - Remote RTP capabilities.
-	 *
-	 * @returns {Boolean}
 	 */
-	canConsume({ producerId, rtpCapabilities } = {})
+	canConsume(
+		{
+			producerId,
+			rtpCapabilities
+		}:
+		{
+			producerId: string;
+			rtpCapabilities: RtpCapabilities;
+		}
+	): boolean
 	{
 		const producer = this._producers.get(producerId);
 
