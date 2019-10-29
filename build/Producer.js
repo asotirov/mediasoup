@@ -1,0 +1,229 @@
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Logger_1 = require("./Logger");
+const EnhancedEventEmitter_1 = require("./EnhancedEventEmitter");
+const logger = new Logger_1.default('Producer');
+class Producer extends EnhancedEventEmitter_1.default {
+    /**
+     * @private
+     * @emits transportclose
+     * @emits {Array<Object>} score
+     * @emits {Object} videoorientationchange
+     * @emits @close
+     */
+    constructor({ internal, data, channel, appData, paused }) {
+        super(logger);
+        this._closed = false;
+        this._paused = false;
+        this._score = [];
+        this._observer = new EnhancedEventEmitter_1.default();
+        logger.debug('constructor()');
+        // Internal data.
+        // - .routerId
+        // - .transportId
+        // - .producerId
+        this._internal = internal;
+        // Producer data.
+        // - .kind
+        // - .rtpParameters
+        // - .type
+        // - .consumableRtpParameters
+        this._data = data;
+        // Channel instance.
+        this._channel = channel;
+        // App custom data.
+        this._appData = appData;
+        // Paused flag.
+        this._paused = paused;
+        this._handleWorkerNotifications();
+    }
+    /**
+     * Producer id.
+     */
+    get id() {
+        return this._internal.producerId;
+    }
+    /**
+     * Whether the Producer is closed.
+     */
+    get closed() {
+        return this._closed;
+    }
+    /**
+     * Media kind.
+     */
+    get kind() {
+        return this._data.kind;
+    }
+    /**
+     * RTP parameters.
+     */
+    get rtpParameters() {
+        return this._data.rtpParameters;
+    }
+    /**
+     * Producer type.
+     */
+    get type() {
+        return this._data.type;
+    }
+    /**
+     * Consumable RTP parameters.
+     *
+     * @private
+     */
+    get consumableRtpParameters() {
+        return this._data.consumableRtpParameters;
+    }
+    /**
+     * Whether the Producer is paused.
+     */
+    get paused() {
+        return this._paused;
+    }
+    /**
+     * Producer score list.
+     */
+    get score() {
+        return this._score;
+    }
+    /**
+     * App custom data.
+     */
+    get appData() {
+        return this._appData;
+    }
+    /**
+     * Invalid setter.
+     */
+    set appData(appData) {
+        throw new Error('cannot override appData object');
+    }
+    /**
+     * Observer.
+     *
+     * @emits close
+     * @emits pause
+     * @emits resume
+     * @emits {Array<Object>} score
+     * @emits {Object} videoorientationchange
+     */
+    get observer() {
+        return this._observer;
+    }
+    /**
+     * Close the Producer.
+     */
+    close() {
+        if (this._closed)
+            return;
+        logger.debug('close()');
+        this._closed = true;
+        // Remove notification subscriptions.
+        this._channel.removeAllListeners(this._internal.producerId);
+        this._channel.request('producer.close', this._internal)
+            .catch(() => { });
+        this.emit('@close');
+        // Emit observer event.
+        this._observer.safeEmit('close');
+    }
+    /**
+     * Transport was closed.
+     *
+     * @private
+     */
+    transportClosed() {
+        if (this._closed)
+            return;
+        logger.debug('transportClosed()');
+        this._closed = true;
+        // Remove notification subscriptions.
+        this._channel.removeAllListeners(this._internal.producerId);
+        this.safeEmit('transportclose');
+        // Emit observer event.
+        this._observer.safeEmit('close');
+    }
+    /**
+     * Dump Producer.
+     */
+    dump() {
+        return __awaiter(this, void 0, void 0, function* () {
+            logger.debug('dump()');
+            return this._channel.request('producer.dump', this._internal);
+        });
+    }
+    /**
+     * Get Producer stats.
+     */
+    getStats() {
+        return __awaiter(this, void 0, void 0, function* () {
+            logger.debug('getStats()');
+            return this._channel.request('producer.getStats', this._internal);
+        });
+    }
+    /**
+     * Pause the Producer.
+     */
+    pause() {
+        return __awaiter(this, void 0, void 0, function* () {
+            logger.debug('pause()');
+            const wasPaused = this._paused;
+            yield this._channel.request('producer.pause', this._internal);
+            this._paused = true;
+            // Emit observer event.
+            if (!wasPaused)
+                this._observer.safeEmit('pause');
+        });
+    }
+    /**
+     * Resume the Producer.
+     */
+    resume() {
+        return __awaiter(this, void 0, void 0, function* () {
+            logger.debug('resume()');
+            const wasPaused = this._paused;
+            yield this._channel.request('producer.resume', this._internal);
+            this._paused = false;
+            // Emit observer event.
+            if (wasPaused)
+                this._observer.safeEmit('resume');
+        });
+    }
+    _handleWorkerNotifications() {
+        this._channel.on(this._internal.producerId, (event, data) => {
+            switch (event) {
+                case 'score':
+                    {
+                        const score = data;
+                        this._score = score;
+                        this.safeEmit('score', score);
+                        // Emit observer event.
+                        this._observer.safeEmit('score', score);
+                        break;
+                    }
+                case 'videoorientationchange':
+                    {
+                        const videoOrientation = data;
+                        this.safeEmit('videoorientationchange', videoOrientation);
+                        // Emit observer event.
+                        this._observer.safeEmit('videoorientationchange', videoOrientation);
+                        break;
+                    }
+                default:
+                    {
+                        logger.error('ignoring unknown event "%s"', event);
+                    }
+            }
+        });
+    }
+}
+exports.default = Producer;
