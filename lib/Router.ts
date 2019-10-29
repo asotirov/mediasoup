@@ -642,19 +642,15 @@ export default class Router extends EnhancedEventEmitter
 
 			try
 			{
-				pipeConsumer = await localPipeTransport.consume(
-					{
-						producerId,
-						paused : producer.paused
-					});
+				pipeConsumer = await localPipeTransport.consume({ producerId });
 
 				pipeProducer = await remotePipeTransport.produce(
 					{
 						id            : producer.id,
 						kind          : pipeConsumer.kind,
 						rtpParameters : pipeConsumer.rtpParameters,
-						appData       : producer.appData,
-						paused        : pipeConsumer.producerPaused
+						paused        : pipeConsumer.producerPaused,
+						appData       : producer.appData
 					});
 
 				// Pipe events from the pipe Consumer to the pipe Producer.

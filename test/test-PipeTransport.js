@@ -384,7 +384,7 @@ test('router.pipeToRouter() succeeds with video', async () =>
 		]);
 
 	expect(pipeConsumer.type).toBe('pipe');
-	expect(pipeConsumer.paused).toBe(true);
+	expect(pipeConsumer.paused).toBe(false);
 	expect(pipeConsumer.producerPaused).toBe(true);
 	expect(pipeConsumer.score).toEqual({ consumer: 10, producerScore: 10 });
 	expect(pipeConsumer.appData).toEqual({});

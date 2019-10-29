@@ -183,13 +183,7 @@ export default class PipeTransport extends Transport
 	 *
 	 * @override
 	 */
-	async consume(
-		{
-			producerId,
-			paused = false,
-			appData = {}
-		}: ConsumerOptions
-	): Promise<Consumer>
+	async consume({ producerId, appData = {} }: ConsumerOptions): Promise<Consumer>
 	{
 		logger.debug('consume()');
 
@@ -213,8 +207,7 @@ export default class PipeTransport extends Transport
 			kind                   : producer.kind,
 			rtpParameters,
 			type                   : 'pipe',
-			consumableRtpEncodings : producer.consumableRtpParameters.encodings,
-			paused
+			consumableRtpEncodings : producer.consumableRtpParameters.encodings
 		};
 
 		const status =
