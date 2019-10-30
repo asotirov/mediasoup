@@ -492,18 +492,26 @@ test('transport.consume() for a pipe Producer succeeds', async () =>
 
 test('producer.pause() and producer.resume() are transmitted to pipe Consumer', async () =>
 {
+	// NOTE: Let's use a Promise since otherwise there may be race conditions
+	// between events and await lines below.
+	let promise;
+
 	expect(videoProducer.paused).toBe(true);
 	expect(videoConsumer.producerPaused).toBe(true);
 	expect(videoConsumer.paused).toBe(false);
 
+	promise = new Promise((resolve) => videoConsumer.once('producerresume', resolve));
+
 	await videoProducer.resume();
-	await new Promise((resolve) => videoConsumer.once('producerresume', resolve));
+	await promise;
 
 	expect(videoConsumer.producerPaused).toBe(false);
 	expect(videoConsumer.paused).toBe(false);
 
+	promise = new Promise((resolve) => videoConsumer.once('producerpause', resolve));
+
 	await videoProducer.pause();
-	await new Promise((resolve) => videoConsumer.once('producerpause', resolve));
+	await promise;
 
 	expect(videoConsumer.producerPaused).toBe(true);
 	expect(videoConsumer.paused).toBe(false);
