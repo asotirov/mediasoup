@@ -2,6 +2,7 @@ const process = require('process');
 const os = require('os');
 const { execSync } = require('child_process');
 const fs = require('fs');
+const TscWatchClient = require('tsc-watch/client');
 const { version } = require('./package.json');
 
 const isWindows = os.platform() === 'win32';
@@ -43,9 +44,14 @@ switch (task)
 	case 'typescript:watch':
 	{
 		if (!isWindows)
-			execute('rm -rf build && tsc --pretty --watch');
+			execute('rm -rf build');
 		else
-			execute('rmdir /s build && tsc --pretty --watch');
+			execute('rmdir /s build');
+
+		const watch = new TscWatchClient();
+
+		watch.on('success', taskReplaceVersion);
+		watch.start('--pretty');
 
 		break;
 	}

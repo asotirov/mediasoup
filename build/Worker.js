@@ -46,7 +46,7 @@ class Worker extends EnhancedEventEmitter_1.default {
             const mediasoupBin = workerBin;
             workerBin = process.env.MEDIASOUP_VALGRIND_BIN || 'valgrind';
             if (process.env.MEDIASOUP_VALGRIND_OPTIONS)
-                workerArgs = workerArgs.concat(process.env.MEDIASOUP_VALGRIND_OPTIONS.split('|'));
+                workerArgs = workerArgs.concat(process.env.MEDIASOUP_VALGRIND_OPTIONS.split(/\s+/));
             workerArgs.push(mediasoupBin);
         }
         if (typeof logLevel === 'string' && logLevel)

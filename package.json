@@ -63,6 +63,7 @@
     "jest-tobetype": "^1.2.3",
     "open-cli": "^5.0.0",
     "sctp": "^0.0.18",
+    "tsc-watch": "^4.0.0",
     "typescript": "^3.6.4"
   },
   "optionalDependencies": {
