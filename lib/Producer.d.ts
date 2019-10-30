@@ -1,6 +1,6 @@
 import EnhancedEventEmitter from './EnhancedEventEmitter';
 import Channel from './Channel';
-import { RtpParameters } from './RtpParametersAndCapabilities';
+import { MediaKind, RtpParameters } from './RtpParametersAndCapabilities';
 export interface ProducerOptions {
     /**
      * Producer id (just for Router.pipeToRouter() method).
@@ -9,7 +9,7 @@ export interface ProducerOptions {
     /**
      * Media kind ('audio' or 'video').
      */
-    kind: 'audio' | 'video';
+    kind: MediaKind;
     /**
      * RTP parameters defining what the endpoint is sending.
      */
@@ -82,7 +82,7 @@ export default class Producer extends EnhancedEventEmitter {
     /**
      * Media kind.
      */
-    readonly kind: 'audio' | 'video';
+    readonly kind: MediaKind;
     /**
      * RTP parameters.
      */

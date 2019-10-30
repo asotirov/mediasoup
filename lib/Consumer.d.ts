@@ -1,6 +1,6 @@
 import EnhancedEventEmitter from './EnhancedEventEmitter';
 import Channel from './Channel';
-import { RtpCapabilities, RtpParameters } from './RtpParametersAndCapabilities';
+import { MediaKind, RtpCapabilities, RtpParameters } from './RtpParametersAndCapabilities';
 export interface ConsumerOptions {
     /**
      * The id of the Producer to consume.
@@ -113,7 +113,7 @@ export default class Consumer extends EnhancedEventEmitter {
     /**
      * Media kind.
      */
-    readonly kind: 'audio' | 'video';
+    readonly kind: MediaKind;
     /**
      * RTP parameters.
      */

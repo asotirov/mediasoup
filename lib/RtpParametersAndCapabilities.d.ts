@@ -1,4 +1,8 @@
 /**
+ * Media kind ('audio' or 'video').
+ */
+export declare type MediaKind = 'audio' | 'video';
+/**
  * The RTP capabilities define what mediasoup or an endpoint can receive at
  * media level.
  */
@@ -35,9 +39,9 @@ export interface RtpCapabilities {
  */
 export interface RtpCodecCapability {
     /**
-     * Media kind ('audio' or 'video').
+     * Media kind.
      */
-    kind: 'audio' | 'video';
+    kind: MediaKind;
     /**
      * The codec MIME media type/subtype (e.g. 'audio/opus', 'video/VP8').
      */
@@ -78,10 +82,10 @@ export interface RtpCodecCapability {
  */
 export interface RtpHeaderExtension {
     /**
-     * Media kind ('audio' or 'video'). If unset, it's valid for all kinds.
+     * Media kind. If unset, it's valid for all kinds.
      * Default any media kind.
      */
-    kind?: 'audio' | 'video';
+    kind?: MediaKind;
     uri: string;
     /**
      * The preferred numeric identifier that goes in the RTP packet. Must be

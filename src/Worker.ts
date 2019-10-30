@@ -8,6 +8,8 @@ import * as ortc from './ortc';
 import Channel from './Channel';
 import Router, { RouterOptions } from './Router';
 
+export type WorkerLogLevel = 'debug' | 'warn' | 'error' | 'none';
+
 export interface WorkerSettings
 {
 	/**
@@ -15,7 +17,7 @@ export interface WorkerSettings
 	 * the Debugging documentation). Valid values are 'debug', 'warn', 'error' and
 	 * 'none'. Default 'error'.
 	 */
-	logLevel?: 'debug' | 'warn' | 'error' | 'none';
+	logLevel?: WorkerLogLevel;
 
 	/**
 	 * Log tags for debugging. Check the list of available tags in Debugging

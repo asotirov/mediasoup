@@ -1,7 +1,11 @@
 import Logger from './Logger';
 import EnhancedEventEmitter from './EnhancedEventEmitter';
 import Channel from './Channel';
-import { RtpCapabilities, RtpParameters } from './RtpParametersAndCapabilities';
+import {
+	MediaKind,
+	RtpCapabilities,
+	RtpParameters
+} from './RtpParametersAndCapabilities';
 
 export interface ConsumerOptions
 {
@@ -186,7 +190,7 @@ export default class Consumer extends EnhancedEventEmitter
 	/**
 	 * Media kind.
 	 */
-	get kind(): 'audio' | 'video'
+	get kind(): MediaKind
 	{
 		return this._data.kind;
 	}

@@ -1,7 +1,7 @@
 import Logger from './Logger';
 import EnhancedEventEmitter from './EnhancedEventEmitter';
 import Channel from './Channel';
-import { RtpParameters } from './RtpParametersAndCapabilities';
+import { MediaKind, RtpParameters } from './RtpParametersAndCapabilities';
 
 export interface ProducerOptions
 {
@@ -13,7 +13,7 @@ export interface ProducerOptions
 	/**
 	 * Media kind ('audio' or 'video').
 	 */
-	kind: 'audio' | 'video';
+	kind: MediaKind;
 
 	/**
 	 * RTP parameters defining what the endpoint is sending.
@@ -146,7 +146,7 @@ export default class Producer extends EnhancedEventEmitter
 	/**
 	 * Media kind.
 	 */
-	get kind(): 'audio' | 'video'
+	get kind(): MediaKind
 	{
 		return this._data.kind;
 	}

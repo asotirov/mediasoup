@@ -5,6 +5,7 @@ import { UnsupportedError } from './errors';
 import supportedRtpCapabilities from './supportedRtpCapabilities';
 import { parse as parseScalabilityMode } from './scalabilityModes';
 import {
+	MediaKind,
 	RtpCapabilities,
 	RtpCodecCapability,
 	RtpParameters,
@@ -626,7 +627,7 @@ function assertCodecCapability(codec: RtpCodecCapability): void
 
 	// Add kind if not present.
 	if (!codec.kind)
-		codec.kind = codec.mimeType.replace(/\/.*/, '').toLowerCase() as 'audio' | 'video';
+		codec.kind = codec.mimeType.replace(/\/.*/, '').toLowerCase() as MediaKind;
 }
 
 function assertCodecParameters(codec: RtpCodecCapability | RtpCodecParameters): void
