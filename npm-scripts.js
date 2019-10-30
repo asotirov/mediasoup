@@ -9,7 +9,6 @@ const isWindows = os.platform() === 'win32';
 const task = process.argv.slice(2).join(' ');
 
 const GULP = process.env.GULP || 'gulp';
-
 // Just for Windows.
 let PYTHON;
 let MSBUILD;
