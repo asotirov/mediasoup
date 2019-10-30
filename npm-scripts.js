@@ -8,9 +8,10 @@ const { version } = require('./package.json');
 const isWindows = os.platform() === 'win32';
 const task = process.argv.slice(2).join(' ');
 
+const GULP = process.env.GULP || 'gulp';
+
 // Just for Windows.
 let PYTHON;
-let GULP;
 let MSBUILD;
 let MEDIASOUP_BUILDTYPE;
 let MEDIASOUP_TEST_TAGS;
@@ -18,7 +19,6 @@ let MEDIASOUP_TEST_TAGS;
 if (isWindows)
 {
 	PYTHON = process.env.PYTHON || 'python';
-	GULP = process.env.GULP || 'gulp';
 	MSBUILD = process.env.MSBUILD || 'MSBuild';
 	MEDIASOUP_BUILDTYPE = process.env.MEDIASOUP_BUILDTYPE || 'Release';
 	MEDIASOUP_TEST_TAGS = process.env.MEDIASOUP_TEST_TAGS || '';
@@ -59,35 +59,22 @@ switch (task)
 
 	case 'lint:node':
 	{
-		if (!isWindows)
-		{
-			execute('MEDIASOUP_NODE_LANGUAGE=typescript eslint -c .eslintrc.js --ext=ts src/');
-			execute('MEDIASOUP_NODE_LANGUAGE=javascript eslint -c .eslintrc.js --ext=js --ignore-pattern \'!.eslintrc.js\' .eslintrc.js gulpfile.js npm-scripts.js test/');
-		}
-		else
-		{
-			notSupportedTask();
-		}
+		execute('cross-env MEDIASOUP_NODE_LANGUAGE=typescript eslint -c .eslintrc.js --ext=ts src/');
+		execute('cross-env MEDIASOUP_NODE_LANGUAGE=javascript eslint -c .eslintrc.js --ext=js --ignore-pattern \'!.eslintrc.js\' .eslintrc.js gulpfile.js npm-scripts.js test/');
 
 		break;
 	}
 
 	case 'lint:worker':
 	{
-		if (!isWindows)
-			execute('make lint -C worker');
-		else
-			execute(`${GULP} lint:worker`);
+		execute(`${GULP} lint:worker`);
 
 		break;
 	}
 
 	case 'format:worker':
 	{
-		if (!isWindows)
-			execute('make format -C worker');
-		else
-			execute(`${GULP} format:worker`);
+		execute(`${GULP} format:worker`);
 
 		break;
 	}
@@ -172,12 +159,4 @@ function execute(command)
 	{
 		process.exit(1);
 	}
-}
-
-function notSupportedTask()
-{
-	// eslint-disable-next-line no-console
-	console.error(`npm-scripts.js [ERROR] task "${task}" not supported`);
-
-	process.exit(2);
 }
