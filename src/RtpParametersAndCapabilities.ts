@@ -1,9 +1,4 @@
 /**
- * Media kind ('audio' or 'video').
- */
-export type MediaKind = 'audio' | 'video';
-
-/**
  * The RTP capabilities define what mediasoup or an endpoint can receive at
  * media level.
  */
@@ -25,6 +20,11 @@ export interface RtpCapabilities
 	 */
 	fecMechanisms?: string[];
 }
+
+/**
+ * Media kind ('audio' or 'video').
+ */
+export type MediaKind = 'audio' | 'video';
 
 /**
  * Provides information on the capabilities of a codec within the RTP
@@ -85,6 +85,11 @@ export interface RtpCodecCapability
 }
 
 /**
+ * Direction of RTP header extension.
+ */
+export type RtpHeaderExtensionDirection = 'sendrecv' | 'sendonly' | 'recvonly' | 'inactive';
+
+/**
  * Provides information relating to supported header extensions. The list of
  * RTP header extensions supported by mediasoup is defined in the
  * supportedRtpCapabilities.ts file.
@@ -124,7 +129,7 @@ export interface RtpHeaderExtension
 	 * 'sendonly' means that mediasoup can send (but not receive) it. 'recvonly'
 	 * means that mediasoup can receive (but not send) it.
 	 */
-	direction?: 'sendrecv' | 'sendonly' | 'recvonly' | 'inactive';
+	direction?: RtpHeaderExtensionDirection;
 }
 
 /**
