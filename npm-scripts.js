@@ -48,8 +48,6 @@ switch (task)
 		else
 			execute('rmdir /s build && tsc --pretty --watch');
 
-		taskReplaceVersion();
-
 		break;
 	}
 
