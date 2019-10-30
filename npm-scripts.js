@@ -32,10 +32,11 @@ switch (task)
 	case 'typescript:build':
 	{
 		if (!isWindows)
-			execute('rm -rf build && tsc');
+			execute('rm -rf lib');
 		else
-			execute('rmdir /s build && tsc');
+			execute('rmdir /s lib');
 
+		execute('tsc');
 		taskReplaceVersion();
 
 		break;
@@ -44,9 +45,9 @@ switch (task)
 	case 'typescript:watch':
 	{
 		if (!isWindows)
-			execute('rm -rf build');
+			execute('rm -rf lib');
 		else
-			execute('rmdir /s build');
+			execute('rmdir /s lib');
 
 		const watch = new TscWatchClient();
 
@@ -60,7 +61,7 @@ switch (task)
 	{
 		if (!isWindows)
 		{
-			execute('MEDIASOUP_NODE_LANGUAGE=typescript eslint -c .eslintrc.js --ext=ts lib/');
+			execute('MEDIASOUP_NODE_LANGUAGE=typescript eslint -c .eslintrc.js --ext=ts src/');
 			execute('MEDIASOUP_NODE_LANGUAGE=javascript eslint -c .eslintrc.js --ext=js --ignore-pattern \'!.eslintrc.js\' .eslintrc.js gulpfile.js npm-scripts.js test/');
 		}
 		else
@@ -147,7 +148,7 @@ switch (task)
 
 function taskReplaceVersion()
 {
-	const files = [ 'build/index.js', 'build/Worker.js' ];
+	const files = [ 'lib/index.js', 'lib/Worker.js' ];
 
 	for (const file of files)
 	{
