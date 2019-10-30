@@ -61,6 +61,11 @@ export interface ProducerStat
 	bitrateByLayer?: object;
 }
 
+/**
+ * Producer type.
+ */
+export type ProducerType = 'simple' | 'simulcast' | 'svc';
+
 const logger = new Logger('Producer');
 
 export default class Producer extends EnhancedEventEmitter
@@ -162,7 +167,7 @@ export default class Producer extends EnhancedEventEmitter
 	/**
 	 * Producer type.
 	 */
-	get type(): 'simple' | 'simulcast' | 'svc'
+	get type(): ProducerType
 	{
 		return this._data.type;
 	}

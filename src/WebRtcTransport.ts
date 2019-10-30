@@ -2,6 +2,7 @@ import Logger from './Logger';
 import EnhancedEventEmitter from './EnhancedEventEmitter';
 import Transport, {
 	TransportListenIp,
+	TransportProtocol,
 	TransportTuple,
 	TransportSctpParameters,
 	TransportNumSctpStreams,
@@ -75,7 +76,7 @@ export interface IceCandidate
 	foundation: string;
 	priority: number;
 	ip: string;
-	protocol: 'udp' | 'tcp';
+	protocol: TransportProtocol;
 	port: number;
 	type: 'host';
 	tcpType: 'passive' | undefined;

@@ -1,6 +1,7 @@
 import Logger from './Logger';
 import EnhancedEventEmitter from './EnhancedEventEmitter';
 import Channel from './Channel';
+import { ProducerType } from './Producer';
 import {
 	MediaKind,
 	RtpCapabilities,
@@ -206,7 +207,7 @@ export default class Consumer extends EnhancedEventEmitter
 	/**
 	 * Associated Producer type.
 	 */
-	get type(): 'simple' | 'simulcast' | 'svc'
+	get type(): ProducerType
 	{
 		return this._data.type;
 	}

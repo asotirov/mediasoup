@@ -25,13 +25,18 @@ export interface TransportListenIp
 	announcedIp?: string;
 }
 
+/**
+ * Transport protocol.
+ */
+export type TransportProtocol = 'udp' | 'tcp';
+
 export interface TransportTuple
 {
 	localIp: string;
 	localPort: number;
 	remoteIp?: string;
 	remotePort?: number;
-	protocol: 'udp' | 'tcp';
+	protocol: TransportProtocol;
 }
 
 export interface TransportSctpParameters

@@ -1,5 +1,5 @@
 import EnhancedEventEmitter from './EnhancedEventEmitter';
-import Transport, { TransportListenIp, TransportTuple, TransportSctpParameters, TransportNumSctpStreams, SctpState } from './Transport';
+import Transport, { TransportListenIp, TransportProtocol, TransportTuple, TransportSctpParameters, TransportNumSctpStreams, SctpState } from './Transport';
 export interface WebRtcTransportOptions {
     /**
      * Listening IP address or addresses in order of preference (first one is the
@@ -53,7 +53,7 @@ export interface IceCandidate {
     foundation: string;
     priority: number;
     ip: string;
-    protocol: 'udp' | 'tcp';
+    protocol: TransportProtocol;
     port: number;
     type: 'host';
     tcpType: 'passive' | undefined;

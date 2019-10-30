@@ -48,6 +48,10 @@ export interface ProducerStat {
     jitter: number;
     bitrateByLayer?: object;
 }
+/**
+ * Producer type.
+ */
+export declare type ProducerType = 'simple' | 'simulcast' | 'svc';
 export default class Producer extends EnhancedEventEmitter {
     private _internal;
     private _data;
@@ -90,7 +94,7 @@ export default class Producer extends EnhancedEventEmitter {
     /**
      * Producer type.
      */
-    readonly type: 'simple' | 'simulcast' | 'svc';
+    readonly type: ProducerType;
     /**
      * Consumable RTP parameters.
      *

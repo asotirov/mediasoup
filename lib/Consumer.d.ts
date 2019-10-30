@@ -1,5 +1,6 @@
 import EnhancedEventEmitter from './EnhancedEventEmitter';
 import Channel from './Channel';
+import { ProducerType } from './Producer';
 import { MediaKind, RtpCapabilities, RtpParameters } from './RtpParametersAndCapabilities';
 export interface ConsumerOptions {
     /**
@@ -121,7 +122,7 @@ export default class Consumer extends EnhancedEventEmitter {
     /**
      * Associated Producer type.
      */
-    readonly type: 'simple' | 'simulcast' | 'svc';
+    readonly type: ProducerType;
     /**
      * Whether the Consumer is paused.
      */
