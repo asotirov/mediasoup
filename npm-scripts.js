@@ -1,6 +1,5 @@
 const process = require('process');
 const os = require('os');
-const path = require('path');
 const { execSync } = require('child_process');
 const fs = require('fs');
 const { version } = require('./package.json');
@@ -18,7 +17,7 @@ let MEDIASOUP_TEST_TAGS;
 if (isWindows)
 {
 	PYTHON = process.env.PYTHON || 'python';
-	GULP = path.join(__dirname, '..', 'node_modules', '.bin', 'gulp');
+	GULP = process.env.GULP || 'gulp';
 	MSBUILD = process.env.MSBUILD || 'MSBuild';
 	MEDIASOUP_BUILDTYPE = process.env.MEDIASOUP_BUILDTYPE || 'Release';
 	MEDIASOUP_TEST_TAGS = process.env.MEDIASOUP_TEST_TAGS || '';
