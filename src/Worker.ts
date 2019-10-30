@@ -1,7 +1,7 @@
 import * as process from 'process';
 import * as path from 'path';
 import { spawn, ChildProcess } from 'child_process';
-import * as uuidv4 from 'uuid/v4';
+import uuidv4 from 'uuid/v4';
 import Logger from './Logger';
 import EnhancedEventEmitter from './EnhancedEventEmitter';
 import * as ortc from './ortc';

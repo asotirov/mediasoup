@@ -1,4 +1,4 @@
-import * as debug from 'debug';
+import debug from 'debug';
 export default class Logger {
     private _debug;
     private _warn;

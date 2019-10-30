@@ -1,4 +1,4 @@
-import * as uuidv4 from 'uuid/v4';
+import uuidv4 from 'uuid/v4';
 import Logger from './Logger';
 import EnhancedEventEmitter from './EnhancedEventEmitter';
 import * as utils from './utils';
