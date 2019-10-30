@@ -13,6 +13,7 @@
     "url": "https://github.com/versatica/mediasoup.git"
   },
   "main": "build/index.js",
+  "types": "build/index.d.ts",
   "keywords": [
     "webrtc",
     "ortc",
