@@ -1,6 +1,6 @@
 const { toBeType } = require('jest-tobetype');
-const { UnsupportedError } = require('../build/errors');
-const ortc = require('../build/ortc');
+const { UnsupportedError } = require('../lib/errors');
+const ortc = require('../lib/ortc');
 
 expect.extend({ toBeType });
 

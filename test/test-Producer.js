@@ -1,7 +1,7 @@
 const { toBeType } = require('jest-tobetype');
 const mediasoup = require('../');
 const { createWorker } = mediasoup;
-const { UnsupportedError } = require('../build/errors');
+const { UnsupportedError } = require('../lib/errors');
 
 expect.extend({ toBeType });
 
