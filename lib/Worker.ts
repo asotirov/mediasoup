@@ -99,7 +99,7 @@ export default class Worker extends EnhancedEventEmitter
 			workerBin = process.env.MEDIASOUP_VALGRIND_BIN || 'valgrind';
 
 			if (process.env.MEDIASOUP_VALGRIND_OPTIONS)
-				workerArgs = workerArgs.concat(process.env.MEDIASOUP_VALGRIND_OPTIONS);
+				workerArgs = workerArgs.concat(process.env.MEDIASOUP_VALGRIND_OPTIONS.split(/\s+/));
 
 			workerArgs.push(mediasoupBin);
 		}
