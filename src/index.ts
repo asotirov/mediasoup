@@ -4,6 +4,12 @@ import Worker, { WorkerSettings } from './Worker';
 import * as utils from './utils';
 import supportedRtpCapabilities from './supportedRtpCapabilities';
 import { RtpCapabilities } from './RtpParametersAndCapabilities';
+import * as types from './types';
+
+/**
+ * Expose all types.
+ */
+export { types };
 
 /**
  * Expose mediasoup version.
