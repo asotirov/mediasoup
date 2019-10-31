@@ -28,7 +28,7 @@ export interface ProducerOptions
 	/**
 	 * Custom application data.
 	 */
-	appData?: object;
+	appData?: any;
 }
 
 export interface ProducerStat
@@ -58,7 +58,7 @@ export interface ProducerStat
 
 	// RtpStreamRecv specific.
 	jitter: number;
-	bitrateByLayer?: object;
+	bitrateByLayer?: any;
 }
 
 /**
@@ -74,9 +74,9 @@ export default class Producer extends EnhancedEventEmitter
 	private _data: any;
 	private _channel: Channel;
 	private _closed = false;
-	private _appData?: object;
+	private _appData?: any;
 	private _paused = false;
-	private _score: object[] = [];
+	private _score: any[] = [];
 	private _observer = new EnhancedEventEmitter();
 
 	/**
@@ -98,7 +98,7 @@ export default class Producer extends EnhancedEventEmitter
 			internal: any;
 			data: any;
 			channel: Channel;
-			appData?: object;
+			appData?: any;
 			paused: boolean;
 		}
 	)
@@ -193,7 +193,7 @@ export default class Producer extends EnhancedEventEmitter
 	/**
 	 * Producer score list.
 	 */
-	get score(): object[]
+	get score(): any[]
 	{
 		return this._score;
 	}
@@ -201,7 +201,7 @@ export default class Producer extends EnhancedEventEmitter
 	/**
 	 * App custom data.
 	 */
-	get appData(): object
+	get appData(): any
 	{
 		return this._appData;
 	}
@@ -209,7 +209,7 @@ export default class Producer extends EnhancedEventEmitter
 	/**
 	 * Invalid setter.
 	 */
-	set appData(appData: object) // eslint-disable-line no-unused-vars
+	set appData(appData: any) // eslint-disable-line no-unused-vars
 	{
 		throw new Error('cannot override appData object');
 	}

@@ -64,7 +64,7 @@ export default class DataProducer extends EnhancedEventEmitter
 	private _closed = false;
 
 	// Custom app data.
-	private _appData?: object;
+	private _appData?: any;
 
 	// Observer instance.
 	private _observer = new EnhancedEventEmitter();
@@ -85,7 +85,7 @@ export default class DataProducer extends EnhancedEventEmitter
 			internal: any;
 			data: any;
 			channel: Channel;
-			appData: object;
+			appData: any;
 		}
 	)
 	{
@@ -144,7 +144,7 @@ export default class DataProducer extends EnhancedEventEmitter
 	/**
 	 * App custom data.
 	 */
-	get appData(): object
+	get appData(): any
 	{
 		return this._appData;
 	}
@@ -152,7 +152,7 @@ export default class DataProducer extends EnhancedEventEmitter
 	/**
 	 * Invalid setter.
 	 */
-	set appData(appData: object) // eslint-disable-line no-unused-vars
+	set appData(appData: any) // eslint-disable-line no-unused-vars
 	{
 		throw new Error('cannot override appData object');
 	}

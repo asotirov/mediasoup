@@ -45,7 +45,7 @@ export interface ConsumerOptions
 	/**
 	 * Custom application data.
 	 */
-	appData?: object;
+	appData?: any;
 }
 
 export interface ConsumerLayers
@@ -107,7 +107,7 @@ export default class Consumer extends EnhancedEventEmitter
 	private _closed = false;
 
 	// Custom app data.
-	private _appData?: object;
+	private _appData?: any;
 
 	// Paused flag.
 	private _paused = false;
@@ -119,7 +119,7 @@ export default class Consumer extends EnhancedEventEmitter
 	private _score: { consumer: number; producerScore: number } | null;
 
 	// Curent layers.
-	private _currentLayers: object | null = null;
+	private _currentLayers: any | null = null;
 
 	// Observer instance.
 	private _observer = new EnhancedEventEmitter();
@@ -149,7 +149,7 @@ export default class Consumer extends EnhancedEventEmitter
 			internal: any;
 			data: any;
 			channel: Channel;
-			appData?: object;
+			appData?: any;
 			paused: boolean;
 			producerPaused: boolean;
 			score?: { consumer: number; producerScore: number };
@@ -245,7 +245,7 @@ export default class Consumer extends EnhancedEventEmitter
 	/**
 	 * Current video layers.
 	 */
-	get currentLayers(): object | null
+	get currentLayers(): any | null
 	{
 		return this._currentLayers;
 	}
@@ -253,7 +253,7 @@ export default class Consumer extends EnhancedEventEmitter
 	/**
 	 * App custom data.
 	 */
-	get appData(): object
+	get appData(): any
 	{
 		return this._appData;
 	}

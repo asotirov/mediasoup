@@ -61,7 +61,7 @@ export interface WebRtcTransportOptions
 	/**
 	 * Custom application data.
 	 */
-	appData?: object;
+	appData?: any;
 }
 
 export interface IceParameters
@@ -188,9 +188,9 @@ export default class WebRtcTransport extends Transport
 	/**
 	 * @private
 	 * @emits {iceState: string} icestatechange
-	 * @emits {iceSelectedTuple: Object} iceselectedtuplechange
-	 * @emits {dtlsState: string} dtlsstatechange
-	 * @emits {sctpState: string} sctpstatechange
+	 * @emits {iceSelectedTuple: TransportTuple} iceselectedtuplechange
+	 * @emits {dtlsState: DtlsState} dtlsstatechange
+	 * @emits {sctpState: SctpState} sctpstatechange
 	 */
 	constructor(params: any)
 	{
@@ -306,10 +306,10 @@ export default class WebRtcTransport extends Transport
 	 * @emits {consumer: Consumer} newconsumer
 	 * @emits {producer: DataProducer} newdataproducer
 	 * @emits {consumer: DataConsumer} newdataconsumer
-	 * @emits {iceState: string} icestatechange
-	 * @emits {iceSelectedTuple: Object} iceselectedtuplechange
-	 * @emits {dtlsState: string} dtlsstatechange
-	 * @emits {sctpState: string} sctpstatechange
+	 * @emits {iceState: IceState} icestatechange
+	 * @emits {iceSelectedTuple: TransportTuple} iceselectedtuplechange
+	 * @emits {dtlsState: DtlsState} dtlsstatechange
+	 * @emits {sctpState: SctpState} sctpstatechange
 	 */
 	get observer(): EnhancedEventEmitter
 	{

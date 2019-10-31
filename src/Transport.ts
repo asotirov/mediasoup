@@ -118,7 +118,7 @@ export default class Transport extends EnhancedEventEmitter
 	protected _closed = false;
 
 	// Custom app data.
-	private _appData?: object;
+	private _appData?: any;
 
 	// Method to retrieve Router RTP capabilities.
 	protected _getRouterRtpCapabilities: () => RtpCapabilities;
@@ -177,7 +177,7 @@ export default class Transport extends EnhancedEventEmitter
 			internal: any;
 			data: any;
 			channel: Channel;
-			appData: object;
+			appData: any;
 			getRouterRtpCapabilities: () => RtpCapabilities;
 			getProducerById: (producerId: string) => Producer;
 			getDataProducerById: (dataProducerId: string) => DataProducer;
@@ -216,7 +216,7 @@ export default class Transport extends EnhancedEventEmitter
 	/**
 	 * App custom data.
 	 */
-	get appData(): object
+	get appData(): any
 	{
 		return this._appData;
 	}
@@ -224,7 +224,7 @@ export default class Transport extends EnhancedEventEmitter
 	/**
 	 * Invalid setter.
 	 */
-	set appData(appData: object) // eslint-disable-line no-unused-vars
+	set appData(appData: any) // eslint-disable-line no-unused-vars
 	{
 		throw new Error('cannot override appData object');
 	}

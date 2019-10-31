@@ -109,7 +109,7 @@ export default class Transport extends EnhancedEventEmitter {
         internal: any;
         data: any;
         channel: Channel;
-        appData: object;
+        appData: any;
         getRouterRtpCapabilities: () => RtpCapabilities;
         getProducerById: (producerId: string) => Producer;
         getDataProducerById: (dataProducerId: string) => DataProducer;
@@ -128,7 +128,7 @@ export default class Transport extends EnhancedEventEmitter {
     /**
     * Invalid setter.
     */
-    appData: object;
+    appData: any;
     /**
      * Observer.
      *

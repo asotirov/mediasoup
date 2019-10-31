@@ -37,7 +37,7 @@ export default class DataConsumer extends EnhancedEventEmitter {
         internal: any;
         data: any;
         channel: Channel;
-        appData: object;
+        appData: any;
     });
     /**
      * DataConsumer id.
@@ -69,7 +69,7 @@ export default class DataConsumer extends EnhancedEventEmitter {
     /**
     * Invalid setter.
     */
-    appData: object;
+    appData: any;
     /**
      * Observer.
      *

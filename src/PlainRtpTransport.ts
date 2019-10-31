@@ -54,7 +54,7 @@ export interface PlainRtpTransportOptions
 	/**
 	 * Custom application data.
 	 */
-	appData?: object;
+	appData?: any;
 }
 
 export interface PlainRtpTransportStat
@@ -121,7 +121,7 @@ export default class PlainRtpTransport extends Transport
 
 	/**
 	 * @private
-	 * @emits {sctpState: string} sctpstatechange
+	 * @emits {sctpState: SctpState} sctpstatechange
 	 */
 	constructor(params: any)
 	{
@@ -183,7 +183,7 @@ export default class PlainRtpTransport extends Transport
 	 * @emits {consumer: Consumer} newconsumer
 	 * @emits {producer: DataProducer} newdataproducer
 	 * @emits {consumer: DataConsumer} newdataconsumer
-	 * @emits {sctpState: string} sctpstatechange
+	 * @emits {sctpState: SctpState} sctpstatechange
 	 */
 	get observer(): EnhancedEventEmitter
 	{

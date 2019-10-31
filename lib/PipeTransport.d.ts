@@ -22,7 +22,7 @@ export interface PipeTransportOptions {
     /**
      * Custom application data.
      */
-    appData?: object;
+    appData?: any;
 }
 export interface PipeTransportStat {
     type: string;
@@ -53,7 +53,7 @@ export interface PipeTransportStat {
 export default class PipeTransport extends Transport {
     /**
      * @private
-     * @emits {sctpState: string} sctpstatechange
+     * @emits {sctpState: SctpState} sctpstatechange
      */
     constructor(params: any);
     /**
@@ -77,7 +77,7 @@ export default class PipeTransport extends Transport {
      * @emits {consumer: Consumer} newconsumer
      * @emits {producer: DataProducer} newdataproducer
      * @emits {consumer: DataConsumer} newdataconsumer
-     * @emits {sctpState: string} sctpstatechange
+     * @emits {sctpState: SctpState} sctpstatechange
      */
     readonly observer: EnhancedEventEmitter;
     /**

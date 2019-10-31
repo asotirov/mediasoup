@@ -21,7 +21,7 @@ export interface ProducerOptions {
     /**
      * Custom application data.
      */
-    appData?: object;
+    appData?: any;
 }
 export interface ProducerStat {
     type: string;
@@ -46,7 +46,7 @@ export interface ProducerStat {
     bitrate: number;
     roundTripTime?: number;
     jitter: number;
-    bitrateByLayer?: object;
+    bitrateByLayer?: any;
 }
 /**
  * Producer type.
@@ -72,7 +72,7 @@ export default class Producer extends EnhancedEventEmitter {
         internal: any;
         data: any;
         channel: Channel;
-        appData?: object;
+        appData?: any;
         paused: boolean;
     });
     /**
@@ -108,14 +108,14 @@ export default class Producer extends EnhancedEventEmitter {
     /**
      * Producer score list.
      */
-    readonly score: object[];
+    readonly score: any[];
     /**
      * App custom data.
      */
     /**
     * Invalid setter.
     */
-    appData: object;
+    appData: any;
     /**
      * Observer.
      *

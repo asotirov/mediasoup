@@ -47,7 +47,7 @@ export default class DataProducer extends EnhancedEventEmitter {
         internal: any;
         data: any;
         channel: Channel;
-        appData: object;
+        appData: any;
     });
     /**
      * DataProducer id.
@@ -75,7 +75,7 @@ export default class DataProducer extends EnhancedEventEmitter {
     /**
     * Invalid setter.
     */
-    appData: object;
+    appData: any;
     /**
      * Observer.
      *

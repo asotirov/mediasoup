@@ -34,7 +34,7 @@ export interface ConsumerOptions {
     /**
      * Custom application data.
      */
-    appData?: object;
+    appData?: any;
 }
 export interface ConsumerLayers {
     /**
@@ -91,7 +91,7 @@ export default class Consumer extends EnhancedEventEmitter {
         internal: any;
         data: any;
         channel: Channel;
-        appData?: object;
+        appData?: any;
         paused: boolean;
         producerPaused: boolean;
         score?: {
@@ -141,14 +141,14 @@ export default class Consumer extends EnhancedEventEmitter {
     /**
      * Current video layers.
      */
-    readonly currentLayers: object | null;
+    readonly currentLayers: any | null;
     /**
      * App custom data.
      */
     /**
     * Invalid setter.
     */
-    appData: object;
+    appData: any;
     /**
      * Observer.
      *
