@@ -1,6 +1,14 @@
 # Changelog
 
 
+### 3.3.0 (WIP)
+
+* Add transport-cc bandwidth estimation and congestion control in sender and receiver side.
+* Run in Windows.
+* Rewrite to TypeScript.
+* Tons of improvements.
+
+
 ### 3.2.5
 
 * Fix TCP leak (#325).
