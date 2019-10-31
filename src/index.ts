@@ -13,7 +13,7 @@ export const version = '__MEDIASOUP_VERSION__';
 /**
  * Expose parseScalabilityMode() function and ScalabilityMode interface.
  */
-export { parse as parseScalabilityMode, ScalabilityMode } from './scalabilityModes';
+export { parse as parseScalabilityMode } from './scalabilityModes';
 
 const logger = new Logger();
 const observer = new EnhancedEventEmitter();
