@@ -86,15 +86,36 @@ const logger = new Logger('Router');
 
 export default class Router extends EnhancedEventEmitter
 {
+	// Internal data.
+	// - .routerId
 	private _internal: any;
+
+	// Router data.
+	// - .rtpCapabilities
 	private _data: any;
+
+	// Channel instance.
 	private _channel: Channel;
+
+	// Closed flag.
 	private _closed = false;
+
+	// Transports map.
 	private _transports: Map<string, Transport> = new Map();
+
+	// Producers map.
 	private _producers: Map<string, Producer> = new Map();
+
+	// RtpObservers map.
 	private _rtpObservers: Map<string, RtpObserver> = new Map();
+
+	// DataProducers map.
 	private _dataProducers: Map<string, DataProducer> = new Map();
+
+	// Router to PipeTransport map.
 	private _mapRouterPipeTransports: Map<Router, PipeTransport[]> = new Map();
+
+	// Observer instance.
 	private _observer = new EnhancedEventEmitter();
 
 	/**
@@ -119,18 +140,13 @@ export default class Router extends EnhancedEventEmitter
 
 		logger.debug('constructor()');
 
-		// Internal data.
-		// - .routerId
 		this._internal = internal;
 
-		// Router data.
-		// - .rtpCapabilities
 		this._data =
 		{
 			rtpCapabilities : data.rtpCapabilities
 		};
 
-		// Channel instance.
 		this._channel = channel;
 	}
 

@@ -7,10 +7,21 @@ const logger = new Logger('RtpObserver');
 
 export default class RtpObserver extends EnhancedEventEmitter
 {
+	// Internal data.
+	// - .routerId
+	// - .rtpObserverId
 	protected _internal: any;
+
+	// Channel instance.
 	protected _channel: Channel;
+
+	// Closed flag.
 	protected _closed = false;
+
+	// Paused flag.
 	protected _paused = false;
+
+	// Method to retrieve a Producer.
 	protected _getProducerById: (producerId: string) => Producer;
 
 	/**
@@ -36,15 +47,8 @@ export default class RtpObserver extends EnhancedEventEmitter
 
 		logger.debug('constructor()');
 
-		// Internal data.
-		// - .routerId
-		// - .rtpObserverId
 		this._internal = internal;
-
-		// Channel instance.
 		this._channel = channel;
-
-		// Function that gets any Producer in the Router.
 		this._getProducerById = getProducerById;
 	}
 

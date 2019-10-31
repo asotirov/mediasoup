@@ -341,7 +341,7 @@ const supportedRtpCapabilities: RtpCapabilities =
 			direction        : 'sendrecv'
 		}
 	],
-	fecMechanisms : [] as string[]
+	fecMechanisms : []
 };
 
 export default supportedRtpCapabilities;
