@@ -1,6 +1,5 @@
 import EnhancedEventEmitter from './EnhancedEventEmitter';
 import Channel from './Channel';
-import { ProducerType } from './Producer';
 import { MediaKind, RtpCapabilities, RtpParameters } from './RtpParametersAndCapabilities';
 export interface ConsumerOptions {
     /**
@@ -65,6 +64,10 @@ export interface ConsumerStat {
     firCount: number;
     score: number;
 }
+/**
+ * Consumer type.
+ */
+export declare type ConsumerType = 'simple' | 'simulcast' | 'svc' | 'pipe';
 export default class Consumer extends EnhancedEventEmitter {
     private _internal;
     private _data;
@@ -120,9 +123,9 @@ export default class Consumer extends EnhancedEventEmitter {
      */
     readonly rtpParameters: RtpParameters;
     /**
-     * Associated Producer type.
+     * Consumer type.
      */
-    readonly type: ProducerType;
+    readonly type: ConsumerType;
     /**
      * Whether the Consumer is paused.
      */

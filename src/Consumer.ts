@@ -1,7 +1,6 @@
 import Logger from './Logger';
 import EnhancedEventEmitter from './EnhancedEventEmitter';
 import Channel from './Channel';
-import { ProducerType } from './Producer';
 import {
 	MediaKind,
 	RtpCapabilities,
@@ -82,6 +81,11 @@ export interface ConsumerStat
 	firCount: number;
 	score: number;
 }
+
+/**
+ * Consumer type.
+ */
+export type ConsumerType = 'simple' | 'simulcast' | 'svc' | 'pipe';
 
 const logger = new Logger('Consumer');
 
@@ -211,9 +215,9 @@ export default class Consumer extends EnhancedEventEmitter
 	}
 
 	/**
-	 * Associated Producer type.
+	 * Consumer type.
 	 */
-	get type(): ProducerType
+	get type(): ConsumerType
 	{
 		return this._data.type;
 	}
