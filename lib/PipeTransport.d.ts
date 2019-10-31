@@ -3,7 +3,7 @@ import Transport, { TransportListenIp, TransportTuple, TransportSctpParameters, 
 import Consumer, { ConsumerOptions } from './Consumer';
 export interface PipeTransportOptions {
     /**
-     * Listening IP address
+     * Listening IP address.
      */
     listenIp: TransportListenIp | string;
     /**
@@ -53,6 +53,7 @@ export interface PipeTransportStat {
 export default class PipeTransport extends Transport {
     /**
      * @private
+     * @emits {sctpState: string} sctpstatechange
      */
     constructor(params: any);
     /**

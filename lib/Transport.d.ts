@@ -29,7 +29,7 @@ export interface TransportTuple {
 }
 export interface TransportSctpParameters {
     /**
-     * Must always equal 5000
+     * Must always equal 5000.
      */
     port: number;
     /**

@@ -87,15 +87,41 @@ const logger = new Logger('Consumer');
 
 export default class Consumer extends EnhancedEventEmitter
 {
+	// Internal data.
+	// - .routerId
+	// - .transportId
+	// - .consumerId
+	// - .producerId
 	private _internal: any;
+
+	// Consumer data.
+	// - .kind
+	// - .rtpParameters
+	// - .type
 	private _data: any;
+
+	// Channel instance.
 	private _channel: Channel;
+
+	// Closed flag.
 	private _closed = false;
+
+	// Custom app data.
 	private _appData?: object;
+
+	// Paused flag.
 	private _paused = false;
+
+	// Associated Producer paused flag.
 	private _producerPaused = false;
+
+	// Current score.
 	private _score: { consumer: number; producerScore: number } | null;
+
+	// Curent layers.
 	private _currentLayers: object | null = null;
+
+	// Observer instance.
 	private _observer = new EnhancedEventEmitter();
 
 	/**
@@ -133,32 +159,12 @@ export default class Consumer extends EnhancedEventEmitter
 
 		logger.debug('constructor()');
 
-		// Internal data.
-		// - .routerId
-		// - .transportId
-		// - .consumerId
-		// - .producerId
 		this._internal = internal;
-
-		// Consumer data.
-		// - .kind
-		// - .rtpParameters
-		// - .type
 		this._data = data;
-
-		// Channel instance.
 		this._channel = channel;
-
-		// App custom data.
 		this._appData = appData;
-
-		// Paused flag.
 		this._paused = paused;
-
-		// Producer paused flag.
 		this._producerPaused = producerPaused;
-
-		// Score with score and producerScore keys.
 		this._score = score;
 
 		this._handleWorkerNotifications();

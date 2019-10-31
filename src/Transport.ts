@@ -42,7 +42,7 @@ export interface TransportTuple
 export interface TransportSctpParameters
 {
 	/**
-	 * Must always equal 5000
+	 * Must always equal 5000.
 	 */
 	port: number;
 
@@ -103,21 +103,54 @@ const logger = new Logger('Transport');
 
 export default class Transport extends EnhancedEventEmitter
 {
+	// Internal data.
+	// - .routerId
+	// - .transportId
 	protected _internal: any;
+
+	// Transport data.
 	protected _data: any;
+
+	// Channel instance.
 	protected _channel: Channel;
+
+	// Close flag.
 	protected _closed = false;
+
+	// Custom app data.
 	private _appData?: object;
+
+	// Method to retrieve Router RTP capabilities.
 	protected _getRouterRtpCapabilities: () => RtpCapabilities;
+
+	// Method to retrieve a Producer.
 	protected _getProducerById: (producerId: string) => Producer;
+
+	// Method to retrieve a DataProducer.
 	protected _getDataProducerById: (dataProducerId: string) => DataProducer;
+
+	// Producers map.
 	protected _producers: Map<string, Producer> = new Map();
+
+	// Consumers map.
 	protected _consumers: Map<string, Consumer> = new Map();
+
+	// DataProducers map.
 	protected _dataProducers: Map<string, DataProducer> = new Map();
+
+	// DataConsumers map.
 	protected _dataConsumers: Map<string, DataConsumer> = new Map();
+
+	// RTCP CNAME for Producers.
 	private _cnameForProducers?: string;
+
+	// Buffer with available SCTP stream ids.
 	private _sctpStreamIds?: Buffer;
+
+	// Next SCTP stream id.
 	private _nextSctpStreamId = 0;
+
+	// Observer instance.
 	protected _observer = new EnhancedEventEmitter();
 
 	/**
@@ -155,27 +188,12 @@ export default class Transport extends EnhancedEventEmitter
 
 		logger.debug('constructor()');
 
-		// Internal data.
-		// - .routerId
-		// - .transportId
 		this._internal = internal;
-
-		// Transport specific data.
 		this._data = data;
-
-		// Channel instance.
 		this._channel = channel;
-
-		// App custom data.
 		this._appData = appData;
-
-		// Function that returns router RTP capabilities.
 		this._getRouterRtpCapabilities = getRouterRtpCapabilities;
-
-		// Function that gets any Producer in the Router.
 		this._getProducerById = getProducerById;
-
-		// Function that gets any DataProducer in the Router.
 		this._getDataProducerById = getDataProducerById;
 	}
 

@@ -21,12 +21,25 @@ const NS_PAYLOAD_MAX_LEN = 4194304;
 
 export default class Channel extends EnhancedEventEmitter
 {
+	// Logger for logs from the worker process.
 	private _workerLogger: Logger;
+
+	// Closed flag.
 	private _closed = false;
+
+	// Unix Socket instance for sending messages to the worker process.
 	private _producerSocket: Duplex;
+
+	// Unix Socket instance for receiving messages to the worker process.
 	private _consumerSocket: Duplex;
+
+	// Next id for messages sent to the worker process.
 	private _nextId = 0;
+
+	// Map of pending sent requests.
 	private _sents: Map<number, Sent> = new Map();
+
+	// Buffer for reading messages from the worker.
 	private _recvBuffer?: Buffer;
 
 	/**
@@ -49,8 +62,6 @@ export default class Channel extends EnhancedEventEmitter
 		this._logger.debug('constructor()');
 
 		this._workerLogger = new Logger(`worker[pid:${pid}]`);
-
-		// Unix Socket instance.
 		this._producerSocket = producerSocket as Duplex;
 		this._consumerSocket = consumerSocket as Duplex;
 

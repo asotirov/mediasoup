@@ -3,7 +3,7 @@ import Transport, { TransportListenIp, TransportTuple, TransportSctpParameters, 
 import Consumer, { ConsumerOptions } from './Consumer';
 export interface PlainRtpTransportOptions {
     /**
-     * Listening IP address
+     * Listening IP address.
      */
     listenIp: TransportListenIp | string;
     /**

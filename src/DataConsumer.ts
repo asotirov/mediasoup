@@ -30,11 +30,29 @@ const logger = new Logger('DataConsumer');
 
 export default class DataConsumer extends EnhancedEventEmitter
 {
+	// Internal data.
+	// - .routerId
+	// - .transportId
+	// - .dataConsumerId
+	// - .dataProducerId
 	private _internal: any;
+
+	// DataConsumer data.
+	// - .sctpStreamParameters
+	// - .label
+	// - .protocol
 	private _data: any;
+
+	// Channel instance.
 	private _channel: Channel;
+
+	// Closed flag.
 	private _closed = false;
+
+	// Custom app data.
 	private _appData?: object;
+
+	// Observer instance.
 	private _observer = new EnhancedEventEmitter();
 
 	/**
@@ -63,24 +81,9 @@ export default class DataConsumer extends EnhancedEventEmitter
 
 		logger.debug('constructor()');
 
-		// Internal data.
-		// - .routerId
-		// - .transportId
-		// - .dataConsumerId
-		// - .dataProducerId
 		this._internal = internal;
-
-		// DataConsumer data.
-		// - .sctpStreamParameters
-		// - .label
-		// - .protocol
 		this._data = data;
-
-		// Channel instance.
 		this._channel = channel;
-
-		// App custom data.
-		// @type {Object}
 		this._appData = appData;
 
 		this._handleWorkerNotifications();

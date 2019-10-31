@@ -14,7 +14,7 @@ import Consumer, { ConsumerOptions } from './Consumer';
 export interface PipeTransportOptions
 {
 	/**
-	 * Listening IP address
+	 * Listening IP address.
 	 */
 	listenIp: TransportListenIp | string;
 
@@ -75,8 +75,23 @@ const logger = new Logger('PipeTransport');
 
 export default class PipeTransport extends Transport
 {
+	// PipeTransport data.
+	// - .tuple
+	//   - .localIp
+	//   - .localPort
+	//   - .remoteIp
+	//   - .remotePort
+	//   - .protocol
+	// - .sctpParameters
+	//   - .port
+	//   - .OS
+	//   - .MIS
+	//   - .maxMessageSize
+	// - .sctpState
+
 	/**
 	 * @private
+	 * @emits {sctpState: string} sctpstatechange
 	 */
 	constructor(params: any)
 	{
@@ -84,21 +99,8 @@ export default class PipeTransport extends Transport
 
 		logger.debug('constructor()');
 
-		const { data } = params as any;
+		const { data } = params;
 
-		// PipeTransport data.
-		// - .tuple
-		//   - .localIp
-		//   - .localPort
-		//   - .remoteIp
-		//   - .remotePort
-		//   - .protocol
-		// - .sctpParameters
-		//   - .port
-		//   - .OS
-		//   - .MIS
-		//   - .maxMessageSize
-		// - .sctpState
 		this._data =
 		{
 			tuple          : data.tuple,

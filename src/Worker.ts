@@ -63,12 +63,25 @@ const logger = new Logger('Worker');
 
 export default class Worker extends EnhancedEventEmitter
 {
+	// mediasoup-worker child process.
 	private _child?: ChildProcess;
+
+	// Logger for stdout and stderr logs from the worker process.
 	private _workerLogger: Logger;
+
+	// Worker process PID.
 	private _pid: number;
+
+	// Channel instance.
 	private _channel: Channel;
+
+	// Closed flag.
 	private _closed = false;
+
+	// Routers set.
 	private _routers: Set<Router> = new Set();
+
+	// Observer instance.
 	private _observer = new EnhancedEventEmitter();
 
 	/**
@@ -130,7 +143,6 @@ export default class Worker extends EnhancedEventEmitter
 		logger.debug(
 			'spawning worker process: %s %s', workerBin, workerArgs.join(' '));
 
-		// mediasoup-worker child process.
 		this._child = spawn(
 			// command
 			workerBin,
@@ -155,10 +167,8 @@ export default class Worker extends EnhancedEventEmitter
 
 		this._workerLogger = new Logger(`worker[pid:${this._child.pid}]`);
 
-		// Worker process identifier (PID).
 		this._pid = this._child.pid;
 
-		// Channel instance.
 		this._channel = new Channel(
 			{
 				producerSocket : this._child.stdio[3],

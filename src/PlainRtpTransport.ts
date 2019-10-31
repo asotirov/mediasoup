@@ -12,7 +12,7 @@ import Consumer, { ConsumerOptions } from './Consumer';
 export interface PlainRtpTransportOptions
 {
 	/**
-	 * Listening IP address
+	 * Listening IP address.
 	 */
 	listenIp: TransportListenIp | string;
 
@@ -96,6 +96,29 @@ const logger = new Logger('PlainRtpTransport');
 
 export default class PlainRtpTransport extends Transport
 {
+	// PlainRtpTransport data.
+	// - .rtcpMux
+	// - .comedia
+	// - .multiSource
+	// - .tuple
+	//   - .localIp
+	//   - .localPort
+	//   - .remoteIp
+	//   - .remotePort
+	//   - .protocol
+	// - .rtcpTuple
+	//   - .localIp
+	//   - .localPort
+	//   - .remoteIp
+	//   - .remotePort
+	//   - .protocol
+	// - .sctpParameters
+	//   - .port
+	//   - .OS
+	//   - .MIS
+	//   - .maxMessageSize
+	// - .sctpState
+
 	/**
 	 * @private
 	 * @emits {sctpState: string} sctpstatechange
@@ -106,30 +129,8 @@ export default class PlainRtpTransport extends Transport
 
 		logger.debug('constructor()');
 
-		const { data } = params as any;
+		const { data } = params;
 
-		// PlainRtpTransport data.
-		// - .rtcpMux
-		// - .comedia
-		// - .multiSource
-		// - .tuple
-		//   - .localIp
-		//   - .localPort
-		//   - .remoteIp
-		//   - .remotePort
-		//   - .protocol
-		// - .rtcpTuple
-		//   - .localIp
-		//   - .localPort
-		//   - .remoteIp
-		//   - .remotePort
-		//   - .protocol
-		// - .sctpParameters
-		//   - .port
-		//   - .OS
-		//   - .MIS
-		//   - .maxMessageSize
-		// - .sctpState
 		this._data =
 		{
 			tuple          : data.tuple,

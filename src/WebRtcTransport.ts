@@ -147,6 +147,44 @@ const logger = new Logger('WebRtcTransport');
 
 export default class WebRtcTransport extends Transport
 {
+	// WebRtcTransport data.
+	// - .iceRole
+	// - .iceParameters
+	//   - .usernameFragment
+	//   - .password
+	//   - .iceLite
+	// - .iceCandidates []
+	//   - .foundation
+	//   - .priority
+	//   - .ip
+	//   - .port
+	//   - .type
+	//   - .protocol
+	//   - .tcpType
+	// - .iceState
+	// - .iceSelectedTuple
+	//   - .localIp
+	//   - .localPort
+	//   - .remoteIp
+	//   - .remotePort
+	//   - .protocol
+	// - .dtlsParameters
+	//   - .role
+	//   - .fingerprints
+	//     - .sha-1
+	//     - .sha-224
+	//     - .sha-256
+	//     - .sha-384
+	//     - .sha-512
+	// - .dtlsState
+	// - .dtlsRemoteCert
+	// - .sctpParameters
+	//   - .port
+	//   - .OS
+	//   - .MIS
+	//   - .maxMessageSize
+	// - .sctpState
+
 	/**
 	 * @private
 	 * @emits {iceState: string} icestatechange
@@ -160,45 +198,8 @@ export default class WebRtcTransport extends Transport
 
 		logger.debug('constructor()');
 
-		const { data } = params as any;
+		const { data } = params;
 
-		// WebRtcTransport data.
-		// - .iceRole
-		// - .iceParameters
-		//   - .usernameFragment
-		//   - .password
-		//   - .iceLite
-		// - .iceCandidates []
-		//   - .foundation
-		//   - .priority
-		//   - .ip
-		//   - .port
-		//   - .type
-		//   - .protocol
-		//   - .tcpType
-		// - .iceState
-		// - .iceSelectedTuple
-		//   - .localIp
-		//   - .localPort
-		//   - .remoteIp
-		//   - .remotePort
-		//   - .protocol
-		// - .dtlsParameters
-		//   - .role
-		//   - .fingerprints
-		//     - .sha-1
-		//     - .sha-224
-		//     - .sha-256
-		//     - .sha-384
-		//     - .sha-512
-		// - .dtlsState
-		// - .dtlsRemoteCert
-		// - .sctpParameters
-		//   - .port
-		//   - .OS
-		//   - .MIS
-		//   - .maxMessageSize
-		// - .sctpState
 		this._data =
 		{
 			iceRole          : data.iceRole,
