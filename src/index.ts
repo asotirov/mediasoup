@@ -17,7 +17,7 @@ export { types };
 export const version = '__MEDIASOUP_VERSION__';
 
 /**
- * Expose parseScalabilityMode() function and ScalabilityMode interface.
+ * Expose parseScalabilityMode() function.
  */
 export { parse as parseScalabilityMode } from './scalabilityModes';
 

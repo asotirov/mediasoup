@@ -1,7 +1,7 @@
 const process = require('process');
 const os = require('os');
-const { execSync } = require('child_process');
 const fs = require('fs');
+const { execSync } = require('child_process');
 const TscWatchClient = require('tsc-watch/client');
 const { version } = require('./package.json');
 
