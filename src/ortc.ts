@@ -1,4 +1,3 @@
-// @ts-ignore
 import * as h264 from 'h264-profile-level-id';
 import * as utils from './utils';
 import { UnsupportedError } from './errors';
