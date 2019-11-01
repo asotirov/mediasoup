@@ -60,20 +60,17 @@ export interface IceCandidate {
 }
 export interface DtlsParameters {
     role?: DtlsRole;
-    fingerprints: DtlsFingerprints;
+    fingerprints: DtlsFingerprint[];
 }
 /**
- * Map of DTLS algorithms (as defined in the "Hash function Textual Names"
- * registry initially specified in RFC 4572 Section 8) and their corresponding
- * certificate fingerprint values (in lowercase hex string as expressed
- * utilizing the syntax of "fingerprint" in RFC 4572 Section 5).
+ * The hash function algorithm (as defined in the "Hash function Textual Names"
+ * registry initially specified in RFC 4572 Section 8) and its corresponding
+ * certificate fingerprint value (in lowercase hex string as expressed utilizing
+ * the syntax of "fingerprint" in RFC 4572 Section 5).
  */
-export interface DtlsFingerprints {
-    'sha-1'?: string;
-    'sha-224'?: string;
-    'sha-256'?: string;
-    'sha-384'?: string;
-    'sha-512'?: string;
+export interface DtlsFingerprint {
+    algorithm: string;
+    value: string;
 }
 export declare type IceState = 'new' | 'connected' | 'completed' | 'disconnected' | 'closed';
 export declare type DtlsRole = 'auto' | 'client' | 'server';

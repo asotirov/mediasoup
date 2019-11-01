@@ -85,22 +85,19 @@ export interface IceCandidate
 export interface DtlsParameters
 {
 	role?: DtlsRole;
-	fingerprints: DtlsFingerprints;
+	fingerprints: DtlsFingerprint[];
 }
 
 /**
- * Map of DTLS algorithms (as defined in the "Hash function Textual Names"
- * registry initially specified in RFC 4572 Section 8) and their corresponding
- * certificate fingerprint values (in lowercase hex string as expressed
- * utilizing the syntax of "fingerprint" in RFC 4572 Section 5).
+ * The hash function algorithm (as defined in the "Hash function Textual Names"
+ * registry initially specified in RFC 4572 Section 8) and its corresponding
+ * certificate fingerprint value (in lowercase hex string as expressed utilizing
+ * the syntax of "fingerprint" in RFC 4572 Section 5).
  */
-export interface DtlsFingerprints
+export interface DtlsFingerprint
 {
-	'sha-1'?: string;
-	'sha-224'?: string;
-	'sha-256'?: string;
-	'sha-384'?: string;
-	'sha-512'?: string;
+	algorithm: string;
+	value: string;
 }
 
 export type IceState = 'new' | 'connected' | 'completed' | 'disconnected' | 'closed';
@@ -170,12 +167,7 @@ export default class WebRtcTransport extends Transport
 	//   - .protocol
 	// - .dtlsParameters
 	//   - .role
-	//   - .fingerprints
-	//     - .sha-1
-	//     - .sha-224
-	//     - .sha-256
-	//     - .sha-384
-	//     - .sha-512
+	//   - .fingerprints []
 	// - .dtlsState
 	// - .dtlsRemoteCert
 	// - .sctpParameters
