@@ -2,11 +2,11 @@ import EnhancedEventEmitter from './EnhancedEventEmitter';
 import Channel from './Channel';
 import Producer from './Producer';
 export default class RtpObserver extends EnhancedEventEmitter {
-    protected _internal: any;
-    protected _channel: Channel;
+    protected readonly _internal: any;
+    protected readonly _channel: Channel;
     protected _closed: boolean;
     protected _paused: boolean;
-    protected _getProducerById: (producerId: string) => Producer;
+    protected readonly _getProducerById: (producerId: string) => Producer;
     /**
      * @private
      * @interface

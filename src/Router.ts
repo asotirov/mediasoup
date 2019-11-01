@@ -88,35 +88,35 @@ export default class Router extends EnhancedEventEmitter
 {
 	// Internal data.
 	// - .routerId
-	private _internal: any;
+	private readonly _internal: any;
 
 	// Router data.
 	// - .rtpCapabilities
-	private _data: any;
+	private readonly _data: any;
 
 	// Channel instance.
-	private _channel: Channel;
+	private readonly _channel: Channel;
 
 	// Closed flag.
 	private _closed = false;
 
 	// Transports map.
-	private _transports: Map<string, Transport> = new Map();
+	private readonly _transports: Map<string, Transport> = new Map();
 
 	// Producers map.
-	private _producers: Map<string, Producer> = new Map();
+	private readonly _producers: Map<string, Producer> = new Map();
 
 	// RtpObservers map.
-	private _rtpObservers: Map<string, RtpObserver> = new Map();
+	private readonly _rtpObservers: Map<string, RtpObserver> = new Map();
 
 	// DataProducers map.
-	private _dataProducers: Map<string, DataProducer> = new Map();
+	private readonly _dataProducers: Map<string, DataProducer> = new Map();
 
 	// Router to PipeTransport map.
-	private _mapRouterPipeTransports: Map<Router, PipeTransport[]> = new Map();
+	private readonly _mapRouterPipeTransports: Map<Router, PipeTransport[]> = new Map();
 
 	// Observer instance.
-	private _observer = new EnhancedEventEmitter();
+	private readonly _observer = new EnhancedEventEmitter();
 
 	/**
 	 * @private

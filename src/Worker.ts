@@ -67,22 +67,22 @@ export default class Worker extends EnhancedEventEmitter
 	private _child?: ChildProcess;
 
 	// Logger for stdout and stderr logs from the worker process.
-	private _workerLogger: Logger;
+	private readonly _workerLogger: Logger;
 
 	// Worker process PID.
-	private _pid: number;
+	private readonly _pid: number;
 
 	// Channel instance.
-	private _channel: Channel;
+	private readonly _channel: Channel;
 
 	// Closed flag.
 	private _closed = false;
 
 	// Routers set.
-	private _routers: Set<Router> = new Set();
+	private readonly _routers: Set<Router> = new Set();
 
 	// Observer instance.
-	private _observer = new EnhancedEventEmitter();
+	private readonly _observer = new EnhancedEventEmitter();
 
 	/**
 	 * @private

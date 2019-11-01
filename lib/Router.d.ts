@@ -61,16 +61,16 @@ export interface PipeToRouterResult {
     pipeDataProducer?: DataProducer;
 }
 export default class Router extends EnhancedEventEmitter {
-    private _internal;
-    private _data;
-    private _channel;
+    private readonly _internal;
+    private readonly _data;
+    private readonly _channel;
     private _closed;
-    private _transports;
-    private _producers;
-    private _rtpObservers;
-    private _dataProducers;
-    private _mapRouterPipeTransports;
-    private _observer;
+    private readonly _transports;
+    private readonly _producers;
+    private readonly _rtpObservers;
+    private readonly _dataProducers;
+    private readonly _mapRouterPipeTransports;
+    private readonly _observer;
     /**
      * @private
      * @emits workerclose

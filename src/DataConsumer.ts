@@ -35,25 +35,25 @@ export default class DataConsumer extends EnhancedEventEmitter
 	// - .transportId
 	// - .dataConsumerId
 	// - .dataProducerId
-	private _internal: any;
+	private readonly _internal: any;
 
 	// DataConsumer data.
 	// - .sctpStreamParameters
 	// - .label
 	// - .protocol
-	private _data: any;
+	private readonly _data: any;
 
 	// Channel instance.
-	private _channel: Channel;
+	private readonly _channel: Channel;
 
 	// Closed flag.
 	private _closed = false;
 
 	// Custom app data.
-	private _appData?: any;
+	private readonly _appData?: any;
 
 	// Observer instance.
-	private _observer = new EnhancedEventEmitter();
+	private readonly _observer = new EnhancedEventEmitter();
 
 	/**
 	 * @private

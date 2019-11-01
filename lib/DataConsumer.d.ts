@@ -20,12 +20,12 @@ export interface DataConsumerStat {
     bytesSent: number;
 }
 export default class DataConsumer extends EnhancedEventEmitter {
-    private _internal;
-    private _data;
-    private _channel;
+    private readonly _internal;
+    private readonly _data;
+    private readonly _channel;
     private _closed;
-    private _appData?;
-    private _observer;
+    private readonly _appData?;
+    private readonly _observer;
     /**
      * @private
      * @emits transportclose

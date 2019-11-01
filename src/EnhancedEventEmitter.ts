@@ -4,7 +4,7 @@ import Logger from './Logger';
 export default class EnhancedEventEmitter extends EventEmitter
 {
 	// Logger instance.
-	protected _logger: Logger;
+	protected readonly _logger: Logger;
 
 	constructor(logger?: Logger)
 	{

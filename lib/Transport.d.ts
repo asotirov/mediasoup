@@ -79,22 +79,22 @@ export interface TransportNumSctpStreams {
 }
 export declare type SctpState = 'new' | 'connecting' | 'connected' | 'failed' | 'closed';
 export default class Transport extends EnhancedEventEmitter {
-    protected _internal: any;
+    protected readonly _internal: any;
     protected _data: any;
-    protected _channel: Channel;
+    protected readonly _channel: Channel;
     protected _closed: boolean;
-    private _appData?;
-    protected _getRouterRtpCapabilities: () => RtpCapabilities;
-    protected _getProducerById: (producerId: string) => Producer;
-    protected _getDataProducerById: (dataProducerId: string) => DataProducer;
-    protected _producers: Map<string, Producer>;
-    protected _consumers: Map<string, Consumer>;
-    protected _dataProducers: Map<string, DataProducer>;
-    protected _dataConsumers: Map<string, DataConsumer>;
+    private readonly _appData?;
+    protected readonly _getRouterRtpCapabilities: () => RtpCapabilities;
+    protected readonly _getProducerById: (producerId: string) => Producer;
+    protected readonly _getDataProducerById: (dataProducerId: string) => DataProducer;
+    protected readonly _producers: Map<string, Producer>;
+    protected readonly _consumers: Map<string, Consumer>;
+    protected readonly _dataProducers: Map<string, DataProducer>;
+    protected readonly _dataConsumers: Map<string, DataConsumer>;
     private _cnameForProducers?;
     private _sctpStreamIds?;
     private _nextSctpStreamId;
-    protected _observer: EnhancedEventEmitter;
+    protected readonly _observer: EnhancedEventEmitter;
     /**
      * @private
      * @interface

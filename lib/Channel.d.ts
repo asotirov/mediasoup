@@ -1,11 +1,11 @@
 import EnhancedEventEmitter from './EnhancedEventEmitter';
 export default class Channel extends EnhancedEventEmitter {
-    private _workerLogger;
+    private readonly _workerLogger;
     private _closed;
-    private _producerSocket;
-    private _consumerSocket;
+    private readonly _producerSocket;
+    private readonly _consumerSocket;
     private _nextId;
-    private _sents;
+    private readonly _sents;
     private _recvBuffer?;
     /**
      * @private

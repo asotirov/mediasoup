@@ -70,14 +70,14 @@ const logger = new Logger('Producer');
 
 export default class Producer extends EnhancedEventEmitter
 {
-	private _internal: any;
-	private _data: any;
-	private _channel: Channel;
+	private readonly _internal: any;
+	private readonly _data: any;
+	private readonly _channel: Channel;
 	private _closed = false;
-	private _appData?: any;
+	private readonly _appData?: any;
 	private _paused = false;
 	private _score: any[] = [];
-	private _observer = new EnhancedEventEmitter();
+	private readonly _observer = new EnhancedEventEmitter();
 
 	/**
 	 * @private

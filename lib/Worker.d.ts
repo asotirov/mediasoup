@@ -35,12 +35,12 @@ export interface WorkerSettings {
 export declare type WorkerUpdateableSettings = Pick<WorkerSettings, 'logLevel' | 'logTags'>;
 export default class Worker extends EnhancedEventEmitter {
     private _child?;
-    private _workerLogger;
-    private _pid;
-    private _channel;
+    private readonly _workerLogger;
+    private readonly _pid;
+    private readonly _channel;
     private _closed;
-    private _routers;
-    private _observer;
+    private readonly _routers;
+    private readonly _observer;
     /**
      * @private
      * @emits died

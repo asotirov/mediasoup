@@ -32,12 +32,12 @@ export interface DataProducerStat {
     bytesReceived: number;
 }
 export default class DataProducer extends EnhancedEventEmitter {
-    private _internal;
-    private _data;
-    private _channel;
+    private readonly _internal;
+    private readonly _data;
+    private readonly _channel;
     private _closed;
-    private _appData?;
-    private _observer;
+    private readonly _appData?;
+    private readonly _observer;
     /**
      * @private
      * @emits transportclose

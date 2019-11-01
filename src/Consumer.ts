@@ -96,22 +96,22 @@ export default class Consumer extends EnhancedEventEmitter
 	// - .transportId
 	// - .consumerId
 	// - .producerId
-	private _internal: any;
+	private readonly _internal: any;
 
 	// Consumer data.
 	// - .kind
 	// - .rtpParameters
 	// - .type
-	private _data: any;
+	private readonly _data: any;
 
 	// Channel instance.
-	private _channel: Channel;
+	private readonly _channel: Channel;
 
 	// Closed flag.
 	private _closed = false;
 
 	// Custom app data.
-	private _appData?: any;
+	private readonly _appData?: any;
 
 	// Paused flag.
 	private _paused = false;
@@ -126,7 +126,7 @@ export default class Consumer extends EnhancedEventEmitter
 	private _currentLayers: any | null = null;
 
 	// Observer instance.
-	private _observer = new EnhancedEventEmitter();
+	private readonly _observer = new EnhancedEventEmitter();
 
 	/**
 	 * @private

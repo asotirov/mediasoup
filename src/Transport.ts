@@ -106,40 +106,40 @@ export default class Transport extends EnhancedEventEmitter
 	// Internal data.
 	// - .routerId
 	// - .transportId
-	protected _internal: any;
+	protected readonly _internal: any;
 
 	// Transport data.
 	protected _data: any;
 
 	// Channel instance.
-	protected _channel: Channel;
+	protected readonly _channel: Channel;
 
 	// Close flag.
 	protected _closed = false;
 
 	// Custom app data.
-	private _appData?: any;
+	private readonly _appData?: any;
 
 	// Method to retrieve Router RTP capabilities.
-	protected _getRouterRtpCapabilities: () => RtpCapabilities;
+	protected readonly _getRouterRtpCapabilities: () => RtpCapabilities;
 
 	// Method to retrieve a Producer.
-	protected _getProducerById: (producerId: string) => Producer;
+	protected readonly _getProducerById: (producerId: string) => Producer;
 
 	// Method to retrieve a DataProducer.
-	protected _getDataProducerById: (dataProducerId: string) => DataProducer;
+	protected readonly _getDataProducerById: (dataProducerId: string) => DataProducer;
 
 	// Producers map.
-	protected _producers: Map<string, Producer> = new Map();
+	protected readonly _producers: Map<string, Producer> = new Map();
 
 	// Consumers map.
-	protected _consumers: Map<string, Consumer> = new Map();
+	protected readonly _consumers: Map<string, Consumer> = new Map();
 
 	// DataProducers map.
-	protected _dataProducers: Map<string, DataProducer> = new Map();
+	protected readonly _dataProducers: Map<string, DataProducer> = new Map();
 
 	// DataConsumers map.
-	protected _dataConsumers: Map<string, DataConsumer> = new Map();
+	protected readonly _dataConsumers: Map<string, DataConsumer> = new Map();
 
 	// RTCP CNAME for Producers.
 	private _cnameForProducers?: string;
@@ -151,7 +151,7 @@ export default class Transport extends EnhancedEventEmitter
 	private _nextSctpStreamId = 0;
 
 	// Observer instance.
-	protected _observer = new EnhancedEventEmitter();
+	protected readonly _observer = new EnhancedEventEmitter();
 
 	/**
 	 * @private

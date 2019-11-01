@@ -10,10 +10,10 @@ export default class RtpObserver extends EnhancedEventEmitter
 	// Internal data.
 	// - .routerId
 	// - .rtpObserverId
-	protected _internal: any;
+	protected readonly _internal: any;
 
 	// Channel instance.
-	protected _channel: Channel;
+	protected readonly _channel: Channel;
 
 	// Closed flag.
 	protected _closed = false;
@@ -22,7 +22,7 @@ export default class RtpObserver extends EnhancedEventEmitter
 	protected _paused = false;
 
 	// Method to retrieve a Producer.
-	protected _getProducerById: (producerId: string) => Producer;
+	protected readonly _getProducerById: (producerId: string) => Producer;
 
 	/**
 	 * @private

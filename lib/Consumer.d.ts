@@ -69,16 +69,16 @@ export interface ConsumerStat {
  */
 export declare type ConsumerType = 'simple' | 'simulcast' | 'svc' | 'pipe';
 export default class Consumer extends EnhancedEventEmitter {
-    private _internal;
-    private _data;
-    private _channel;
+    private readonly _internal;
+    private readonly _data;
+    private readonly _channel;
     private _closed;
-    private _appData?;
+    private readonly _appData?;
     private _paused;
     private _producerPaused;
     private _score;
     private _currentLayers;
-    private _observer;
+    private readonly _observer;
     /**
      * @private
      * @emits transportclose
