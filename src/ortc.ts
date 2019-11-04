@@ -11,7 +11,7 @@ import {
 	RtpCodecParameters,
 	RtcpFeedback,
 	RtpEncodingParameters
-} from './RtpParametersAndCapabilities';
+} from './RtpParameters';
 
 interface RtpMapping
 {

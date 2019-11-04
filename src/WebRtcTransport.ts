@@ -4,10 +4,9 @@ import Transport, {
 	TransportListenIp,
 	TransportProtocol,
 	TransportTuple,
-	TransportSctpParameters,
-	TransportNumSctpStreams,
 	SctpState
 } from './Transport';
+import { SctpParameters, NumSctpStreams } from './SctpParameters';
 
 export interface WebRtcTransportOptions
 {
@@ -50,7 +49,7 @@ export interface WebRtcTransportOptions
 	/**
 	 * SCTP streams number.
 	 */
-	numSctpStreams?: TransportNumSctpStreams;
+	numSctpStreams?: NumSctpStreams;
 
 	/**
 	 * Maximum size of data that can be passed to DataProducer's send() method.
@@ -276,7 +275,7 @@ export default class WebRtcTransport extends Transport
 	/**
 	 * SCTP parameters.
 	 */
-	get sctpParameters(): TransportSctpParameters | undefined
+	get sctpParameters(): SctpParameters | undefined
 	{
 		return this._data.sctpParameters;
 	}

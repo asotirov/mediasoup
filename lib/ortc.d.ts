@@ -1,4 +1,4 @@
-import { RtpCapabilities, RtpCodecCapability, RtpParameters } from './RtpParametersAndCapabilities';
+import { RtpCapabilities, RtpCodecCapability, RtpParameters } from './RtpParameters';
 interface RtpMapping {
     codecs: {
         payloadType: number;

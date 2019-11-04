@@ -8,7 +8,7 @@ import Producer, { ProducerOptions } from './Producer';
 import Consumer, { ConsumerOptions } from './Consumer';
 import DataProducer, { DataProducerOptions } from './DataProducer';
 import DataConsumer, { DataConsumerOptions } from './DataConsumer';
-import { RtpCapabilities } from './RtpParametersAndCapabilities';
+import { RtpCapabilities } from './RtpParameters';
 import { SctpStreamParameters } from './SctpParameters';
 
 export interface TransportListenIp
@@ -37,64 +37,6 @@ export interface TransportTuple
 	remoteIp?: string;
 	remotePort?: number;
 	protocol: TransportProtocol;
-}
-
-export interface TransportSctpParameters
-{
-	/**
-	 * Must always equal 5000.
-	 */
-	port: number;
-
-	/**
-	 * Initially requested number of outgoing SCTP streams.
-	 */
-	OS: number;
-
-	/**
-	 * Maximum number of incoming SCTP streams.
-	 */
-	MIS: number;
-
-	/**
-	Maximum allowed size for SCTP messages.*/
-	maxMessageSize: number;
-}
-
-/**
- * Both OS and MIS are part of the SCTP INIT+ACK handshake. OS refers to the
- * initial number of outgoing SCTP streams that the server side transport creates
- * (to be used by DataConsumers), while MIS refers to the maximum number of
- * incoming SCTP streams that the server side transport can receive (to be used
- * by DataProducers). So, if the server side transport will just be used to
- * create data producers (but no data consumers), OS can be low (~1). However,
- * if data consumers are desired on the server side transport, OS must have a
- * proper value and such a proper value depends on whether the remote endpoint
- * supports  SCTP_ADD_STREAMS extension or not.
- *
- * libwebrtc (Chrome, Safari, etc) does not enable SCTP_ADD_STREAMS so, if data
- * consumers are required,  OS should be 1024 (the maximum number of DataChannels
- * that libwebrtc enables).
- *
- * Firefox does enable SCTP_ADD_STREAMS so, if data consumers are required, OS
- * can be lower (16 for instance). The mediasoup transport will allocate and
- * announce more outgoing SCTM streams when needed.
- *
- * mediasoup-client provides specific per browser/version OS and MIS values via
- * the device.sctpCapabilities getter.
- */
-export interface TransportNumSctpStreams
-{
-	/**
-	 * Initially requested number of outgoing SCTP streams (from 1 to 65535).
-	 * Default 1024.
-	 */
-	OS: number;
-
-	/**
-	 * Maximum number of incoming SCTP streams (from 1 to 65535). Default 1024.
-	 */
-	MIS: number;
 }
 
 export type SctpState = 'new' | 'connecting' | 'connected' | 'failed' | 'closed';

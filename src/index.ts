@@ -3,7 +3,7 @@ import EnhancedEventEmitter from './EnhancedEventEmitter';
 import Worker, { WorkerSettings } from './Worker';
 import * as utils from './utils';
 import supportedRtpCapabilities from './supportedRtpCapabilities';
-import { RtpCapabilities } from './RtpParametersAndCapabilities';
+import { RtpCapabilities } from './RtpParameters';
 import * as types from './types';
 
 /**

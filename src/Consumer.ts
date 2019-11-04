@@ -5,7 +5,7 @@ import {
 	MediaKind,
 	RtpCapabilities,
 	RtpParameters
-} from './RtpParametersAndCapabilities';
+} from './RtpParameters';
 
 export interface ConsumerOptions
 {

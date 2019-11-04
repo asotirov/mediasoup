@@ -1,6 +1,7 @@
 import EnhancedEventEmitter from './EnhancedEventEmitter';
-import Transport, { TransportListenIp, TransportTuple, TransportSctpParameters, TransportNumSctpStreams, SctpState } from './Transport';
+import Transport, { TransportListenIp, TransportTuple, SctpState } from './Transport';
 import Consumer, { ConsumerOptions } from './Consumer';
+import { SctpParameters, NumSctpStreams } from './SctpParameters';
 export interface PlainRtpTransportOptions {
     /**
      * Listening IP address.
@@ -29,7 +30,7 @@ export interface PlainRtpTransportOptions {
     /**
      * SCTP streams number.
      */
-    numSctpStreams?: TransportNumSctpStreams;
+    numSctpStreams?: NumSctpStreams;
     /**
      * Maximum size of data that can be passed to DataProducer's send() method.
      * Default 262144.
@@ -87,7 +88,7 @@ export default class PlainRtpTransport extends Transport {
     /**
      * SCTP parameters.
      */
-    readonly sctpParameters: TransportSctpParameters | undefined;
+    readonly sctpParameters: SctpParameters | undefined;
     /**
      * SCTP state.
      */

@@ -1,6 +1,6 @@
 import EnhancedEventEmitter from './EnhancedEventEmitter';
 import Channel from './Channel';
-import { MediaKind, RtpCapabilities, RtpParameters } from './RtpParametersAndCapabilities';
+import { MediaKind, RtpCapabilities, RtpParameters } from './RtpParameters';
 export interface ConsumerOptions {
     /**
      * The id of the Producer to consume.

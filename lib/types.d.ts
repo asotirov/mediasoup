@@ -34,7 +34,7 @@ export { RtpObserver };
 export * from './AudioLevelObserver';
 import AudioLevelObserver from './AudioLevelObserver';
 export { AudioLevelObserver };
-export * from './RtpParametersAndCapabilities';
+export * from './RtpParameters';
 export * from './SctpParameters';
 export * from './errors';
 export { ScalabilityMode } from './scalabilityModes';

@@ -1,6 +1,6 @@
 import EnhancedEventEmitter from './EnhancedEventEmitter';
 import Channel from './Channel';
-import { MediaKind, RtpParameters } from './RtpParametersAndCapabilities';
+import { MediaKind, RtpParameters } from './RtpParameters';
 export interface ProducerOptions {
     /**
      * Producer id (just for Router.pipeToRouter() method).

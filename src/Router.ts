@@ -3,10 +3,7 @@ import Logger from './Logger';
 import EnhancedEventEmitter from './EnhancedEventEmitter';
 import * as ortc from './ortc';
 import Channel from './Channel';
-import Transport, {
-	TransportListenIp,
-	TransportNumSctpStreams
-} from './Transport';
+import Transport, { TransportListenIp } from './Transport';
 import WebRtcTransport, { WebRtcTransportOptions } from './WebRtcTransport';
 import PlainRtpTransport, { PlainRtpTransportOptions } from './PlainRtpTransport';
 import PipeTransport, { PipeTransportOptions } from './PipeTransport';
@@ -16,7 +13,8 @@ import DataProducer from './DataProducer';
 import DataConsumer from './DataConsumer';
 import RtpObserver from './RtpObserver';
 import AudioLevelObserver, { AudioLevelObserverOptions } from './AudioLevelObserver';
-import { RtpCapabilities, RtpCodecCapability } from './RtpParametersAndCapabilities';
+import { RtpCapabilities, RtpCodecCapability } from './RtpParameters';
+import { NumSctpStreams } from './SctpParameters';
 
 export interface RouterOptions
 {
@@ -56,7 +54,7 @@ export interface PipeToRouterOptions
 	/**
 	 * SCTP streams number.
 	 */
-	numSctpStreams?: TransportNumSctpStreams;
+	numSctpStreams?: NumSctpStreams;
 }
 
 export interface PipeToRouterResult

@@ -5,11 +5,10 @@ import * as ortc from './ortc';
 import Transport, {
 	TransportListenIp,
 	TransportTuple,
-	TransportSctpParameters,
-	TransportNumSctpStreams,
 	SctpState
 } from './Transport';
 import Consumer, { ConsumerOptions } from './Consumer';
+import { SctpParameters, NumSctpStreams } from './SctpParameters';
 
 export interface PipeTransportOptions
 {
@@ -26,7 +25,7 @@ export interface PipeTransportOptions
 	/**
 	 * SCTP streams number.
 	 */
-	numSctpStreams?: TransportNumSctpStreams;
+	numSctpStreams?: NumSctpStreams;
 
 	/**
 	 * Maximum size of data that can be passed to DataProducer's send() method.
@@ -122,7 +121,7 @@ export default class PipeTransport extends Transport
 	/**
 	 * SCTP parameters.
 	 */
-	get sctpParameters(): TransportSctpParameters | undefined
+	get sctpParameters(): SctpParameters | undefined
 	{
 		return this._data.sctpParameters;
 	}

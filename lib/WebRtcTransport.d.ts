@@ -1,5 +1,6 @@
 import EnhancedEventEmitter from './EnhancedEventEmitter';
-import Transport, { TransportListenIp, TransportProtocol, TransportTuple, TransportSctpParameters, TransportNumSctpStreams, SctpState } from './Transport';
+import Transport, { TransportListenIp, TransportProtocol, TransportTuple, SctpState } from './Transport';
+import { SctpParameters, NumSctpStreams } from './SctpParameters';
 export interface WebRtcTransportOptions {
     /**
      * Listening IP address or addresses in order of preference (first one is the
@@ -33,7 +34,7 @@ export interface WebRtcTransportOptions {
     /**
      * SCTP streams number.
      */
-    numSctpStreams?: TransportNumSctpStreams;
+    numSctpStreams?: NumSctpStreams;
     /**
      * Maximum size of data that can be passed to DataProducer's send() method.
      * Default 262144.
@@ -148,7 +149,7 @@ export default class WebRtcTransport extends Transport {
     /**
      * SCTP parameters.
      */
-    readonly sctpParameters: TransportSctpParameters | undefined;
+    readonly sctpParameters: SctpParameters | undefined;
     /**
      * SCTP state.
      */
