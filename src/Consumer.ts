@@ -47,6 +47,32 @@ export interface ConsumerOptions
 	appData?: any;
 }
 
+/**
+ * Valid types for 'packet' event.
+ */
+export type ConsumerPacketEventType = 'rtp' | 'nack' | 'pli' | 'fir';
+
+/**
+ * 'packet' event data.
+ */
+export interface ConsumerPacketEventData
+{
+	/**
+	 * Type of packet.
+	 */
+	type: ConsumerPacketEventType;
+
+	/**
+	 * Event direction.
+	 */
+	direction: 'in' | 'out';
+
+	/**
+	 * Per type information.
+	 */
+	info: any;
+}
+
 export interface ConsumerScore
 {
 	/**
@@ -149,6 +175,7 @@ export default class Consumer extends EnhancedEventEmitter
 	 * @emits producerresume
 	 * @emits {ConsumerScore} score
 	 * @emits {ConsumerLayers | null} layerschange
+	 * @emits {ConsumerPacketEventData} packet
 	 * @emits @close
 	 * @emits @producerclose
 	 */
@@ -290,7 +317,8 @@ export default class Consumer extends EnhancedEventEmitter
 	 * @emits pause
 	 * @emits resume
 	 * @emits {ConsumerScore} score
-	 * @emits {ConsumerLayers} | {null} layerschange
+	 * @emits {ConsumerLayers | null} layerschange
+	 * @emits {ConsumerPacketEventData} packet
 	 */
 	get observer(): EnhancedEventEmitter
 	{
@@ -428,6 +456,19 @@ export default class Consumer extends EnhancedEventEmitter
 		await this._channel.request('consumer.requestKeyFrame', this._internal);
 	}
 
+	/**
+	 * Enable 'packet' event.
+	 */
+	async enablePacketEvent(types: ConsumerPacketEventType[] = []): Promise<void>
+	{
+		logger.debug('pause()');
+
+		const reqData = { types };
+
+		await this._channel.request(
+			'consumer.enablePacketEvent', this._internal, reqData);
+	}
+
 	private _handleWorkerNotifications(): void
 	{
 		this._channel.on(this._internal.consumerId, (event: string, data?: any) =>
@@ -513,6 +554,18 @@ export default class Consumer extends EnhancedEventEmitter
 
 					// Emit observer event.
 					this._observer.safeEmit('layerschange', layers);
+
+					break;
+				}
+
+				case 'packet':
+				{
+					const eventData = data as ConsumerPacketEventData;
+
+					this.safeEmit('packet', eventData);
+
+					// Emit observer event.
+					this._observer.safeEmit('packet', eventData);
 
 					break;
 				}

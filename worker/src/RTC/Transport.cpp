@@ -1095,6 +1095,7 @@ namespace RTC
 			case Channel::Request::MethodId::PRODUCER_GET_STATS:
 			case Channel::Request::MethodId::PRODUCER_PAUSE:
 			case Channel::Request::MethodId::PRODUCER_RESUME:
+			case Channel::Request::MethodId::PRODUCER_ENABLE_PACKET_EVENT:
 			{
 				// This may throw.
 				RTC::Producer* producer = GetProducerFromRequest(request);
@@ -1110,6 +1111,7 @@ namespace RTC
 			case Channel::Request::MethodId::CONSUMER_RESUME:
 			case Channel::Request::MethodId::CONSUMER_SET_PREFERRED_LAYERS:
 			case Channel::Request::MethodId::CONSUMER_REQUEST_KEY_FRAME:
+			case Channel::Request::MethodId::CONSUMER_ENABLE_PACKET_EVENT:
 			{
 				// This may throw.
 				RTC::Consumer* consumer = GetConsumerFromRequest(request);

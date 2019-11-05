@@ -31,6 +31,32 @@ export interface ProducerOptions
 	appData?: any;
 }
 
+/**
+ * Valid types for 'packet' event.
+ */
+export type ProducerPacketEventType = 'rtp' | 'nack' | 'pli' | 'fir';
+
+/**
+ * 'packet' event data.
+ */
+export interface ProducerPacketEventData
+{
+	/**
+	 * Type of packet.
+	 */
+	type: ProducerPacketEventType;
+
+	/**
+	 * Event direction.
+	 */
+	direction: 'in' | 'out';
+
+	/**
+	 * Per type information.
+	 */
+	info: any;
+}
+
 export interface ProducerScore
 {
 	/**
@@ -120,6 +146,7 @@ export default class Producer extends EnhancedEventEmitter
 	 * @emits transportclose
 	 * @emits {ProducerScore[]} score
 	 * @emits {ProducerVideoOrientation} videoorientationchange
+	 * @emits {ProducerPacketEventData} packet
 	 * @emits @close
 	 */
 	constructor(
@@ -258,6 +285,7 @@ export default class Producer extends EnhancedEventEmitter
 	 * @emits resume
 	 * @emits {ProducerScore[]} score
 	 * @emits {ProducerVideoOrientation} videoorientationchange
+	 * @emits {ProducerPacketEventData} packet
 	 */
 	get observer(): EnhancedEventEmitter
 	{
@@ -367,6 +395,19 @@ export default class Producer extends EnhancedEventEmitter
 			this._observer.safeEmit('resume');
 	}
 
+	/**
+	 * Enable 'packet' event.
+	 */
+	async enablePacketEvent(types: ProducerPacketEventType[] = []): Promise<void>
+	{
+		logger.debug('pause()');
+
+		const reqData = { types };
+
+		await this._channel.request(
+			'producer.enablePacketEvent', this._internal, reqData);
+	}
+
 	private _handleWorkerNotifications(): void
 	{
 		this._channel.on(this._internal.producerId, (event: string, data?: any) =>
@@ -395,6 +436,18 @@ export default class Producer extends EnhancedEventEmitter
 
 					// Emit observer event.
 					this._observer.safeEmit('videoorientationchange', videoOrientation);
+
+					break;
+				}
+
+				case 'packet':
+				{
+					const eventData = data as ProducerPacketEventData;
+
+					this.safeEmit('packet', eventData);
+
+					// Emit observer event.
+					this._observer.safeEmit('packet', eventData);
 
 					break;
 				}

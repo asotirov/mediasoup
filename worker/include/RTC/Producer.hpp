@@ -70,6 +70,15 @@ namespace RTC
 			RETRANSMISSION
 		};
 
+	private:
+		struct PacketEventTypes
+		{
+			bool rtp{ false };
+			bool nack{ false };
+			bool pli{ false };
+			bool fir{ false };
+		};
+
 	public:
 		Producer(const std::string& id, RTC::Producer::Listener* listener, json& data);
 		virtual ~Producer();
@@ -138,6 +147,7 @@ namespace RTC
 		// Video orientation.
 		bool videoOrientationDetected{ false };
 		struct VideoOrientation videoOrientation;
+		struct PacketEventTypes packetEventTypes;
 	};
 
 	/* Inline methods. */

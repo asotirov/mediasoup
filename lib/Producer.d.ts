@@ -23,6 +23,27 @@ export interface ProducerOptions {
      */
     appData?: any;
 }
+/**
+ * Valid types for 'packet' event.
+ */
+export declare type ProducerPacketEventType = 'rtp' | 'nack' | 'pli' | 'fir';
+/**
+ * 'packet' event data.
+ */
+export interface ProducerPacketEventData {
+    /**
+     * Type of packet.
+     */
+    type: ProducerPacketEventType;
+    /**
+     * Event direction.
+     */
+    direction: 'in' | 'out';
+    /**
+     * Per type information.
+     */
+    info: any;
+}
 export interface ProducerScore {
     /**
      * SSRC of the RTP stream.
@@ -94,6 +115,7 @@ export default class Producer extends EnhancedEventEmitter {
      * @emits transportclose
      * @emits {ProducerScore[]} score
      * @emits {ProducerVideoOrientation} videoorientationchange
+     * @emits {ProducerPacketEventData} packet
      * @emits @close
      */
     constructor({ internal, data, channel, appData, paused }: {
@@ -152,6 +174,7 @@ export default class Producer extends EnhancedEventEmitter {
      * @emits resume
      * @emits {ProducerScore[]} score
      * @emits {ProducerVideoOrientation} videoorientationchange
+     * @emits {ProducerPacketEventData} packet
      */
     readonly observer: EnhancedEventEmitter;
     /**
@@ -180,6 +203,10 @@ export default class Producer extends EnhancedEventEmitter {
      * Resume the Producer.
      */
     resume(): Promise<void>;
+    /**
+     * Enable 'packet' event.
+     */
+    enablePacketEvent(types?: ProducerPacketEventType[]): Promise<void>;
     private _handleWorkerNotifications;
 }
 //# sourceMappingURL=Producer.d.ts.map

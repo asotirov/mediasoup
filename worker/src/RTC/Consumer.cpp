@@ -5,6 +5,8 @@
 #include "Logger.hpp"
 #include "MediaSoupErrors.hpp"
 #include "Channel/Notifier.hpp"
+#include <iterator> // std::ostream_iterator
+#include <sstream>  // std::ostringstream
 
 namespace RTC
 {
@@ -188,6 +190,30 @@ namespace RTC
 
 		// Add producerPaused.
 		jsonObject["producerPaused"] = this->producerPaused;
+
+		// Add packetEventTypes.
+		std::vector<std::string> packetEventTypes;
+		std::ostringstream packetEventTypesStream;
+
+		if (this->packetEventTypes.rtp)
+			packetEventTypes.push_back("rtp");
+		if (this->packetEventTypes.nack)
+			packetEventTypes.push_back("nack");
+		if (this->packetEventTypes.pli)
+			packetEventTypes.push_back("pli");
+		if (this->packetEventTypes.fir)
+			packetEventTypes.push_back("fir");
+
+		if (!packetEventTypes.empty())
+		{
+			std::copy(
+			  packetEventTypes.begin(),
+			  packetEventTypes.end() - 1,
+			  std::ostream_iterator<std::string>(packetEventTypesStream, ","));
+			packetEventTypesStream << packetEventTypes.back();
+		}
+
+		jsonObject["packetEventTypes"] = packetEventTypesStream.str();
 	}
 
 	void Consumer::HandleRequest(Channel::Request* request)
@@ -256,6 +282,41 @@ namespace RTC
 
 				if (IsActive())
 					UserOnResumed();
+
+				request->Accept();
+
+				break;
+			}
+
+			case Channel::Request::MethodId::CONSUMER_ENABLE_PACKET_EVENT:
+			{
+				auto jsonTypesIt = request->data.find("types");
+
+				// Disable all if no entries.
+				if (jsonTypesIt == request->data.end() || !jsonTypesIt->is_array())
+					MS_THROW_TYPE_ERROR("wrong types (not an array)");
+
+				// Reset packetEventTypes.
+				struct PacketEventTypes newPacketEventTypes;
+
+				for (const auto& type : *jsonTypesIt)
+				{
+					if (!type.is_string())
+						MS_THROW_TYPE_ERROR("wrong type (not a string)");
+
+					std::string typeStr = type.get<std::string>();
+
+					if (typeStr == "rtp")
+						newPacketEventTypes.rtp = true;
+					else if (typeStr == "nack")
+						newPacketEventTypes.nack = true;
+					else if (typeStr == "pli")
+						newPacketEventTypes.pli = true;
+					else if (typeStr == "fir")
+						newPacketEventTypes.fir = true;
+				}
+
+				this->packetEventTypes = newPacketEventTypes;
 
 				request->Accept();
 

@@ -35,6 +35,27 @@ export interface ConsumerOptions {
      */
     appData?: any;
 }
+/**
+ * Valid types for 'packet' event.
+ */
+export declare type ConsumerPacketEventType = 'rtp' | 'nack' | 'pli' | 'fir';
+/**
+ * 'packet' event data.
+ */
+export interface ConsumerPacketEventData {
+    /**
+     * Type of packet.
+     */
+    type: ConsumerPacketEventType;
+    /**
+     * Event direction.
+     */
+    direction: 'in' | 'out';
+    /**
+     * Per type information.
+     */
+    info: any;
+}
 export interface ConsumerScore {
     /**
      * The score of the RTP stream of the consumer.
@@ -97,6 +118,7 @@ export default class Consumer extends EnhancedEventEmitter {
      * @emits producerresume
      * @emits {ConsumerScore} score
      * @emits {ConsumerLayers | null} layerschange
+     * @emits {ConsumerPacketEventData} packet
      * @emits @close
      * @emits @producerclose
      */
@@ -163,7 +185,8 @@ export default class Consumer extends EnhancedEventEmitter {
      * @emits pause
      * @emits resume
      * @emits {ConsumerScore} score
-     * @emits {ConsumerLayers} | {null} layerschange
+     * @emits {ConsumerLayers | null} layerschange
+     * @emits {ConsumerPacketEventData} packet
      */
     readonly observer: EnhancedEventEmitter;
     /**
@@ -200,6 +223,10 @@ export default class Consumer extends EnhancedEventEmitter {
      * Request a key frame to the Producer.
      */
     requestKeyFrame(): Promise<void>;
+    /**
+     * Enable 'packet' event.
+     */
+    enablePacketEvent(types?: ConsumerPacketEventType[]): Promise<void>;
     private _handleWorkerNotifications;
 }
 //# sourceMappingURL=Consumer.d.ts.map

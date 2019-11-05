@@ -33,6 +33,15 @@ namespace RTC
 			virtual void OnConsumerProducerClosed(RTC::Consumer* consumer)                         = 0;
 		};
 
+	private:
+		struct PacketEventTypes
+		{
+			bool rtp{ false };
+			bool nack{ false };
+			bool pli{ false };
+			bool fir{ false };
+		};
+
 	public:
 		Consumer(
 		  const std::string& id,
@@ -106,6 +115,7 @@ namespace RTC
 		uint64_t lastRtcpSentTime{ 0u };
 		uint16_t maxRtcpInterval{ 0u };
 		bool externallyManagedBitrate{ false };
+		struct PacketEventTypes packetEventTypes;
 
 	private:
 		// Others.
