@@ -47,6 +47,19 @@ export interface ConsumerOptions
 	appData?: any;
 }
 
+export interface ConsumerScore
+{
+	/**
+	 * The score of the RTP stream of the consumer.
+	 */
+	score: number;
+
+	/**
+	 * The score of the currently selected RTP stream of the producer.
+	 */
+	producerScore: number;
+}
+
 export interface ConsumerLayers
 {
 	/**
@@ -120,10 +133,10 @@ export default class Consumer extends EnhancedEventEmitter
 	private _producerPaused = false;
 
 	// Current score.
-	private _score: { consumer: number; producerScore: number } | null;
+	private _score: ConsumerScore;
 
 	// Curent layers.
-	private _currentLayers: any | null = null;
+	private _currentLayers: ConsumerLayers | null = null;
 
 	// Observer instance.
 	private readonly _observer = new EnhancedEventEmitter();
@@ -134,8 +147,8 @@ export default class Consumer extends EnhancedEventEmitter
 	 * @emits producerclose
 	 * @emits producerpause
 	 * @emits producerresume
-	 * @emits {consumer: number; producerScore: number} score
-	 * @emits {spatialLayer: number; temporalLayer: number|null} layerschange
+	 * @emits {ConsumerScore} score
+	 * @emits {ConsumerLayers | null} layerschange
 	 * @emits @close
 	 * @emits @producerclose
 	 */
@@ -147,7 +160,7 @@ export default class Consumer extends EnhancedEventEmitter
 			appData,
 			paused,
 			producerPaused,
-			score = { consumer: 10, producerScore: 10 }
+			score = { score: 10, producerScore: 10 }
 		}:
 		{
 			internal: any;
@@ -156,7 +169,7 @@ export default class Consumer extends EnhancedEventEmitter
 			appData?: any;
 			paused: boolean;
 			producerPaused: boolean;
-			score?: { consumer: number; producerScore: number };
+			score?: ConsumerScore;
 		})
 	{
 		super(logger);
@@ -239,9 +252,9 @@ export default class Consumer extends EnhancedEventEmitter
 	}
 
 	/**
-	 * Consumer score with consumer and producerScore keys.
+	 * Consumer score.
 	 */
-	get score(): { consumer: number; producerScore: number } | null
+	get score(): ConsumerScore
 	{
 		return this._score;
 	}
@@ -249,7 +262,7 @@ export default class Consumer extends EnhancedEventEmitter
 	/**
 	 * Current video layers.
 	 */
-	get currentLayers(): any | null
+	get currentLayers(): ConsumerLayers | null
 	{
 		return this._currentLayers;
 	}
@@ -276,8 +289,8 @@ export default class Consumer extends EnhancedEventEmitter
 	 * @emits close
 	 * @emits pause
 	 * @emits resume
-	 * @emits {consumer: number; producerScore: number} score
-	 * @emits {spatialLayer: number; temporalLayer: number} | {null} layerschange
+	 * @emits {ConsumerScore} score
+	 * @emits {ConsumerLayers} | {null} layerschange
 	 */
 	get observer(): EnhancedEventEmitter
 	{
@@ -394,11 +407,7 @@ export default class Consumer extends EnhancedEventEmitter
 		{
 			spatialLayer,
 			temporalLayer
-		}:
-		{
-			spatialLayer: number;
-			temporalLayer?: number;
-		}
+		}: ConsumerLayers
 	): Promise<void>
 	{
 		logger.debug('setPreferredLayers()');

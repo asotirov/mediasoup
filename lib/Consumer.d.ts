@@ -35,6 +35,16 @@ export interface ConsumerOptions {
      */
     appData?: any;
 }
+export interface ConsumerScore {
+    /**
+     * The score of the RTP stream of the consumer.
+     */
+    score: number;
+    /**
+     * The score of the currently selected RTP stream of the producer.
+     */
+    producerScore: number;
+}
 export interface ConsumerLayers {
     /**
      * The spatial layer index (from 0 to N).
@@ -85,8 +95,8 @@ export default class Consumer extends EnhancedEventEmitter {
      * @emits producerclose
      * @emits producerpause
      * @emits producerresume
-     * @emits {consumer: number; producerScore: number} score
-     * @emits {spatialLayer: number; temporalLayer: number|null} layerschange
+     * @emits {ConsumerScore} score
+     * @emits {ConsumerLayers | null} layerschange
      * @emits @close
      * @emits @producerclose
      */
@@ -97,10 +107,7 @@ export default class Consumer extends EnhancedEventEmitter {
         appData?: any;
         paused: boolean;
         producerPaused: boolean;
-        score?: {
-            consumer: number;
-            producerScore: number;
-        };
+        score?: ConsumerScore;
     });
     /**
      * Consumer id.
@@ -135,16 +142,13 @@ export default class Consumer extends EnhancedEventEmitter {
      */
     readonly producerPaused: boolean;
     /**
-     * Consumer score with consumer and producerScore keys.
+     * Consumer score.
      */
-    readonly score: {
-        consumer: number;
-        producerScore: number;
-    } | null;
+    readonly score: ConsumerScore;
     /**
      * Current video layers.
      */
-    readonly currentLayers: any | null;
+    readonly currentLayers: ConsumerLayers | null;
     /**
      * App custom data.
      */
@@ -158,8 +162,8 @@ export default class Consumer extends EnhancedEventEmitter {
      * @emits close
      * @emits pause
      * @emits resume
-     * @emits {consumer: number; producerScore: number} score
-     * @emits {spatialLayer: number; temporalLayer: number} | {null} layerschange
+     * @emits {ConsumerScore} score
+     * @emits {ConsumerLayers} | {null} layerschange
      */
     readonly observer: EnhancedEventEmitter;
     /**
@@ -191,10 +195,7 @@ export default class Consumer extends EnhancedEventEmitter {
     /**
      * Set preferred video layers.
      */
-    setPreferredLayers({ spatialLayer, temporalLayer }: {
-        spatialLayer: number;
-        temporalLayer?: number;
-    }): Promise<void>;
+    setPreferredLayers({ spatialLayer, temporalLayer }: ConsumerLayers): Promise<void>;
     /**
      * Request a key frame to the Producer.
      */

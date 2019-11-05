@@ -73,11 +73,13 @@ namespace RTC
 		}
 	}
 
-	void PipeConsumer::FillJsonScore(json& /*jsonObject*/) const
+	void PipeConsumer::FillJsonScore(json& jsonObject) const
 	{
 		MS_TRACE();
 
-		// Do nothing.
+		// NOTE: Hardcoded values in PipeTransport.
+		jsonObject["score"]         = 10;
+		jsonObject["producerScore"] = 10;
 	}
 
 	void PipeConsumer::HandleRequest(Channel::Request* request)
