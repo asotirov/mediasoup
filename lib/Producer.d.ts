@@ -23,6 +23,34 @@ export interface ProducerOptions {
      */
     appData?: any;
 }
+export interface ProducerScore {
+    /**
+     * SSRC of the RTP stream.
+     */
+    ssrc: number;
+    /**
+     * RID of the RTP stream.
+     */
+    rid?: string;
+    /**
+     * The score of the RTP stream.
+     */
+    score: number;
+}
+export interface ProducerVideoOrientation {
+    /**
+     * Whether the source is a video camera.
+     */
+    camera: boolean;
+    /**
+     * Whether the video source is flipped.
+     */
+    flip: boolean;
+    /**
+     * Rotation degrees (0, 90, 180 or 270).
+     */
+    rotation: number;
+}
 export interface ProducerStat {
     type: string;
     timestamp: number;
@@ -64,8 +92,8 @@ export default class Producer extends EnhancedEventEmitter {
     /**
      * @private
      * @emits transportclose
-     * @emits {Array<Object>} score
-     * @emits {Object} videoorientationchange
+     * @emits {ProducerScore[]} score
+     * @emits {ProducerVideoOrientation} videoorientationchange
      * @emits @close
      */
     constructor({ internal, data, channel, appData, paused }: {
@@ -108,7 +136,7 @@ export default class Producer extends EnhancedEventEmitter {
     /**
      * Producer score list.
      */
-    readonly score: any[];
+    readonly score: ProducerScore[];
     /**
      * App custom data.
      */
@@ -122,8 +150,8 @@ export default class Producer extends EnhancedEventEmitter {
      * @emits close
      * @emits pause
      * @emits resume
-     * @emits {Array<Object>} score
-     * @emits {Object} videoorientationchange
+     * @emits {ProducerScore[]} score
+     * @emits {ProducerVideoOrientation} videoorientationchange
      */
     readonly observer: EnhancedEventEmitter;
     /**

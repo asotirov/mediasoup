@@ -31,6 +31,42 @@ export interface ProducerOptions
 	appData?: any;
 }
 
+export interface ProducerScore
+{
+	/**
+	 * SSRC of the RTP stream.
+	 */
+	ssrc: number;
+
+	/**
+	 * RID of the RTP stream.
+	 */
+	rid?: string;
+
+	/**
+	 * The score of the RTP stream.
+	 */
+	score: number;
+}
+
+export interface ProducerVideoOrientation
+{
+	/**
+	 * Whether the source is a video camera.
+	 */
+	camera: boolean;
+
+	/**
+	 * Whether the video source is flipped.
+	 */
+	flip: boolean;
+
+	/**
+	 * Rotation degrees (0, 90, 180 or 270).
+	 */
+	rotation: number;
+}
+
 export interface ProducerStat
 {
 	// Common to all RtpStreams.
@@ -76,14 +112,14 @@ export default class Producer extends EnhancedEventEmitter
 	private _closed = false;
 	private readonly _appData?: any;
 	private _paused = false;
-	private _score: any[] = [];
+	private _score: ProducerScore[] = [];
 	private readonly _observer = new EnhancedEventEmitter();
 
 	/**
 	 * @private
 	 * @emits transportclose
-	 * @emits {Array<Object>} score
-	 * @emits {Object} videoorientationchange
+	 * @emits {ProducerScore[]} score
+	 * @emits {ProducerVideoOrientation} videoorientationchange
 	 * @emits @close
 	 */
 	constructor(
@@ -193,7 +229,7 @@ export default class Producer extends EnhancedEventEmitter
 	/**
 	 * Producer score list.
 	 */
-	get score(): any[]
+	get score(): ProducerScore[]
 	{
 		return this._score;
 	}
@@ -220,8 +256,8 @@ export default class Producer extends EnhancedEventEmitter
 	 * @emits close
 	 * @emits pause
 	 * @emits resume
-	 * @emits {Array<Object>} score
-	 * @emits {Object} videoorientationchange
+	 * @emits {ProducerScore[]} score
+	 * @emits {ProducerVideoOrientation} videoorientationchange
 	 */
 	get observer(): EnhancedEventEmitter
 	{
@@ -353,7 +389,7 @@ export default class Producer extends EnhancedEventEmitter
 
 				case 'videoorientationchange':
 				{
-					const videoOrientation = data;
+					const videoOrientation = data as ProducerVideoOrientation;
 
 					this.safeEmit('videoorientationchange', videoOrientation);
 
