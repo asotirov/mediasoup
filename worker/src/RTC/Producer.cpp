@@ -604,6 +604,10 @@ namespace RTC
 			this->currentRtpPacket = nullptr;
 		}
 
+		// May emit 'packet' event.
+		if (this->packetEventTypes.rtp)
+			EmitPacketEvent(packet);
+
 		// If paused stop here.
 		if (this->paused)
 			return result;
@@ -1329,6 +1333,20 @@ namespace RTC
 		}
 
 		Channel::Notifier::Emit(this->id, "score", data);
+	}
+
+	inline void Producer::EmitPacketEvent(RTC::RtpPacket* packet) const
+	{
+		MS_TRACE();
+
+		json data = json::object();
+
+		data["type"]      = "rtp";
+		data["direction"] = "in";
+
+		packet->FillJson(data["info"]);
+
+		Channel::Notifier::Emit(this->id, "packet", data);
 	}
 
 	inline void Producer::OnRtpStreamScore(RTC::RtpStream* rtpStream, uint8_t score, uint8_t previousScore)

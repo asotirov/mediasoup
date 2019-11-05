@@ -4,9 +4,12 @@
 #include "common.hpp"
 #include "Utils.hpp"
 #include "RTC/Codecs/PayloadDescriptorHandler.hpp"
+#include <json.hpp>
 #include <map>
 #include <string>
 #include <vector>
+
+using json = nlohmann::json;
 
 namespace RTC
 {
@@ -124,6 +127,7 @@ namespace RTC
 		~RtpPacket();
 
 		void Dump() const;
+		void FillJson(json& jsonObject) const;
 		const uint8_t* GetData() const;
 		size_t GetSize() const;
 		uint8_t GetPayloadType() const;

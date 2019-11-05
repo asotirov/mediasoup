@@ -442,12 +442,12 @@ export default class Producer extends EnhancedEventEmitter
 
 				case 'packet':
 				{
-					const eventData = data as ProducerPacketEventData;
+					const packet = data as ProducerPacketEventData;
 
-					this.safeEmit('packet', eventData);
+					this.safeEmit('packet', packet);
 
 					// Emit observer event.
-					this._observer.safeEmit('packet', eventData);
+					this._observer.safeEmit('packet', packet);
 
 					break;
 				}

@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+using json = nlohmann::json;
+
 namespace RTC
 {
 	class Producer : public RTC::RtpStreamRecv::Listener, public RTC::KeyFrameRequestManager::Listener
@@ -108,6 +110,7 @@ namespace RTC
 		bool MangleRtpPacket(RTC::RtpPacket* packet, RTC::RtpStreamRecv* rtpStream) const;
 		void PostProcessRtpPacket(RTC::RtpPacket* packet);
 		void EmitScore() const;
+		void EmitPacketEvent(RTC::RtpPacket* packet) const;
 
 		/* Pure virtual methods inherited from RTC::RtpStreamRecv::Listener. */
 	public:

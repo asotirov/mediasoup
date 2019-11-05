@@ -560,12 +560,12 @@ export default class Consumer extends EnhancedEventEmitter
 
 				case 'packet':
 				{
-					const eventData = data as ConsumerPacketEventData;
+					const packet = data as ConsumerPacketEventData;
 
-					this.safeEmit('packet', eventData);
+					this.safeEmit('packet', packet);
 
 					// Emit observer event.
-					this._observer.safeEmit('packet', eventData);
+					this._observer.safeEmit('packet', packet);
 
 					break;
 				}

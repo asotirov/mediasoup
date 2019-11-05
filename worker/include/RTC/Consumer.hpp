@@ -17,6 +17,8 @@
 #include <unordered_set>
 #include <vector>
 
+using json = nlohmann::json;
+
 namespace RTC
 {
 	class Consumer
