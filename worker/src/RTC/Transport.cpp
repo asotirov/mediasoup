@@ -2112,7 +2112,7 @@ namespace RTC
 
 		json data = json::object();
 
-		data["type"]      = "rtp";
+		data["type"]      = "probation";
 		data["direction"] = "out";
 
 		packet->FillJson(data["info"]);
