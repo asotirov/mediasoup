@@ -134,50 +134,51 @@ export default class Consumer extends EnhancedEventEmitter {
     /**
      * Consumer id.
      */
-    readonly id: string;
+    get id(): string;
     /**
      * Associated Producer id.
      */
-    readonly producerId: string;
+    get producerId(): string;
     /**
      * Whether the Consumer is closed.
      */
-    readonly closed: boolean;
+    get closed(): boolean;
     /**
      * Media kind.
      */
-    readonly kind: MediaKind;
+    get kind(): MediaKind;
     /**
      * RTP parameters.
      */
-    readonly rtpParameters: RtpParameters;
+    get rtpParameters(): RtpParameters;
     /**
      * Consumer type.
      */
-    readonly type: ConsumerType;
+    get type(): ConsumerType;
     /**
      * Whether the Consumer is paused.
      */
-    readonly paused: boolean;
+    get paused(): boolean;
     /**
      * Whether the associate Producer  is paused.
      */
-    readonly producerPaused: boolean;
+    get producerPaused(): boolean;
     /**
      * Consumer score.
      */
-    readonly score: ConsumerScore;
+    get score(): ConsumerScore;
     /**
      * Current video layers.
      */
-    readonly currentLayers: ConsumerLayers | null;
+    get currentLayers(): ConsumerLayers | null;
     /**
      * App custom data.
      */
+    get appData(): any;
     /**
-    * Invalid setter.
-    */
-    appData: any;
+     * Invalid setter.
+     */
+    set appData(appData: any);
     /**
      * Observer.
      *
@@ -188,7 +189,7 @@ export default class Consumer extends EnhancedEventEmitter {
      * @emits {ConsumerLayers | null} layerschange
      * @emits {ConsumerPacketEventData} packet
      */
-    readonly observer: EnhancedEventEmitter;
+    get observer(): EnhancedEventEmitter;
     /**
      * Close the Consumer.
      */

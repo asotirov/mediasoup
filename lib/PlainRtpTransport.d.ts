@@ -81,19 +81,19 @@ export default class PlainRtpTransport extends Transport {
     /**
      * Transport tuple.
      */
-    readonly tuple: TransportTuple;
+    get tuple(): TransportTuple;
     /**
      * Transport RTCP tuple.
      */
-    readonly rtcpTuple: TransportTuple;
+    get rtcpTuple(): TransportTuple;
     /**
      * SCTP parameters.
      */
-    readonly sctpParameters: SctpParameters | undefined;
+    get sctpParameters(): SctpParameters | undefined;
     /**
      * SCTP state.
      */
-    readonly sctpState: SctpState;
+    get sctpState(): SctpState;
     /**
      * Observer.
      *
@@ -106,7 +106,7 @@ export default class PlainRtpTransport extends Transport {
      * @emits {sctpState: SctpState} sctpstatechange
      * @emits {TransportPacketEventData} packet
      */
-    readonly observer: EnhancedEventEmitter;
+    get observer(): EnhancedEventEmitter;
     /**
      * Close the PlainRtpTransport.
      *

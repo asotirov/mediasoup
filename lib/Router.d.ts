@@ -85,22 +85,22 @@ export default class Router extends EnhancedEventEmitter {
     /**
      * Router id.
      */
-    readonly id: string;
+    get id(): string;
     /**
      * Whether the Router is closed.
      */
-    readonly closed: boolean;
+    get closed(): boolean;
     /**
      * RTC capabilities of the Router.
      */
-    readonly rtpCapabilities: RtpCapabilities;
+    get rtpCapabilities(): RtpCapabilities;
     /**
      * Observer.
      *
      * @emits close
      * @emits {transport: Transport} newtransport
      */
-    readonly observer: EnhancedEventEmitter;
+    get observer(): EnhancedEventEmitter;
     /**
      * Close the Router.
      */

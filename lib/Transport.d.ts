@@ -88,18 +88,19 @@ export default class Transport extends EnhancedEventEmitter {
     /**
      * Transport id.
      */
-    readonly id: string;
+    get id(): string;
     /**
      * Whether the Transport is closed.
      */
-    readonly closed: boolean;
+    get closed(): boolean;
     /**
      * App custom data.
      */
+    get appData(): any;
     /**
-    * Invalid setter.
-    */
-    appData: any;
+     * Invalid setter.
+     */
+    set appData(appData: any);
     /**
      * Observer.
      *
@@ -109,7 +110,7 @@ export default class Transport extends EnhancedEventEmitter {
      * @emits {producer: DataProducer} newdataproducer
      * @emits {consumer: DataConsumer} newdataconsumer
      */
-    readonly observer: EnhancedEventEmitter;
+    get observer(): EnhancedEventEmitter;
     /**
      * Close the Transport.
      */

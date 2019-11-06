@@ -61,15 +61,15 @@ export default class PipeTransport extends Transport {
     /**
      * Transport tuple.
      */
-    readonly tuple: TransportTuple;
+    get tuple(): TransportTuple;
     /**
      * SCTP parameters.
      */
-    readonly sctpParameters: SctpParameters | undefined;
+    get sctpParameters(): SctpParameters | undefined;
     /**
      * SCTP state.
      */
-    readonly sctpState: SctpState;
+    get sctpState(): SctpState;
     /**
      * Observer.
      *
@@ -82,7 +82,7 @@ export default class PipeTransport extends Transport {
      * @emits {sctpState: SctpState} sctpstatechange
      * @emits {TransportPacketEventData} packet
      */
-    readonly observer: EnhancedEventEmitter;
+    get observer(): EnhancedEventEmitter;
     /**
      * Close the PlainRtpTransport.
      *

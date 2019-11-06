@@ -21,15 +21,15 @@ export default class RtpObserver extends EnhancedEventEmitter {
     /**
      * RtpObserver id.
      */
-    readonly id: string;
+    get id(): string;
     /**
      * Whether the RtpObserver is closed.
      */
-    readonly closed: boolean;
+    get closed(): boolean;
     /**
      * Whether the RtpObserver is paused.
      */
-    readonly paused: boolean;
+    get paused(): boolean;
     /**
      * Close the RtpObserver.
      */

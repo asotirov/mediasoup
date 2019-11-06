@@ -52,36 +52,37 @@ export default class DataProducer extends EnhancedEventEmitter {
     /**
      * DataProducer id.
      */
-    readonly id: string;
+    get id(): string;
     /**
      * Whether the DataProducer is closed.
      */
-    readonly closed: boolean;
+    get closed(): boolean;
     /**
      * SCTP stream parameters.
      */
-    readonly sctpStreamParameters: SctpStreamParameters;
+    get sctpStreamParameters(): SctpStreamParameters;
     /**
      * DataChannel label.
      */
-    readonly label: string;
+    get label(): string;
     /**
      * DataChannel protocol.
      */
-    readonly protocol: string;
+    get protocol(): string;
     /**
      * App custom data.
      */
+    get appData(): any;
     /**
-    * Invalid setter.
-    */
-    appData: any;
+     * Invalid setter.
+     */
+    set appData(appData: any);
     /**
      * Observer.
      *
      * @emits close
      */
-    readonly observer: EnhancedEventEmitter;
+    get observer(): EnhancedEventEmitter;
     /**
      * Close the DataProducer.
      */

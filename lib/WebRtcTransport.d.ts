@@ -118,43 +118,43 @@ export default class WebRtcTransport extends Transport {
     /**
      * ICE role.
      */
-    readonly iceRole: 'controlled';
+    get iceRole(): 'controlled';
     /**
      * ICE parameters.
      */
-    readonly iceParameters: IceParameters;
+    get iceParameters(): IceParameters;
     /**
      * ICE candidates.
      */
-    readonly iceCandidates: IceCandidate[];
+    get iceCandidates(): IceCandidate[];
     /**
      * ICE state.
      */
-    readonly iceState: IceState;
+    get iceState(): IceState;
     /**
      * ICE selected tuple.
      */
-    readonly iceSelectedTuple: TransportTuple | undefined;
+    get iceSelectedTuple(): TransportTuple | undefined;
     /**
      * DTLS parameters.
      */
-    readonly dtlsParameters: DtlsParameters;
+    get dtlsParameters(): DtlsParameters;
     /**
      * DTLS state.
      */
-    readonly dtlsState: DtlsState;
+    get dtlsState(): DtlsState;
     /**
      * Remote certificate in PEM format.
      */
-    readonly dtlsRemoteCert: string | undefined;
+    get dtlsRemoteCert(): string | undefined;
     /**
      * SCTP parameters.
      */
-    readonly sctpParameters: SctpParameters | undefined;
+    get sctpParameters(): SctpParameters | undefined;
     /**
      * SCTP state.
      */
-    readonly sctpState: SctpState;
+    get sctpState(): SctpState;
     /**
      * Observer.
      *
@@ -170,7 +170,7 @@ export default class WebRtcTransport extends Transport {
      * @emits {sctpState: SctpState} sctpstatechange
      * @emits {TransportPacketEventData} packet
      */
-    readonly observer: EnhancedEventEmitter;
+    get observer(): EnhancedEventEmitter;
     /**
      * Close the WebRtcTransport.
      *

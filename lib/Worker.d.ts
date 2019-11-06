@@ -52,18 +52,18 @@ export default class Worker extends EnhancedEventEmitter {
     /**
      * Worker process identifier (PID).
      */
-    readonly pid: number;
+    get pid(): number;
     /**
      * Whether the Worker is closed.
      */
-    readonly closed: boolean;
+    get closed(): boolean;
     /**
      * Observer.
      *
      * @emits close
      * @emits {router: Router} newrouter
      */
-    readonly observer: EnhancedEventEmitter;
+    get observer(): EnhancedEventEmitter;
     /**
      * Close the Worker.
      */

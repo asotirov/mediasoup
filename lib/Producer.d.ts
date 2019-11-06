@@ -128,44 +128,45 @@ export default class Producer extends EnhancedEventEmitter {
     /**
      * Producer id.
      */
-    readonly id: string;
+    get id(): string;
     /**
      * Whether the Producer is closed.
      */
-    readonly closed: boolean;
+    get closed(): boolean;
     /**
      * Media kind.
      */
-    readonly kind: MediaKind;
+    get kind(): MediaKind;
     /**
      * RTP parameters.
      */
-    readonly rtpParameters: RtpParameters;
+    get rtpParameters(): RtpParameters;
     /**
      * Producer type.
      */
-    readonly type: ProducerType;
+    get type(): ProducerType;
     /**
      * Consumable RTP parameters.
      *
      * @private
      */
-    readonly consumableRtpParameters: RtpParameters;
+    get consumableRtpParameters(): RtpParameters;
     /**
      * Whether the Producer is paused.
      */
-    readonly paused: boolean;
+    get paused(): boolean;
     /**
      * Producer score list.
      */
-    readonly score: ProducerScore[];
+    get score(): ProducerScore[];
     /**
      * App custom data.
      */
+    get appData(): any;
     /**
-    * Invalid setter.
-    */
-    appData: any;
+     * Invalid setter.
+     */
+    set appData(appData: any);
     /**
      * Observer.
      *
@@ -176,7 +177,7 @@ export default class Producer extends EnhancedEventEmitter {
      * @emits {ProducerVideoOrientation} videoorientationchange
      * @emits {ProducerPacketEventData} packet
      */
-    readonly observer: EnhancedEventEmitter;
+    get observer(): EnhancedEventEmitter;
     /**
      * Close the Producer.
      */
