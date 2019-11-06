@@ -402,4 +402,72 @@ namespace RTC
 
 		this->listener->OnConsumerProducerClosed(this);
 	}
+
+	void Consumer::EmitPacketEventRtpType(RTC::RtpPacket* packet, bool isRtx) const
+	{
+		MS_TRACE();
+
+		if (!this->packetEventTypes.rtp)
+			return;
+
+		json data = json::object();
+
+		data["type"]      = "rtp";
+		data["direction"] = "out";
+
+		packet->FillJson(data["info"]);
+
+		if (isRtx)
+			data["info"]["isRtx"] = true;
+
+		Channel::Notifier::Emit(this->id, "packet", data);
+	}
+
+	void Consumer::EmitPacketEventPliType(uint32_t ssrc) const
+	{
+		MS_TRACE();
+
+		if (!this->packetEventTypes.pli)
+			return;
+
+		json data = json::object();
+
+		data["type"]         = "pli";
+		data["direction"]    = "in";
+		data["info"]["ssrc"] = ssrc;
+
+		Channel::Notifier::Emit(this->id, "packet", data);
+	}
+
+	void Consumer::EmitPacketEventFirType(uint32_t ssrc) const
+	{
+		MS_TRACE();
+
+		if (!this->packetEventTypes.fir)
+			return;
+
+		json data = json::object();
+
+		data["type"]         = "fir";
+		data["direction"]    = "in";
+		data["info"]["ssrc"] = ssrc;
+
+		Channel::Notifier::Emit(this->id, "packet", data);
+	}
+
+	void Consumer::EmitPacketEventNackType() const
+	{
+		MS_TRACE();
+
+		if (!this->packetEventTypes.nack)
+			return;
+
+		json data = json::object();
+
+		data["type"]      = "nack";
+		data["direction"] = "in";
+		data["info"]      = json::object();
+
+		Channel::Notifier::Emit(this->id, "packet", data);
+	}
 } // namespace RTC

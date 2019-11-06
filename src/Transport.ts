@@ -39,6 +39,32 @@ export interface TransportTuple
 	protocol: TransportProtocol;
 }
 
+/**
+ * Valid types for 'packet' event.
+ */
+export type TransportPacketEventType = 'probation';
+
+/**
+ * 'packet' event data.
+ */
+export interface TransportPacketEventData
+{
+	/**
+	 * Type of packet.
+	 */
+	type: TransportPacketEventType;
+
+	/**
+	 * Event direction.
+	 */
+	direction: 'in' | 'out';
+
+	/**
+	 * Per type information.
+	 */
+	info: any;
+}
+
 export type SctpState = 'new' | 'connecting' | 'connected' | 'failed' | 'closed';
 
 const logger = new Logger('Transport');
@@ -631,6 +657,19 @@ export default class Transport extends EnhancedEventEmitter
 		this._observer.safeEmit('newdataconsumer', dataConsumer);
 
 		return dataConsumer;
+	}
+
+	/**
+	 * Enable 'packet' event.
+	 */
+	async enablePacketEvent(types: TransportPacketEventType[] = []): Promise<void>
+	{
+		logger.debug('pause()');
+
+		const reqData = { types };
+
+		await this._channel.request(
+			'transport.enablePacketEvent', this._internal, reqData);
 	}
 
 	private _getNextSctpStreamId(): number

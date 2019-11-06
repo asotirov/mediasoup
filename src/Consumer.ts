@@ -461,7 +461,7 @@ export default class Consumer extends EnhancedEventEmitter
 	 */
 	async enablePacketEvent(types: ConsumerPacketEventType[] = []): Promise<void>
 	{
-		logger.debug('pause()');
+		logger.debug('enablePacketEvent()');
 
 		const reqData = { types };
 

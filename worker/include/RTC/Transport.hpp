@@ -100,6 +100,12 @@ namespace RTC
 			  RTC::Transport* transport, RTC::DataConsumer* dataConsumer) = 0;
 		};
 
+	private:
+		struct PacketEventTypes
+		{
+			bool probation{ false };
+		};
+
 	public:
 		Transport(const std::string& id, Listener* listener, json& data);
 		virtual ~Transport();
@@ -143,6 +149,7 @@ namespace RTC
 		virtual void SendSctpData(const uint8_t* data, size_t len)             = 0;
 		void DistributeAvailableOutgoingBitrate();
 		void ComputeOutgoingDesiredBitrate(bool forceBitrate = false);
+		void EmitPacketEventProbationType(RTC::RtpPacket* packet) const;
 
 		/* Pure virtual methods inherited from RTC::Producer::Listener. */
 	public:
@@ -161,6 +168,7 @@ namespace RTC
 
 		/* Pure virtual methods inherited from RTC::Consumer::Listener. */
 	public:
+		void OnConsumerPreSendRtpPacket(RTC::Consumer* consumer, RTC::RtpPacket* packet) override;
 		void OnConsumerSendRtpPacket(RTC::Consumer* consumer, RTC::RtpPacket* packet) override;
 		void OnConsumerRetransmitRtpPacket(RTC::Consumer* consumer, RTC::RtpPacket* packet) override;
 		void OnConsumerKeyFrameRequested(RTC::Consumer* consumer, uint32_t mappedSsrc) override;
@@ -259,6 +267,7 @@ namespace RTC
 		uint16_t transportWideCcSeq{ 0u };
 		uint32_t initialAvailableOutgoingBitrate{ 600000u };
 		uint32_t maxIncomingBitrate{ 0u };
+		struct PacketEventTypes packetEventTypes;
 	};
 
 	/* Inline instance methods. */

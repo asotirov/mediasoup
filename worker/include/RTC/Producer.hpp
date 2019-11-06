@@ -110,7 +110,10 @@ namespace RTC
 		bool MangleRtpPacket(RTC::RtpPacket* packet, RTC::RtpStreamRecv* rtpStream) const;
 		void PostProcessRtpPacket(RTC::RtpPacket* packet);
 		void EmitScore() const;
-		void EmitPacketEvent(RTC::RtpPacket* packet) const;
+		void EmitPacketEventRtpType(RTC::RtpPacket* packet, bool isRtx = false) const;
+		void EmitPacketEventPliType(uint32_t ssrc) const;
+		void EmitPacketEventFirType(uint32_t ssrc) const;
+		void EmitPacketEventNackType() const;
 
 		/* Pure virtual methods inherited from RTC::RtpStreamRecv::Listener. */
 	public:

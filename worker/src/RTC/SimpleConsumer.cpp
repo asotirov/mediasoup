@@ -240,6 +240,12 @@ namespace RTC
 		// Process the packet.
 		if (this->rtpStream->ReceivePacket(packet))
 		{
+			// Pre-send the packet.
+			this->listener->OnConsumerPreSendRtpPacket(this, packet);
+
+			// May emit 'packet' event.
+			EmitPacketEventRtpType(packet);
+
 			// Send the packet.
 			this->listener->OnConsumerSendRtpPacket(this, packet);
 		}
@@ -307,13 +313,35 @@ namespace RTC
 		if (!IsActive())
 			return;
 
+		// May emit 'packet' event.
+		EmitPacketEventNackType();
+
 		this->rtpStream->ReceiveNack(nackPacket);
 	}
 
 	void SimpleConsumer::ReceiveKeyFrameRequest(
-	  RTC::RTCP::FeedbackPs::MessageType messageType, uint32_t /*ssrc*/)
+	  RTC::RTCP::FeedbackPs::MessageType messageType, uint32_t ssrc)
 	{
 		MS_TRACE();
+
+		switch (messageType)
+		{
+			case RTC::RTCP::FeedbackPs::MessageType::PLI:
+			{
+				EmitPacketEventPliType(ssrc);
+
+				break;
+			}
+
+			case RTC::RTCP::FeedbackPs::MessageType::FIR:
+			{
+				EmitPacketEventFirType(ssrc);
+
+				break;
+			}
+
+			default:;
+		}
 
 		this->rtpStream->ReceiveKeyFrameRequest(messageType);
 
@@ -496,6 +524,12 @@ namespace RTC
 	  RTC::RtpStreamSend* /*rtpStream*/, RTC::RtpPacket* packet)
 	{
 		MS_TRACE();
+
+		// Pre-send the packet.
+		this->listener->OnConsumerPreSendRtpPacket(this, packet);
+
+		// May emit 'packet' event.
+		EmitPacketEventRtpType(packet, this->rtpStream->HasRtx());
 
 		this->listener->OnConsumerRetransmitRtpPacket(this, packet);
 	}

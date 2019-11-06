@@ -5,6 +5,8 @@
 #include "Channel/Request.hpp"
 #include "RTC/RTCP/CompoundPacket.hpp"
 #include "RTC/RTCP/FeedbackPs.hpp"
+#include "RTC/RTCP/FeedbackPsFir.hpp"
+#include "RTC/RTCP/FeedbackPsPli.hpp"
 #include "RTC/RTCP/FeedbackRtpNack.hpp"
 #include "RTC/RTCP/ReceiverReport.hpp"
 #include "RTC/RtpDictionaries.hpp"
@@ -27,7 +29,8 @@ namespace RTC
 		class Listener
 		{
 		public:
-			virtual void OnConsumerSendRtpPacket(RTC::Consumer* consumer, RTC::RtpPacket* packet) = 0;
+			virtual void OnConsumerPreSendRtpPacket(RTC::Consumer* consumer, RTC::RtpPacket* packet) = 0;
+			virtual void OnConsumerSendRtpPacket(RTC::Consumer* consumer, RTC::RtpPacket* packet)    = 0;
 			virtual void OnConsumerRetransmitRtpPacket(RTC::Consumer* consumer, RTC::RtpPacket* packet) = 0;
 			virtual void OnConsumerKeyFrameRequested(RTC::Consumer* consumer, uint32_t mappedSsrc) = 0;
 			virtual void OnConsumerNeedBitrateChange(RTC::Consumer* consumer)                      = 0;
@@ -93,6 +96,12 @@ namespace RTC
 		virtual void ReceiveRtcpReceiverReport(RTC::RTCP::ReceiverReport* report) = 0;
 		virtual uint32_t GetTransmissionRate(uint64_t nowMs)                      = 0;
 		virtual float GetRtt() const                                              = 0;
+
+	protected:
+		void EmitPacketEventRtpType(RTC::RtpPacket* packet, bool isRtx = false) const;
+		void EmitPacketEventPliType(uint32_t ssrc) const;
+		void EmitPacketEventFirType(uint32_t ssrc) const;
+		void EmitPacketEventNackType() const;
 
 	private:
 		virtual void UserOnTransportConnected()    = 0;

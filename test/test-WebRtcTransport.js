@@ -350,6 +350,44 @@ test('webRtcTransport.restartIce() succeeds', async () =>
 	expect(transport.iceParameters.password).not.toBe(previousIcePassword);
 }, 2000);
 
+test('transport.enablePacketEvent() succeed', async () =>
+{
+	await transport.enablePacketEvent([ 'foo', 'probation' ]);
+	await expect(transport.dump())
+		.resolves
+		.toMatchObject({ packetEventTypes: 'probation' });
+
+	await transport.enablePacketEvent([]);
+	await expect(transport.dump())
+		.resolves
+		.toMatchObject({ packetEventTypes: '' });
+
+	await transport.enablePacketEvent([ 'probation', 'FOO', 'BAR' ]);
+	await expect(transport.dump())
+		.resolves
+		.toMatchObject({ packetEventTypes: 'probation' });
+
+	await transport.enablePacketEvent();
+	await expect(transport.dump())
+		.resolves
+		.toMatchObject({ packetEventTypes: '' });
+}, 2000);
+
+test('transport.enablePacketEvent() with wrong arguments rejects with TypeError', async () =>
+{
+	await expect(transport.enablePacketEvent(123))
+		.rejects
+		.toThrow(TypeError);
+
+	await expect(transport.enablePacketEvent('probation'))
+		.rejects
+		.toThrow(TypeError);
+
+	await expect(transport.enablePacketEvent([ 'probation', 123.123 ]))
+		.rejects
+		.toThrow(TypeError);
+}, 2000);
+
 test('WebRtcTransport events succeed', async () =>
 {
 	// Private API.

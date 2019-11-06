@@ -19,8 +19,6 @@ namespace RTC
 
 		enum class Type : uint8_t
 		{
-			FIR   = 192,
-			NACK  = 193,
 			SR    = 200,
 			RR    = 201,
 			SDES  = 202,

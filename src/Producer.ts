@@ -400,7 +400,7 @@ export default class Producer extends EnhancedEventEmitter
 	 */
 	async enablePacketEvent(types: ProducerPacketEventType[] = []): Promise<void>
 	{
-		logger.debug('pause()');
+		logger.debug('enablePacketEvent()');
 
 		const reqData = { types };
 

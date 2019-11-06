@@ -8,6 +8,8 @@
 #include "Utils.hpp"
 #include "Channel/Notifier.hpp"
 #include "RTC/Codecs/Codecs.hpp"
+#include "RTC/RTCP/FeedbackPs.hpp"
+#include "RTC/RTCP/FeedbackRtp.hpp"
 #include "RTC/RTCP/XrReceiverReferenceTime.hpp"
 #include <cstring>  // std::memcpy()
 #include <iterator> // std::ostream_iterator
@@ -543,6 +545,7 @@ namespace RTC
 		PreProcessRtpPacket(packet);
 
 		ReceiveRtpPacketResult result;
+		bool isRtx{ false };
 
 		// Media packet.
 		if (packet->GetSsrc() == rtpStream->GetSsrc())
@@ -563,6 +566,7 @@ namespace RTC
 		else if (packet->GetSsrc() == rtpStream->GetRtxSsrc())
 		{
 			result = ReceiveRtpPacketResult::RETRANSMISSION;
+			isRtx  = true;
 
 			// Process the packet.
 			if (!rtpStream->ReceiveRtxPacket(packet))
@@ -604,13 +608,12 @@ namespace RTC
 			this->currentRtpPacket = nullptr;
 		}
 
-		// May emit 'packet' event.
-		if (this->packetEventTypes.rtp)
-			EmitPacketEvent(packet);
-
 		// If paused stop here.
 		if (this->paused)
 			return result;
+
+		// May emit 'packet' event.
+		EmitPacketEventRtpType(packet, isRtx);
 
 		// Mangle the packet before providing the listener with it.
 		if (!MangleRtpPacket(packet, rtpStream))
@@ -1335,9 +1338,12 @@ namespace RTC
 		Channel::Notifier::Emit(this->id, "score", data);
 	}
 
-	inline void Producer::EmitPacketEvent(RTC::RtpPacket* packet) const
+	inline void Producer::EmitPacketEventRtpType(RTC::RtpPacket* packet, bool isRtx) const
 	{
 		MS_TRACE();
+
+		if (!this->packetEventTypes.rtp)
+			return;
 
 		json data = json::object();
 
@@ -1345,6 +1351,57 @@ namespace RTC
 		data["direction"] = "in";
 
 		packet->FillJson(data["info"]);
+
+		if (isRtx)
+			data["info"]["isRtx"] = true;
+
+		Channel::Notifier::Emit(this->id, "packet", data);
+	}
+
+	inline void Producer::EmitPacketEventPliType(uint32_t ssrc) const
+	{
+		MS_TRACE();
+
+		if (!this->packetEventTypes.pli)
+			return;
+
+		json data = json::object();
+
+		data["type"]         = "pli";
+		data["direction"]    = "out";
+		data["info"]["ssrc"] = ssrc;
+
+		Channel::Notifier::Emit(this->id, "packet", data);
+	}
+
+	inline void Producer::EmitPacketEventFirType(uint32_t ssrc) const
+	{
+		MS_TRACE();
+
+		if (!this->packetEventTypes.fir)
+			return;
+
+		json data = json::object();
+
+		data["type"]         = "fir";
+		data["direction"]    = "out";
+		data["info"]["ssrc"] = ssrc;
+
+		Channel::Notifier::Emit(this->id, "packet", data);
+	}
+
+	inline void Producer::EmitPacketEventNackType() const
+	{
+		MS_TRACE();
+
+		if (!this->packetEventTypes.nack)
+			return;
+
+		json data = json::object();
+
+		data["type"]      = "nack";
+		data["direction"] = "out";
+		data["info"]      = json::object();
 
 		Channel::Notifier::Emit(this->id, "packet", data);
 	}
@@ -1363,6 +1420,55 @@ namespace RTC
 	inline void Producer::OnRtpStreamSendRtcpPacket(
 	  RTC::RtpStreamRecv* /*rtpStream*/, RTC::RTCP::Packet* packet)
 	{
+		switch (packet->GetType())
+		{
+			case RTC::RTCP::Type::PSFB:
+			{
+				auto* feedback = static_cast<RTC::RTCP::FeedbackPsPacket*>(packet);
+
+				switch (feedback->GetMessageType())
+				{
+					case RTC::RTCP::FeedbackPs::MessageType::PLI:
+					{
+						// May emit 'packet' event.
+						EmitPacketEventPliType(feedback->GetMediaSsrc());
+
+						break;
+					}
+
+					case RTC::RTCP::FeedbackPs::MessageType::FIR:
+					{
+						// May emit 'packet' event.
+						EmitPacketEventFirType(feedback->GetMediaSsrc());
+
+						break;
+					}
+
+					default:;
+				}
+			}
+
+			case RTC::RTCP::Type::RTPFB:
+			{
+				auto* feedback = static_cast<RTC::RTCP::FeedbackRtpPacket*>(packet);
+
+				switch (feedback->GetMessageType())
+				{
+					case RTC::RTCP::FeedbackRtp::MessageType::NACK:
+					{
+						// May emit 'packet' event.
+						EmitPacketEventNackType();
+
+						break;
+					}
+
+					default:;
+				}
+			}
+
+			default:;
+		}
+
 		// Notify the listener.
 		this->listener->OnProducerSendRtcpPacket(this, packet);
 	}

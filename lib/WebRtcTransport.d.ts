@@ -112,6 +112,7 @@ export default class WebRtcTransport extends Transport {
      * @emits {iceSelectedTuple: TransportTuple} iceselectedtuplechange
      * @emits {dtlsState: DtlsState} dtlsstatechange
      * @emits {sctpState: SctpState} sctpstatechange
+     * @emits {TransportPacketEventData} packet
      */
     constructor(params: any);
     /**
@@ -167,6 +168,7 @@ export default class WebRtcTransport extends Transport {
      * @emits {iceSelectedTuple: TransportTuple} iceselectedtuplechange
      * @emits {dtlsState: DtlsState} dtlsstatechange
      * @emits {sctpState: SctpState} sctpstatechange
+     * @emits {TransportPacketEventData} packet
      */
     readonly observer: EnhancedEventEmitter;
     /**

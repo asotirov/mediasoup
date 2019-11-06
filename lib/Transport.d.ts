@@ -27,6 +27,27 @@ export interface TransportTuple {
     remotePort?: number;
     protocol: TransportProtocol;
 }
+/**
+ * Valid types for 'packet' event.
+ */
+export declare type TransportPacketEventType = 'probation';
+/**
+ * 'packet' event data.
+ */
+export interface TransportPacketEventData {
+    /**
+     * Type of packet.
+     */
+    type: TransportPacketEventType;
+    /**
+     * Event direction.
+     */
+    direction: 'in' | 'out';
+    /**
+     * Per type information.
+     */
+    info: any;
+}
 export declare type SctpState = 'new' | 'connecting' | 'connected' | 'failed' | 'closed';
 export default class Transport extends EnhancedEventEmitter {
     protected readonly _internal: any;
@@ -138,6 +159,10 @@ export default class Transport extends EnhancedEventEmitter {
      * Create a DataConsumer.
      */
     consumeData({ dataProducerId, appData }: DataConsumerOptions): Promise<DataConsumer>;
+    /**
+     * Enable 'packet' event.
+     */
+    enablePacketEvent(types?: TransportPacketEventType[]): Promise<void>;
     private _getNextSctpStreamId;
 }
 //# sourceMappingURL=Transport.d.ts.map

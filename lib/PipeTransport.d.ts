@@ -55,6 +55,7 @@ export default class PipeTransport extends Transport {
     /**
      * @private
      * @emits {sctpState: SctpState} sctpstatechange
+     * @emits {TransportPacketEventData} packet
      */
     constructor(params: any);
     /**
@@ -79,6 +80,7 @@ export default class PipeTransport extends Transport {
      * @emits {producer: DataProducer} newdataproducer
      * @emits {consumer: DataConsumer} newdataconsumer
      * @emits {sctpState: SctpState} sctpstatechange
+     * @emits {TransportPacketEventData} packet
      */
     readonly observer: EnhancedEventEmitter;
     /**

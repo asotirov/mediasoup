@@ -31,6 +31,7 @@ namespace Channel
 		{ "transport.consume",               Request::MethodId::TRANSPORT_CONSUME                  },
 		{ "transport.produceData",           Request::MethodId::TRANSPORT_PRODUCE_DATA             },
 		{ "transport.consumeData",           Request::MethodId::TRANSPORT_CONSUME_DATA             },
+		{ "transport.enablePacketEvent",     Request::MethodId::TRANSPORT_ENABLE_PACKET_EVENT      },
 		{ "producer.close",                  Request::MethodId::PRODUCER_CLOSE                     },
 		{ "producer.dump",                   Request::MethodId::PRODUCER_DUMP                      },
 		{ "producer.getStats",               Request::MethodId::PRODUCER_GET_STATS                 },

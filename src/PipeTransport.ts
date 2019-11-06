@@ -5,6 +5,7 @@ import * as ortc from './ortc';
 import Transport, {
 	TransportListenIp,
 	TransportTuple,
+	TransportPacketEventData,
 	SctpState
 } from './Transport';
 import Consumer, { ConsumerOptions } from './Consumer';
@@ -91,6 +92,7 @@ export default class PipeTransport extends Transport
 	/**
 	 * @private
 	 * @emits {sctpState: SctpState} sctpstatechange
+	 * @emits {TransportPacketEventData} packet
 	 */
 	constructor(params: any)
 	{
@@ -144,6 +146,7 @@ export default class PipeTransport extends Transport
 	 * @emits {producer: DataProducer} newdataproducer
 	 * @emits {consumer: DataConsumer} newdataconsumer
 	 * @emits {sctpState: SctpState} sctpstatechange
+	 * @emits {TransportPacketEventData} packet
 	 */
 	get observer(): EnhancedEventEmitter
 	{
@@ -295,6 +298,18 @@ export default class PipeTransport extends Transport
 
 					// Emit observer event.
 					this._observer.safeEmit('sctpstatechange', sctpState);
+
+					break;
+				}
+
+				case 'packet':
+				{
+					const packet = data as TransportPacketEventData;
+
+					this.safeEmit('packet', packet);
+
+					// Emit observer event.
+					this._observer.safeEmit('packet', packet);
 
 					break;
 				}

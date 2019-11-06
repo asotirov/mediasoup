@@ -23,8 +23,6 @@ namespace RTC
 		// clang-format off
 		std::map<Type, std::string> Packet::type2String =
 		{
-			{ Type::FIR,   "FIR"   },
-			{ Type::NACK,  "NACK"  },
 			{ Type::SR,    "SR"    },
 			{ Type::RR,    "RR"    },
 			{ Type::SDES,  "SDES"  },

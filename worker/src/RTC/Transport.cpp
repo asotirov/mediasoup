@@ -20,7 +20,9 @@
 #include "RTC/SimulcastConsumer.hpp"
 #include "RTC/SvcConsumer.hpp"
 #include <libwebrtc/modules/rtp_rtcp/include/rtp_rtcp_defines.h> // webrtc::RtpPacketSendInfo
+#include <iterator>                                              // std::ostream_iterator
 #include <map>                                                   // std::multimap
+#include <sstream>                                               // std::ostringstream
 
 namespace RTC
 {
@@ -370,6 +372,24 @@ namespace RTC
 			// Add sctpListener.
 			this->sctpListener.FillJson(jsonObject["sctpListener"]);
 		}
+
+		// Add packetEventTypes.
+		std::vector<std::string> packetEventTypes;
+		std::ostringstream packetEventTypesStream;
+
+		if (this->packetEventTypes.probation)
+			packetEventTypes.push_back("probation");
+
+		if (!packetEventTypes.empty())
+		{
+			std::copy(
+			  packetEventTypes.begin(),
+			  packetEventTypes.end() - 1,
+			  std::ostream_iterator<std::string>(packetEventTypesStream, ","));
+			packetEventTypesStream << packetEventTypes.back();
+		}
+
+		jsonObject["packetEventTypes"] = packetEventTypesStream.str();
 	}
 
 	void Transport::FillJsonStats(json& jsonArray)
@@ -1028,6 +1048,35 @@ namespace RTC
 
 				// Tell to the SCTP association.
 				this->sctpAssociation->HandleDataConsumer(dataConsumer);
+
+				break;
+			}
+
+			case Channel::Request::MethodId::TRANSPORT_ENABLE_PACKET_EVENT:
+			{
+				auto jsonTypesIt = request->data.find("types");
+
+				// Disable all if no entries.
+				if (jsonTypesIt == request->data.end() || !jsonTypesIt->is_array())
+					MS_THROW_TYPE_ERROR("wrong types (not an array)");
+
+				// Reset packetEventTypes.
+				struct PacketEventTypes newPacketEventTypes;
+
+				for (const auto& type : *jsonTypesIt)
+				{
+					if (!type.is_string())
+						MS_THROW_TYPE_ERROR("wrong type (not a string)");
+
+					std::string typeStr = type.get<std::string>();
+
+					if (typeStr == "probation")
+						newPacketEventTypes.probation = true;
+				}
+
+				this->packetEventTypes = newPacketEventTypes;
+
+				request->Accept();
 
 				break;
 			}
@@ -2054,6 +2103,23 @@ namespace RTC
 		this->tccClient->SetDesiredBitrate(totalDesiredBitrate, forceBitrate);
 	}
 
+	inline void Transport::EmitPacketEventProbationType(RTC::RtpPacket* packet) const
+	{
+		MS_TRACE();
+
+		if (!this->packetEventTypes.probation)
+			return;
+
+		json data = json::object();
+
+		data["type"]      = "rtp";
+		data["direction"] = "out";
+
+		packet->FillJson(data["info"]);
+
+		Channel::Notifier::Emit(this->id, "packet", data);
+	}
+
 	inline void Transport::OnProducerPaused(RTC::Producer* producer)
 	{
 		MS_TRACE();
@@ -2115,16 +2181,29 @@ namespace RTC
 		  this, producer, mappedSsrc, worstRemoteFractionLost);
 	}
 
-	inline void Transport::OnConsumerSendRtpPacket(RTC::Consumer* /*consumer*/, RTC::RtpPacket* packet)
+	inline void Transport::OnConsumerPreSendRtpPacket(RTC::Consumer* consumer, RTC::RtpPacket* packet)
 	{
 		MS_TRACE();
 
 		// TODO: Use senderBwe instead.
 		// Update transport wide sequence number if present.
 		if (this->tccClient && packet->UpdateTransportWideCc01(this->transportWideCcSeq + 1))
-		{
 			this->transportWideCcSeq++;
+	}
 
+	inline void Transport::OnConsumerSendRtpPacket(RTC::Consumer* /*consumer*/, RTC::RtpPacket* packet)
+	{
+		MS_TRACE();
+
+		// TODO: Use senderBwe instead.
+		// Update transport wide sequence number if present.
+		// clang-format off
+		if (
+			this->tccClient &&
+			packet->HasExtension(static_cast<uint8_t>(RTC::RtpHeaderExtensionUri::Type::MID))
+		)
+		// clang-format on
+		{
 			auto* tccClient = this->tccClient;
 			webrtc::RtpPacketSendInfo packetInfo;
 
@@ -2184,10 +2263,13 @@ namespace RTC
 
 		// TODO: Use senderBwe instead.
 		// Update transport wide sequence number if present.
-		if (this->tccClient && packet->UpdateTransportWideCc01(this->transportWideCcSeq + 1))
+		// clang-format off
+		if (
+			this->tccClient &&
+			packet->HasExtension(static_cast<uint8_t>(RTC::RtpHeaderExtensionUri::Type::MID))
+		)
+		// clang-format on
 		{
-			this->transportWideCcSeq++;
-
 			auto* tccClient = this->tccClient;
 			webrtc::RtpPacketSendInfo packetInfo;
 
@@ -2479,6 +2561,9 @@ namespace RTC
 		{
 			this->transportWideCcSeq++;
 
+			// May emit 'packet' event.
+			EmitPacketEventProbationType(packet);
+
 			webrtc::RtpPacketSendInfo packetInfo;
 
 			packetInfo.ssrc                      = packet->GetSsrc();
@@ -2523,6 +2608,9 @@ namespace RTC
 		}
 		else
 		{
+			// May emit 'packet' event.
+			EmitPacketEventProbationType(packet);
+
 			SendRtpPacket(packet);
 		}
 
