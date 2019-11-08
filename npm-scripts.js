@@ -2,7 +2,6 @@ const process = require('process');
 const os = require('os');
 const fs = require('fs');
 const { execSync } = require('child_process');
-const TscWatchClient = require('tsc-watch/client');
 const { version } = require('./package.json');
 
 const isWindows = os.platform() === 'win32';
@@ -43,6 +42,8 @@ switch (task)
 
 	case 'typescript:watch':
 	{
+		const TscWatchClient = require('tsc-watch/client');
+
 		if (!isWindows)
 			execute('rm -rf lib');
 		else
