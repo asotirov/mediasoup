@@ -1,6 +1,7 @@
 import Logger from './Logger';
 import EnhancedEventEmitter from './EnhancedEventEmitter';
 import Channel from './Channel';
+import { ProducerStat } from './Producer';
 import {
 	MediaKind,
 	RtpCapabilities,
@@ -119,6 +120,10 @@ export interface ConsumerStat
 	pliCount: number;
 	firCount: number;
 	score: number;
+	packetCount: number;
+	byteCount: number;
+	bitrate: number;
+	roundTripTime?: number;
 }
 
 /**
@@ -385,7 +390,7 @@ export default class Consumer extends EnhancedEventEmitter
 	/**
 	 * Get Consumer stats.
 	 */
-	async getStats(): Promise<ConsumerStat[]>
+	async getStats(): Promise<Array<ConsumerStat | ProducerStat>>
 	{
 		logger.debug('getStats()');
 

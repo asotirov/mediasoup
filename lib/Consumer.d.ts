@@ -1,5 +1,6 @@
 import EnhancedEventEmitter from './EnhancedEventEmitter';
 import Channel from './Channel';
+import { ProducerStat } from './Producer';
 import { MediaKind, RtpCapabilities, RtpParameters } from './RtpParameters';
 export interface ConsumerOptions {
     /**
@@ -94,6 +95,10 @@ export interface ConsumerStat {
     pliCount: number;
     firCount: number;
     score: number;
+    packetCount: number;
+    byteCount: number;
+    bitrate: number;
+    roundTripTime?: number;
 }
 /**
  * Consumer type.
@@ -207,7 +212,7 @@ export default class Consumer extends EnhancedEventEmitter {
     /**
      * Get Consumer stats.
      */
-    getStats(): Promise<ConsumerStat[]>;
+    getStats(): Promise<Array<ConsumerStat | ProducerStat>>;
     /**
      * Pause the Consumer.
      */
