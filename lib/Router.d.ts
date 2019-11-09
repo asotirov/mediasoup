@@ -16,6 +16,10 @@ export interface RouterOptions {
      * Router media codecs.
      */
     mediaCodecs?: RtpCodecCapability[];
+    /**
+     * Custom application data.
+     */
+    appData?: any;
 }
 export interface PipeToRouterOptions {
     /**
@@ -66,6 +70,7 @@ export default class Router extends EnhancedEventEmitter {
     private readonly _data;
     private readonly _channel;
     private _closed;
+    private readonly _appData?;
     private readonly _transports;
     private readonly _producers;
     private readonly _rtpObservers;
@@ -77,10 +82,11 @@ export default class Router extends EnhancedEventEmitter {
      * @emits workerclose
      * @emits @close
      */
-    constructor({ internal, data, channel }: {
+    constructor({ internal, data, channel, appData }: {
         internal: any;
         data: any;
         channel: Channel;
+        appData?: any;
     });
     /**
      * Router id.
@@ -94,6 +100,14 @@ export default class Router extends EnhancedEventEmitter {
      * RTC capabilities of the Router.
      */
     get rtpCapabilities(): RtpCapabilities;
+    /**
+     * App custom data.
+     */
+    get appData(): any;
+    /**
+     * Invalid setter.
+     */
+    set appData(appData: any);
     /**
      * Observer.
      *

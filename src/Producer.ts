@@ -132,13 +132,35 @@ const logger = new Logger('Producer');
 
 export default class Producer extends EnhancedEventEmitter
 {
+	// Internal data.
+	// - .routerId
+	// - .transportId
+	// - .producerId
 	private readonly _internal: any;
+
+	// Producer data.
+	// - .kind
+	// - .rtpParameters
+	// - .type
+	// - .consumableRtpParameters
 	private readonly _data: any;
+
+	// Channel instance.
 	private readonly _channel: Channel;
+
+	// Closed flag.
 	private _closed = false;
+
+	// Custom app data.
 	private readonly _appData?: any;
+
+	// Paused flag.
 	private _paused = false;
+
+	// Current score.
 	private _score: ProducerScore[] = [];
+
+	// Observer instance.
 	private readonly _observer = new EnhancedEventEmitter();
 
 	/**
@@ -170,26 +192,10 @@ export default class Producer extends EnhancedEventEmitter
 
 		logger.debug('constructor()');
 
-		// Internal data.
-		// - .routerId
-		// - .transportId
-		// - .producerId
 		this._internal = internal;
-
-		// Producer data.
-		// - .kind
-		// - .rtpParameters
-		// - .type
-		// - .consumableRtpParameters
 		this._data = data;
-
-		// Channel instance.
 		this._channel = channel;
-
-		// App custom data.
 		this._appData = appData;
-
-		// Paused flag.
 		this._paused = paused;
 
 		this._handleWorkerNotifications();

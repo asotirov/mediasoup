@@ -31,6 +31,10 @@ export interface WorkerSettings {
      * certificate is dynamically created.
      */
     dtlsPrivateKeyFile?: string;
+    /**
+     * Custom application data.
+     */
+    appData?: any;
 }
 export declare type WorkerUpdateableSettings = Pick<WorkerSettings, 'logLevel' | 'logTags'>;
 export default class Worker extends EnhancedEventEmitter {
@@ -39,6 +43,7 @@ export default class Worker extends EnhancedEventEmitter {
     private readonly _pid;
     private readonly _channel;
     private _closed;
+    private readonly _appData?;
     private readonly _routers;
     private readonly _observer;
     /**
@@ -48,7 +53,7 @@ export default class Worker extends EnhancedEventEmitter {
      * @emits @settingserror
      * @emits @failure
      */
-    constructor({ logLevel, logTags, rtcMinPort, rtcMaxPort, dtlsCertificateFile, dtlsPrivateKeyFile }: WorkerSettings);
+    constructor({ logLevel, logTags, rtcMinPort, rtcMaxPort, dtlsCertificateFile, dtlsPrivateKeyFile, appData }: WorkerSettings);
     /**
      * Worker process identifier (PID).
      */
@@ -57,6 +62,14 @@ export default class Worker extends EnhancedEventEmitter {
      * Whether the Worker is closed.
      */
     get closed(): boolean;
+    /**
+     * App custom data.
+     */
+    get appData(): any;
+    /**
+     * Invalid setter.
+     */
+    set appData(appData: any);
     /**
      * Observer.
      *
@@ -79,6 +92,6 @@ export default class Worker extends EnhancedEventEmitter {
     /**
      * Create a Router.
      */
-    createRouter({ mediaCodecs }?: RouterOptions): Promise<Router>;
+    createRouter({ mediaCodecs, appData }?: RouterOptions): Promise<Router>;
 }
 //# sourceMappingURL=Worker.d.ts.map

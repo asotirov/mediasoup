@@ -22,6 +22,11 @@ export interface RouterOptions
 	 * Router media codecs.
 	 */
 	mediaCodecs?: RtpCodecCapability[];
+
+	/**
+	 * Custom application data.
+	 */
+	appData?: any;
 }
 
 export interface PipeToRouterOptions
@@ -98,6 +103,9 @@ export default class Router extends EnhancedEventEmitter
 	// Closed flag.
 	private _closed = false;
 
+	// Custom app data.
+	private readonly _appData?: any;
+
 	// Transports map.
 	private readonly _transports: Map<string, Transport> = new Map();
 
@@ -125,12 +133,14 @@ export default class Router extends EnhancedEventEmitter
 		{
 			internal,
 			data,
-			channel
+			channel,
+			appData
 		}:
 		{
 			internal: any;
 			data: any;
 			channel: Channel;
+			appData?: any;
 		}
 	)
 	{
@@ -139,13 +149,9 @@ export default class Router extends EnhancedEventEmitter
 		logger.debug('constructor()');
 
 		this._internal = internal;
-
-		this._data =
-		{
-			rtpCapabilities : data.rtpCapabilities
-		};
-
+		this._data = data;
 		this._channel = channel;
+		this._appData = appData;
 	}
 
 	/**
@@ -170,6 +176,22 @@ export default class Router extends EnhancedEventEmitter
 	get rtpCapabilities(): RtpCapabilities
 	{
 		return this._data.rtpCapabilities;
+	}
+
+	/**
+	 * App custom data.
+	 */
+	get appData(): any
+	{
+		return this._appData;
+	}
+
+	/**
+	 * Invalid setter.
+	 */
+	set appData(appData: any) // eslint-disable-line no-unused-vars
+	{
+		throw new Error('cannot override appData object');
 	}
 
 	/**

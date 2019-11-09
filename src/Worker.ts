@@ -46,6 +46,11 @@ export interface WorkerSettings
 	 * certificate is dynamically created.
 	 */
 	dtlsPrivateKeyFile?: string;
+
+	/**
+	 * Custom application data.
+	 */
+	appData?: any;
 }
 
 export type WorkerUpdateableSettings = Pick<WorkerSettings, 'logLevel' | 'logTags'>;
@@ -78,6 +83,9 @@ export default class Worker extends EnhancedEventEmitter
 	// Closed flag.
 	private _closed = false;
 
+	// Custom app data.
+	private readonly _appData?: any;
+
 	// Routers set.
 	private readonly _routers: Set<Router> = new Set();
 
@@ -98,7 +106,8 @@ export default class Worker extends EnhancedEventEmitter
 			rtcMinPort,
 			rtcMaxPort,
 			dtlsCertificateFile,
-			dtlsPrivateKeyFile
+			dtlsPrivateKeyFile,
+			appData
 		}: WorkerSettings)
 	{
 		super();
@@ -174,6 +183,8 @@ export default class Worker extends EnhancedEventEmitter
 				consumerSocket : this._child.stdio[4],
 				pid            : this._pid
 			});
+
+		this._appData = appData;
 
 		let spawnDone = false;
 
@@ -290,6 +301,22 @@ export default class Worker extends EnhancedEventEmitter
 	}
 
 	/**
+	 * App custom data.
+	 */
+	get appData(): any
+	{
+		return this._appData;
+	}
+
+	/**
+	 * Invalid setter.
+	 */
+	set appData(appData: any) // eslint-disable-line no-unused-vars
+	{
+		throw new Error('cannot override appData object');
+	}
+
+	/**
 	 * Observer.
 	 *
 	 * @emits close
@@ -368,9 +395,16 @@ export default class Worker extends EnhancedEventEmitter
 	/**
 	 * Create a Router.
 	 */
-	async createRouter({ mediaCodecs }: RouterOptions = {}): Promise<Router>
+	async createRouter(
+		{
+			mediaCodecs,
+			appData = {}
+		}: RouterOptions = {}): Promise<Router>
 	{
 		logger.debug('createRouter()');
+
+		if (appData && typeof appData !== 'object')
+			throw new TypeError('if given, appData must be an object');
 
 		// This may throw.
 		const rtpCapabilities = ortc.generateRouterRtpCapabilities(mediaCodecs);
@@ -384,7 +418,8 @@ export default class Worker extends EnhancedEventEmitter
 			{
 				internal,
 				data,
-				channel : this._channel
+				channel : this._channel,
+				appData
 			});
 
 		this._routers.add(router);
