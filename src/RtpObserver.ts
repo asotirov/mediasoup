@@ -21,6 +21,9 @@ export default class RtpObserver extends EnhancedEventEmitter
 	// Paused flag.
 	protected _paused = false;
 
+	// Custom app data.
+	private readonly _appData?: any;
+
 	// Method to retrieve a Producer.
 	protected readonly _getProducerById: (producerId: string) => Producer;
 
@@ -34,11 +37,13 @@ export default class RtpObserver extends EnhancedEventEmitter
 		{
 			internal,
 			channel,
+			appData,
 			getProducerById
 		}:
 		{
 			internal: any;
 			channel: Channel;
+			appData: any;
 			getProducerById: (producerId: string) => Producer;
 		}
 	)
@@ -49,6 +54,7 @@ export default class RtpObserver extends EnhancedEventEmitter
 
 		this._internal = internal;
 		this._channel = channel;
+		this._appData = appData;
 		this._getProducerById = getProducerById;
 	}
 
@@ -74,6 +80,22 @@ export default class RtpObserver extends EnhancedEventEmitter
 	get paused(): boolean
 	{
 		return this._paused;
+	}
+
+	/**
+	 * App custom data.
+	 */
+	get appData(): any
+	{
+		return this._appData;
+	}
+
+	/**
+	 * Invalid setter.
+	 */
+	set appData(appData: any) // eslint-disable-line no-unused-vars
+	{
+		throw new Error('cannot override appData object');
 	}
 
 	/**

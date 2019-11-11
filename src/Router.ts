@@ -771,11 +771,15 @@ export default class Router extends EnhancedEventEmitter
 		{
 			maxEntries = 1,
 			threshold = -80,
-			interval = 1000
+			interval = 1000,
+			appData = {}
 		}: AudioLevelObserverOptions = {}
 	): Promise<AudioLevelObserver>
 	{
 		logger.debug('createAudioLevelObserver()');
+
+		if (appData && typeof appData !== 'object')
+			throw new TypeError('if given, appData must be an object');
 
 		const internal = { ...this._internal, rtpObserverId: uuidv4() };
 		const reqData = { maxEntries, threshold, interval };
@@ -786,6 +790,7 @@ export default class Router extends EnhancedEventEmitter
 			{
 				internal,
 				channel         : this._channel,
+				appData,
 				getProducerById : (producerId: string): Producer => (
 					this._producers.get(producerId)
 				)

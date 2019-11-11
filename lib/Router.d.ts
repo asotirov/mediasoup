@@ -148,7 +148,7 @@ export default class Router extends EnhancedEventEmitter {
     /**
      * Create an AudioLevelObserver.
      */
-    createAudioLevelObserver({ maxEntries, threshold, interval }?: AudioLevelObserverOptions): Promise<AudioLevelObserver>;
+    createAudioLevelObserver({ maxEntries, threshold, interval, appData }?: AudioLevelObserverOptions): Promise<AudioLevelObserver>;
     /**
      * Check whether the given RTP capabilities can consume the given Producer.
      */

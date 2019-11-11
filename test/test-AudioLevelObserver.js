@@ -38,6 +38,7 @@ test('router.createAudioLevelObserver() succeeds', async () =>
 	expect(audioLevelObserver.id).toBeType('string');
 	expect(audioLevelObserver.closed).toBe(false);
 	expect(audioLevelObserver.paused).toBe(false);
+	expect(audioLevelObserver.appData).toEqual({});
 
 	await expect(router.dump())
 		.resolves
@@ -62,6 +63,10 @@ test('router.createAudioLevelObserver() with wrong arguments rejects with TypeEr
 		.toThrow(TypeError);
 
 	await expect(router.createAudioLevelObserver({ interval: false }))
+		.rejects
+		.toThrow(TypeError);
+
+	await expect(router.createAudioLevelObserver({ appData: 'NOT-AN-OBJECT' }))
 		.rejects
 		.toThrow(TypeError);
 }, 2000);

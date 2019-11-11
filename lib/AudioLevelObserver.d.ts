@@ -13,6 +13,10 @@ export interface AudioLevelObserverOptions {
      * Interval in ms for checking audio volumes. Default 1000.
      */
     interval?: number;
+    /**
+     * Custom application data.
+     */
+    appData?: any;
 }
 export default class AudioLevelObserver extends RtpObserver {
     /**

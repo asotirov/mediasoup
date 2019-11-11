@@ -6,6 +6,7 @@ export default class RtpObserver extends EnhancedEventEmitter {
     protected readonly _channel: Channel;
     protected _closed: boolean;
     protected _paused: boolean;
+    private readonly _appData?;
     protected readonly _getProducerById: (producerId: string) => Producer;
     /**
      * @private
@@ -13,9 +14,10 @@ export default class RtpObserver extends EnhancedEventEmitter {
      * @emits routerclose
      * @emits @close
      */
-    constructor({ internal, channel, getProducerById }: {
+    constructor({ internal, channel, appData, getProducerById }: {
         internal: any;
         channel: Channel;
+        appData: any;
         getProducerById: (producerId: string) => Producer;
     });
     /**
@@ -30,6 +32,14 @@ export default class RtpObserver extends EnhancedEventEmitter {
      * Whether the RtpObserver is paused.
      */
     get paused(): boolean;
+    /**
+     * App custom data.
+     */
+    get appData(): any;
+    /**
+     * Invalid setter.
+     */
+    set appData(appData: any);
     /**
      * Close the RtpObserver.
      */
