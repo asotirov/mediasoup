@@ -64,6 +64,11 @@ export interface ConsumerPacketEventData
 	type: ConsumerPacketEventType;
 
 	/**
+	 * Event timestamp.
+	 */
+	timestamp: number;
+
+	/**
 	 * Event direction.
 	 */
 	direction: 'in' | 'out';
@@ -537,7 +542,7 @@ export default class Consumer extends EnhancedEventEmitter
 
 				case 'score':
 				{
-					const score = data;
+					const score = data as ConsumerScore;
 
 					this._score = score;
 
@@ -551,7 +556,7 @@ export default class Consumer extends EnhancedEventEmitter
 
 				case 'layerschange':
 				{
-					const layers = data;
+					const layers = data as ConsumerLayers | null;
 
 					this._currentLayers = layers;
 

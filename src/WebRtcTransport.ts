@@ -406,7 +406,7 @@ export default class WebRtcTransport extends Transport
 			{
 				case 'icestatechange':
 				{
-					const { iceState } = data;
+					const iceState = data.iceState as IceState;
 
 					this._data.iceState = iceState;
 
@@ -420,7 +420,7 @@ export default class WebRtcTransport extends Transport
 
 				case 'iceselectedtuplechange':
 				{
-					const { iceSelectedTuple } = data;
+					const iceSelectedTuple = data.iceSelectedTuple as TransportTuple;
 
 					this._data.iceSelectedTuple = iceSelectedTuple;
 
@@ -434,7 +434,8 @@ export default class WebRtcTransport extends Transport
 
 				case 'dtlsstatechange':
 				{
-					const { dtlsState, dtlsRemoteCert } = data;
+					const dtlsState = data.dtlsState as DtlsState;
+					const dtlsRemoteCert = data.dtlsRemoteCert as string;
 
 					this._data.dtlsState = dtlsState;
 
@@ -451,7 +452,7 @@ export default class WebRtcTransport extends Transport
 
 				case 'sctpstatechange':
 				{
-					const { sctpState } = data;
+					const sctpState = data.sctpState as SctpState;
 
 					this._data.sctpState = sctpState;
 

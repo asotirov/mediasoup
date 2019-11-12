@@ -40,6 +40,10 @@ export interface TransportPacketEventData {
      */
     type: TransportPacketEventType;
     /**
+     * Event timestamp.
+     */
+    timestamp: number;
+    /**
      * Event direction.
      */
     direction: 'in' | 'out';

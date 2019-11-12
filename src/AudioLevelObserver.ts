@@ -1,4 +1,5 @@
 import Logger from './Logger';
+import EnhancedEventEmitter from './EnhancedEventEmitter';
 import RtpObserver from './RtpObserver';
 import Producer from './Producer';
 
@@ -26,6 +27,20 @@ export interface AudioLevelObserverOptions
 	appData?: any;
 }
 
+export interface AudioLevelObserverVolume
+{
+	/**
+	 * The audio producer instance.
+	 */
+	producer: Producer;
+
+	/**
+	 * The average volume (in dBvo from -127 to 0) of the audio producer in the
+	 * last interval.
+	 */
+	volume: number;
+}
+
 const logger = new Logger('AudioLevelObserver');
 
 export default class AudioLevelObserver extends RtpObserver
@@ -42,6 +57,22 @@ export default class AudioLevelObserver extends RtpObserver
 		this._handleWorkerNotifications();
 	}
 
+	/**
+	 * Observer.
+	 *
+	 * @emits close
+	 * @emits pause
+	 * @emits resume
+	 * @emits {producer: Producer} addproducer
+	 * @emits {producer: Producer} removeproducer
+	 * @emits {producer: Producer} volumes
+	 * @emits silence
+	 */
+	get observer(): EnhancedEventEmitter
+	{
+		return this._observer;
+	}
+
 	private _handleWorkerNotifications(): void
 	{
 		this._channel.on(this._internal.rtpObserverId, (event: string, data?: any) =>
@@ -52,7 +83,7 @@ export default class AudioLevelObserver extends RtpObserver
 				{
 					// Get the corresponding Producer instance and remove entries with
 					// no Producer (it may have been closed in the meanwhile).
-					const volumes = data
+					const volumes: AudioLevelObserverVolume[] = data
 						.map(({ producerId, volume }: { producerId: string; volume: number }) => (
 							{
 								producer : this._getProducerById(producerId),
@@ -62,7 +93,12 @@ export default class AudioLevelObserver extends RtpObserver
 						.filter(({ producer }: { producer: Producer }) => producer);
 
 					if (volumes.length > 0)
+					{
 						this.safeEmit('volumes', volumes);
+
+						// Emit observer event.
+						this._observer.safeEmit('volumes', volumes);
+					}
 
 					break;
 				}
@@ -70,6 +106,9 @@ export default class AudioLevelObserver extends RtpObserver
 				case 'silence':
 				{
 					this.safeEmit('silence');
+
+					// Emit observer event.
+					this._observer.safeEmit('silence');
 
 					break;
 				}

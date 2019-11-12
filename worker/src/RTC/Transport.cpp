@@ -2113,6 +2113,7 @@ namespace RTC
 		json data = json::object();
 
 		data["type"]      = "probation";
+		data["timestamp"] = DepLibUV::GetTimeMs();
 		data["direction"] = "out";
 
 		packet->FillJson(data["info"]);

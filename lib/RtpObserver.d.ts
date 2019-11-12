@@ -8,6 +8,7 @@ export default class RtpObserver extends EnhancedEventEmitter {
     protected _paused: boolean;
     private readonly _appData?;
     protected readonly _getProducerById: (producerId: string) => Producer;
+    protected readonly _observer: EnhancedEventEmitter;
     /**
      * @private
      * @interface
@@ -40,6 +41,16 @@ export default class RtpObserver extends EnhancedEventEmitter {
      * Invalid setter.
      */
     set appData(appData: any);
+    /**
+     * Observer.
+     *
+     * @emits close
+     * @emits pause
+     * @emits resume
+     * @emits {producer: Producer} addproducer
+     * @emits {producer: Producer} removeproducer
+     */
+    get observer(): EnhancedEventEmitter;
     /**
      * Close the RtpObserver.
      */

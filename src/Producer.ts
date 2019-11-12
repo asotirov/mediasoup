@@ -47,6 +47,11 @@ export interface ProducerPacketEventData
 	type: ProducerPacketEventType;
 
 	/**
+	 * Event timestamp.
+	 */
+	timestamp: number;
+
+	/**
 	 * Event direction.
 	 */
 	direction: 'in' | 'out';
@@ -422,7 +427,7 @@ export default class Producer extends EnhancedEventEmitter
 			{
 				case 'score':
 				{
-					const score = data;
+					const score = data as ProducerScore[];
 
 					this._score = score;
 

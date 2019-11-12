@@ -1348,6 +1348,7 @@ namespace RTC
 		json data = json::object();
 
 		data["type"]      = "rtp";
+		data["timestamp"] = DepLibUV::GetTimeMs();
 		data["direction"] = "in";
 
 		packet->FillJson(data["info"]);
@@ -1368,6 +1369,7 @@ namespace RTC
 		json data = json::object();
 
 		data["type"]         = "pli";
+		data["timestamp"]    = DepLibUV::GetTimeMs();
 		data["direction"]    = "out";
 		data["info"]["ssrc"] = ssrc;
 
@@ -1384,6 +1386,7 @@ namespace RTC
 		json data = json::object();
 
 		data["type"]         = "fir";
+		data["timestamp"]    = DepLibUV::GetTimeMs();
 		data["direction"]    = "out";
 		data["info"]["ssrc"] = ssrc;
 
@@ -1400,6 +1403,7 @@ namespace RTC
 		json data = json::object();
 
 		data["type"]      = "nack";
+		data["timestamp"] = DepLibUV::GetTimeMs();
 		data["direction"] = "out";
 		data["info"]      = json::object();
 

@@ -288,7 +288,7 @@ export default class PlainRtpTransport extends Transport
 			{
 				case 'sctpstatechange':
 				{
-					const { sctpState } = data;
+					const sctpState = data.sctpState as SctpState;
 
 					this._data.sctpState = sctpState;
 

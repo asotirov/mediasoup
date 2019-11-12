@@ -2,6 +2,7 @@
 // #define MS_LOG_DEV_LEVEL 3
 
 #include "RTC/Consumer.hpp"
+#include "DepLibUV.hpp"
 #include "Logger.hpp"
 #include "MediaSoupErrors.hpp"
 #include "Channel/Notifier.hpp"
@@ -413,6 +414,7 @@ namespace RTC
 		json data = json::object();
 
 		data["type"]      = "rtp";
+		data["timestamp"] = DepLibUV::GetTimeMs();
 		data["direction"] = "out";
 
 		packet->FillJson(data["info"]);
@@ -433,6 +435,7 @@ namespace RTC
 		json data = json::object();
 
 		data["type"]         = "pli";
+		data["timestamp"]    = DepLibUV::GetTimeMs();
 		data["direction"]    = "in";
 		data["info"]["ssrc"] = ssrc;
 
@@ -449,6 +452,7 @@ namespace RTC
 		json data = json::object();
 
 		data["type"]         = "fir";
+		data["timestamp"]    = DepLibUV::GetTimeMs();
 		data["direction"]    = "in";
 		data["info"]["ssrc"] = ssrc;
 
@@ -465,6 +469,7 @@ namespace RTC
 		json data = json::object();
 
 		data["type"]      = "nack";
+		data["timestamp"] = DepLibUV::GetTimeMs();
 		data["direction"] = "in";
 		data["info"]      = json::object();
 

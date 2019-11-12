@@ -36,6 +36,10 @@ export interface ProducerPacketEventData {
      */
     type: ProducerPacketEventType;
     /**
+     * Event timestamp.
+     */
+    timestamp: number;
+    /**
      * Event direction.
      */
     direction: 'in' | 'out';
