@@ -199,6 +199,7 @@ export default class Router extends EnhancedEventEmitter
 	 *
 	 * @emits close
 	 * @emits {transport: Transport} newtransport
+	 * @emits {rtpObserver: RtpObserver} newrtpobserver
 	 */
 	get observer(): EnhancedEventEmitter
 	{
@@ -801,6 +802,9 @@ export default class Router extends EnhancedEventEmitter
 		{
 			this._rtpObservers.delete(audioLevelObserver.id);
 		});
+
+		// Emit observer event.
+		this._observer.safeEmit('newrtpobserver', audioLevelObserver);
 
 		return audioLevelObserver;
 	}

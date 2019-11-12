@@ -33,8 +33,14 @@ afterAll(() => worker.close());
 
 test('router.createAudioLevelObserver() succeeds', async () =>
 {
+	const onObserverNewRtpObserver = jest.fn();
+
+	router.observer.once('newrtpobserver', onObserverNewRtpObserver);
+
 	audioLevelObserver = await router.createAudioLevelObserver();
 
+	expect(onObserverNewRtpObserver).toHaveBeenCalledTimes(1);
+	expect(onObserverNewRtpObserver).toHaveBeenCalledWith(audioLevelObserver);
 	expect(audioLevelObserver.id).toBeType('string');
 	expect(audioLevelObserver.closed).toBe(false);
 	expect(audioLevelObserver.paused).toBe(false);

@@ -113,6 +113,7 @@ export default class Router extends EnhancedEventEmitter {
      *
      * @emits close
      * @emits {transport: Transport} newtransport
+     * @emits {rtpObserver: RtpObserver} newrtpobserver
      */
     get observer(): EnhancedEventEmitter;
     /**
