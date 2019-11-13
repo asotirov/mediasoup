@@ -131,7 +131,7 @@ Runs [clang-tidy](http://clang.llvm.org/extra/clang-tidy/) and performs C++ code
 
 **Requirements:**
 
-* `make bear` must have been called first.
+* `make clean-all`, then `make` and then `make bear` must have been called first.
 * [PyYAML](https://pyyaml.org/) is required.
   - In OSX install it with `brew install libyaml` and `sudo easy_install-X.Y pyyaml`.
 
