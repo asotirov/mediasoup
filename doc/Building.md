@@ -12,6 +12,7 @@ The `package.json` file in the main folder includes the following scripts:
 
 Compiles mediasoup TypeScript code (`lib` folder) into ES6 JavaScript and places it into the `lib` directory.
 
+
 ### `num run typescript:watch`
 
 Compiles mediasoup TypeScript code (`lib` folder) into ES6 JavaScript, places it into the `lib` directory an watches for changes in the TypeScript files.
