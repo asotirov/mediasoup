@@ -378,7 +378,7 @@ namespace RTC
 		std::ostringstream packetEventTypesStream;
 
 		if (this->packetEventTypes.probation)
-			packetEventTypes.push_back("probation");
+			packetEventTypes.emplace_back("probation");
 
 		if (!packetEventTypes.empty())
 		{
@@ -2182,7 +2182,7 @@ namespace RTC
 		  this, producer, mappedSsrc, worstRemoteFractionLost);
 	}
 
-	inline void Transport::OnConsumerPreSendRtpPacket(RTC::Consumer* consumer, RTC::RtpPacket* packet)
+	inline void Transport::OnConsumerPreSendRtpPacket(RTC::Consumer* /*consumer*/, RTC::RtpPacket* packet)
 	{
 		MS_TRACE();
 
@@ -2533,8 +2533,8 @@ namespace RTC
 
 	inline void Transport::OnTransportCongestionControlClientAvailableBitrate(
 	  RTC::TransportCongestionControlClient* /*tccClient*/,
-	  uint32_t availableBitrate,
-	  uint32_t previousAvailableBitrate)
+	  uint32_t availableBitrate,         // NOLINT(misc-unused-parameters)
+	  uint32_t previousAvailableBitrate) // NOLINT(misc-unused-parameters)
 	{
 		MS_TRACE();
 

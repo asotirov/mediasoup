@@ -14,7 +14,7 @@ inline static int32_t parseReferenceTime(uint8_t* buffer)
 	int32_t referenceTime;
 	uint32_t unsignedVal = Utils::Byte::Get3Bytes(buffer, 0);
 
-	const uint8_t msb = static_cast<uint8_t>(unsignedVal >> ((3 - 1) * 8));
+	const auto msb = static_cast<uint8_t>(unsignedVal >> ((3 - 1) * 8));
 
 	if ((msb & 0x80) != 0)
 	{
@@ -60,7 +60,7 @@ namespace RTC
 		int16_t FeedbackRtpTransportPacket::maxPacketDelta{ 0x7FFF };
 
 		// clang-format off
-		std::map<FeedbackRtpTransportPacket::Status, std::string> FeedbackRtpTransportPacket::Status2String =
+		std::map<FeedbackRtpTransportPacket::Status, std::string> FeedbackRtpTransportPacket::status2String =
 		{
 			{ FeedbackRtpTransportPacket::Status::NotReceived, "NR" },
 			{ FeedbackRtpTransportPacket::Status::SmallDelta,  "SD" },
@@ -362,7 +362,7 @@ namespace RTC
 			// clang-format off
 			if (
 				delta64 > FeedbackRtpTransportPacket::maxPacketDelta ||
-				delta64 < -1 * FeedbackRtpTransportPacket::maxPacketDelta
+				delta64 < -1 * static_cast<int64_t>(FeedbackRtpTransportPacket::maxPacketDelta)
 			)
 			// clang-format on
 			{
@@ -614,7 +614,7 @@ namespace RTC
 		void FeedbackRtpTransportPacket::AddPendingChunks()
 		{
 			// No pending status packets.
-			if (this->context.statuses.size() == 0)
+			if (this->context.statuses.empty())
 				return;
 
 			if (this->context.allSameStatus)
@@ -746,7 +746,7 @@ namespace RTC
 			MS_TRACE();
 
 			MS_DUMP("  <RunLengthChunk>");
-			MS_DUMP("    status : %s", FeedbackRtpTransportPacket::Status2String[this->status].c_str());
+			MS_DUMP("    status : %s", FeedbackRtpTransportPacket::status2String[this->status].c_str());
 			MS_DUMP("    count  : %" PRIu16, this->count);
 			MS_DUMP("  </RunLengthChunk>");
 		}
@@ -851,7 +851,7 @@ namespace RTC
 			// Dump status slots.
 			for (auto status : this->statuses)
 			{
-				out << "|" << FeedbackRtpTransportPacket::Status2String[status];
+				out << "|" << FeedbackRtpTransportPacket::status2String[status];
 			}
 
 			// Dump empty slots.
@@ -989,7 +989,7 @@ namespace RTC
 			// Dump status slots.
 			for (auto status : this->statuses)
 			{
-				out << "|" << FeedbackRtpTransportPacket::Status2String[status];
+				out << "|" << FeedbackRtpTransportPacket::status2String[status];
 			}
 
 			// Dump empty slots.

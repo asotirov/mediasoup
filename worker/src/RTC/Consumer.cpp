@@ -197,13 +197,13 @@ namespace RTC
 		std::ostringstream packetEventTypesStream;
 
 		if (this->packetEventTypes.rtp)
-			packetEventTypes.push_back("rtp");
+			packetEventTypes.emplace_back("rtp");
 		if (this->packetEventTypes.nack)
-			packetEventTypes.push_back("nack");
+			packetEventTypes.emplace_back("nack");
 		if (this->packetEventTypes.pli)
-			packetEventTypes.push_back("pli");
+			packetEventTypes.emplace_back("pli");
 		if (this->packetEventTypes.fir)
-			packetEventTypes.push_back("fir");
+			packetEventTypes.emplace_back("fir");
 
 		if (!packetEventTypes.empty())
 		{
