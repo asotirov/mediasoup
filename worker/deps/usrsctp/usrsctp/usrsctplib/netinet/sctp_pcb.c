@@ -34,7 +34,7 @@
 
 #ifdef __FreeBSD__
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: head/sys/netinet/sctp_pcb.c 350588 2019-08-05 13:22:15Z tuexen $");
+__FBSDID("$FreeBSD: head/sys/netinet/sctp_pcb.c 353477 2019-10-13 16:14:04Z markj $");
 #endif
 
 #include <netinet/sctp_os.h>
@@ -51,9 +51,6 @@ __FBSDID("$FreeBSD: head/sys/netinet/sctp_pcb.c 350588 2019-08-05 13:22:15Z tuex
 #include <netinet/sctp_output.h>
 #include <netinet/sctp_timer.h>
 #include <netinet/sctp_bsd_addr.h>
-#if defined(__FreeBSD__) && __FreeBSD_version >= 1000000
-#include <netinet/sctp_dtrace_define.h>
-#endif
 #if defined(INET) || defined(INET6)
 #if !defined(__Userspace_os_Windows)
 #include <netinet/udp.h>
@@ -6635,7 +6632,11 @@ sctp_netisr_hdlr(struct mbuf *m, uintptr_t source)
 #endif
 
 void
+#if defined(__Userspace__)
 sctp_pcb_init(int start_threads)
+#else
+sctp_pcb_init(void)
+#endif
 {
 	/*
 	 * SCTP initialization for the PCB structures should be called by

@@ -77,6 +77,8 @@ option(sctp_sanitizer_address "Compile with address sanitizer" 0)
 
 option(sctp_sanitizer_memory "Compile with memory sanitizer" 0)
 
+option(sctp_build_fuzzer "Compile in clang fuzzing mode" 0)
+
 if (sctp_sanitizer_address AND sctp_sanitizer_memory)
 	message(FATAL_ERROR "Can not compile with both sanitizer options")
 endif ()
@@ -158,8 +160,45 @@ endif ()
 # COMPILER SETTINGS
 #################################################
 
+# Determine if compiler is Visual Studio compiler or Clang in MSVC compatible mode
+if (CMAKE_C_COMPILER_ID MATCHES "MSVC" OR CMAKE_C_SIMULATE_ID MATCHES "MSVC")
+  set(C_COMPILER_IS_MSVC_LIKE TRUE)
+endif()
+
+# SETTINGS FOR VISUAL STUDIO COMPILER
+if (C_COMPILER_IS_MSVC_LIKE)
+	if (CMAKE_C_FLAGS MATCHES "/W[0-4]")
+		string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+	else ()
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4")
+	endif ()
+
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4100") # 'identifier' : unreferenced formal parameter
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4127") # conditional expression is constant
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4200") # nonstandard extension used : zero-sized array in struct/union
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4214") # bit field types other than int
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4706") # assignment within conditional expression
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4245") # 'conversion' : conversion from 'type1' to 'type2', signed/unsigned mismatch
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4389") # 'operator' : signed/unsigned mismatch
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4702") # unreachable code
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4701") # Potentially uninitialized local variable 'name' used
+
+	# ToDo
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4244") # 'conversion' conversion from 'type1' to 'type2', possible loss of data
+
+	if (sctp_werror)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX")
+
+		if (CMAKE_C_COMPILER_ID MATCHES "Clang")
+			# temporary disable exta clang warnings preventing compilation
+			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /clang:-Wno-unused-function")
+			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /clang:-Wno-missing-field-initializers")
+			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /clang:-Wno-sign-compare")
+			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /clang:-Wno-format")
+		endif()
+	endif ()
 # SETTINGS FOR UNIX COMPILER
-if (CMAKE_C_COMPILER_ID MATCHES "Clang" OR CMAKE_C_COMPILER_ID MATCHES "AppleClang" OR CMAKE_C_COMPILER_ID MATCHES "GNU")
+elseif (CMAKE_C_COMPILER_ID MATCHES "Clang" OR CMAKE_C_COMPILER_ID MATCHES "AppleClang" OR CMAKE_C_COMPILER_ID MATCHES "GNU")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -pedantic -Wall -Wextra")
 
 	check_c_compiler_flag(-Wfloat-equal has_wfloat_equal)
@@ -212,37 +251,16 @@ if (CMAKE_C_COMPILER_ID MATCHES "Clang" OR CMAKE_C_COMPILER_ID MATCHES "AppleCla
 	endif ()
 
 	if (sctp_sanitizer_address)
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fno-omit-frame-pointer -g")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address,undefined,signed-integer-overflow -fno-omit-frame-pointer -fno-sanitize-recover=all -fsanitize-address-use-after-scope ")
 	endif ()
 
 	if (sctp_sanitizer_memory)
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=memory -fno-omit-frame-pointer -g -fsanitize-memory-track-origins")
-	endif ()
-endif ()
-
-# SETTINGS FOR VISUAL STUDIO COMPILER
-if (CMAKE_C_COMPILER_ID MATCHES "MSVC")
-	if (CMAKE_C_FLAGS MATCHES "/W[0-4]")
-		string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-	else ()
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=memory -fno-omit-frame-pointer -fsanitize-memory-track-origins -fPIE")
 	endif ()
 
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4100") # 'identifier' : unreferenced formal parameter
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4127") # conditional expression is constant
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4200") # nonstandard extension used : zero-sized array in struct/union
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4214") # bit field types other than int
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4706") # assignment within conditional expression
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4245") # 'conversion' : conversion from 'type1' to 'type2', signed/unsigned mismatch
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4389") # 'operator' : signed/unsigned mismatch
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4702") # unreachable code
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4701") # Potentially uninitialized local variable 'name' used
-
-	# ToDo
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4244") # 'conversion' conversion from 'type1' to 'type2', possible loss of data
-
-	if (sctp_werror)
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX")
+	if (sctp_build_fuzzer)
+		add_definitions(-DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=fuzzer-no-link")
 	endif ()
 endif ()
 
@@ -257,4 +275,8 @@ add_subdirectory(usrsctplib)
 
 if (sctp_build_programs)
 	add_subdirectory(programs)
+endif ()
+
+if (sctp_build_fuzzer)
+	add_subdirectory(fuzzer)
 endif ()

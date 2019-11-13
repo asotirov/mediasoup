@@ -34,7 +34,7 @@
 
 #ifdef __FreeBSD__
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: head/sys/netinet/sctp_output.c 350625 2019-08-06 08:33:21Z tuexen $");
+__FBSDID("$FreeBSD: head/sys/netinet/sctp_output.c 353518 2019-10-14 20:32:11Z tuexen $");
 #endif
 
 #include <netinet/sctp_os.h>
@@ -56,6 +56,9 @@ __FBSDID("$FreeBSD: head/sys/netinet/sctp_output.c 350625 2019-08-06 08:33:21Z t
 #include <netinet/sctp_bsd_addr.h>
 #include <netinet/sctp_input.h>
 #include <netinet/sctp_crc32.h>
+#if defined(__FreeBSD__)
+#include <netinet/sctp_kdtrace.h>
+#endif
 #if defined(__Userspace_os_Linux)
 #define __FAVOR_BSD    /* (on Ubuntu at least) enables UDP header field names like BSD in RFC 768 */
 #endif
@@ -72,7 +75,6 @@ __FBSDID("$FreeBSD: head/sys/netinet/sctp_output.c 350625 2019-08-06 08:33:21Z t
 #include <netinet/udp_var.h>
 #endif
 #include <machine/in_cksum.h>
-#include <netinet/in_kdtrace.h>
 #endif
 #if defined(__Userspace__) && defined(INET6)
 #include <netinet6/sctp6_var.h>
@@ -5358,7 +5360,10 @@ sctp_send_initiate(struct sctp_inpcb *inp, struct sctp_tcb *stcb, int so_locked
 
 struct mbuf *
 sctp_arethere_unrecognized_parameters(struct mbuf *in_initpkt,
-	int param_offset, int *abort_processing, struct sctp_chunkhdr *cp, int *nat_friendly)
+                                      int param_offset, int *abort_processing,
+                                      struct sctp_chunkhdr *cp,
+                                      int *nat_friendly,
+                                      int *cookie_found)
 {
 	/*
 	 * Given a mbuf containing an INIT or INIT-ACK with the param_offset
@@ -5381,6 +5386,9 @@ sctp_arethere_unrecognized_parameters(struct mbuf *in_initpkt,
 	uint16_t ptype, plen, padded_size;
 
 	*abort_processing = 0;
+	if (cookie_found != NULL) {
+		*cookie_found = 0;
+	}
 	mat = in_initpkt;
 	limit = ntohs(cp->chunk_length) - sizeof(struct sctp_init_chunk);
 	at = param_offset;
@@ -5409,10 +5417,15 @@ sctp_arethere_unrecognized_parameters(struct mbuf *in_initpkt,
 		switch (ptype) {
 			/* Param's with variable size */
 		case SCTP_HEARTBEAT_INFO:
-		case SCTP_STATE_COOKIE:
 		case SCTP_UNRECOG_PARAM:
 		case SCTP_ERROR_CAUSE_IND:
 			/* ok skip fwd */
+			at += padded_size;
+			break;
+		case SCTP_STATE_COOKIE:
+			if (cookie_found != NULL) {
+				*cookie_found = 1;
+			}
 			at += padded_size;
 			break;
 			/* Param's with variable size within a range */
@@ -5990,8 +6003,10 @@ sctp_send_initiate_ack(struct sctp_inpcb *inp, struct sctp_tcb *stcb,
 	}
 	abort_flag = 0;
 	op_err = sctp_arethere_unrecognized_parameters(init_pkt,
-						       (offset + sizeof(struct sctp_init_chunk)),
-						       &abort_flag, (struct sctp_chunkhdr *)init_chk, &nat_friendly);
+	                                               (offset + sizeof(struct sctp_init_chunk)),
+	                                               &abort_flag,
+	                                               (struct sctp_chunkhdr *)init_chk,
+	                                               &nat_friendly, NULL);
 	if (abort_flag) {
 	do_a_abort:
 		if (op_err == NULL) {
@@ -8364,8 +8379,8 @@ sctp_med_chunk_output(struct sctp_inpcb *inp,
 	int bundle_at, ctl_cnt, no_data_chunks, eeor_mode;
 	unsigned int mtu, r_mtu, omtu, mx_mtu, to_out;
 	int tsns_sent = 0;
-	uint32_t auth_offset = 0;
-	struct sctp_auth_chunk *auth = NULL;
+	uint32_t auth_offset;
+	struct sctp_auth_chunk *auth;
 	uint16_t auth_keyid;
 	int override_ok = 1;
 	int skip_fill_up = 0;
@@ -8563,6 +8578,8 @@ again_one_more_time:
 		}
 		bundle_at = 0;
 		endoutchain = outchain = NULL;
+		auth = NULL;
+		auth_offset = 0;
 		no_fragmentflg = 1;
 		one_chunk = 0;
 		if (net->dest_state & SCTP_ADDR_UNCONFIRMED) {
@@ -9511,7 +9528,7 @@ sctp_queue_op_err(struct sctp_tcb *stcb, struct mbuf *op_err)
 
 int
 sctp_send_cookie_echo(struct mbuf *m,
-    int offset,
+    int offset, int limit,
     struct sctp_tcb *stcb,
     struct sctp_nets *net)
 {
@@ -9537,17 +9554,28 @@ sctp_send_cookie_echo(struct mbuf *m,
 		}
 		ptype = ntohs(phdr->param_type);
 		plen = ntohs(phdr->param_length);
+		if (plen < sizeof(struct sctp_paramhdr)) {
+			return (-6);
+		}
 		if (ptype == SCTP_STATE_COOKIE) {
 			int pad;
 
 			/* found the cookie */
-			if ((pad = (plen % 4))) {
-				plen += 4 - pad;
+			if (at + plen > limit) {
+				return (-7);
 			}
 			cookie = SCTP_M_COPYM(m, at, plen, M_NOWAIT);
 			if (cookie == NULL) {
 				/* No memory */
 				return (-2);
+			}
+			if ((pad = (plen % 4)) > 0) {
+				pad = 4 - pad;
+			}
+			if (pad > 0) {
+				if (sctp_pad_lastmbuf(cookie, pad, NULL) == NULL) {
+					return (-8);
+				}
 			}
 #ifdef SCTP_MBUF_LOGGING
 			if (SCTP_BASE_SYSCTL(sctp_logging_level) & SCTP_MBUF_LOGGING_ENABLE) {
@@ -9574,7 +9602,7 @@ sctp_send_cookie_echo(struct mbuf *m,
 	chk->rec.chunk_id.id = SCTP_COOKIE_ECHO;
 	chk->rec.chunk_id.can_take_data = 0;
 	chk->flags = CHUNK_FLAGS_FRAGMENT_OK;
-	chk->send_size = plen;
+	chk->send_size = SCTP_SIZE32(plen);
 	chk->sent = SCTP_DATAGRAM_UNSENT;
 	chk->snd_count = 0;
 	chk->asoc = &stcb->asoc;
