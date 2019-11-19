@@ -10,14 +10,14 @@ const task = process.argv.slice(2).join(' ');
 const GULP = process.env.GULP || 'gulp';
 // Just for Windows.
 let PYTHON;
-let MSBUILD;
+let DEVENV;
 let MEDIASOUP_BUILDTYPE;
 let MEDIASOUP_TEST_TAGS;
 
 if (isWindows)
 {
 	PYTHON = process.env.PYTHON || 'python';
-	MSBUILD = process.env.MSBUILD || 'MSBuild';
+	DEVENV = process.env.DEVENV || 'devenv';
 	MEDIASOUP_BUILDTYPE = process.env.MEDIASOUP_BUILDTYPE || 'Release';
 	MEDIASOUP_TEST_TAGS = process.env.MEDIASOUP_TEST_TAGS || '';
 }
@@ -96,7 +96,7 @@ switch (task)
 		else if (!process.env.MEDIASOUP_WORKER_BIN)
 		{
 			execute(`${PYTHON} ./worker/scripts/configure.py --format=msvs -R mediasoup-worker-test`);
-			execute(`${MSBUILD} ./worker/mediasoup-worker.sln /p:Configuration=${MEDIASOUP_BUILDTYPE}`);
+			execute(`${DEVENV} ./worker/mediasoup-worker.sln /build ${MEDIASOUP_BUILDTYPE}`);
 			execute(`cd worker && .\\out\\${MEDIASOUP_BUILDTYPE}\\mediasoup-worker-test.exe --invisibles --use-colour=yes ${MEDIASOUP_TEST_TAGS}`);
 		}
 
@@ -121,7 +121,7 @@ switch (task)
 		else if (!process.env.MEDIASOUP_WORKER_BIN)
 		{
 			execute(`${PYTHON} ./worker/scripts/configure.py --format=msvs -R mediasoup-worker`);
-			execute(`${MSBUILD} ./worker/mediasoup-worker.sln /p:Configuration=${MEDIASOUP_BUILDTYPE}`);
+			execute(`${DEVENV} ./worker/mediasoup-worker.sln /build ${MEDIASOUP_BUILDTYPE}`);
 		}
 
 		break;
